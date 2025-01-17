@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import recipe.recipeshare.domain.Member;
 import recipe.recipeshare.dto.MemberLoginDto;
@@ -27,6 +28,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -35,7 +37,7 @@ public class MemberServiceImpl implements MemberService {
 
         MemberValidator.validatePassword(memberSignUpDto.getPassword(), memberSignUpDto.getCheckPassword());
 
-        Member member = Member.create(memberSignUpDto, memberSignUpDto.getPassword());
+        Member member = Member.create(memberSignUpDto, passwordEncoder.encode(memberSignUpDto.getPassword()));
         memberRepository.save(member);
 
         log.info("회원가입 성공: 이메일={}", memberSignUpDto.getEmail());
