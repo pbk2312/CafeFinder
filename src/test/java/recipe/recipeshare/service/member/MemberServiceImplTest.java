@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import recipe.recipeshare.domain.Member;
 import recipe.recipeshare.dto.MemberSignUpDto;
-import recipe.recipeshare.exception.InvalidPasswordException;
+import recipe.recipeshare.exception.PasswordMismatchException;
 import recipe.recipeshare.repository.MemberRepository;
 
 class MemberServiceImplTest {
@@ -71,9 +71,10 @@ class MemberServiceImplTest {
         when(memberRepository.findByEmail(memberSignUpDto.getEmail())).thenReturn(java.util.Optional.of(mockMember));
 
         // when, then
-        Assertions.assertThrows(InvalidPasswordException.class, () -> {
+        Assertions.assertThrows(PasswordMismatchException.class, () -> {
             memberService.save(memberSignUpDto);
         });
     }
+
 
 }
