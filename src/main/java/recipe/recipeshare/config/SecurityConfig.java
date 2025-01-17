@@ -43,7 +43,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .anyRequest().authenticated()
+                        .requestMatchers("/member/signupAndLogin",
+                                "/api/member/login",
+                                "/api/member/signUp"
+                        ).permitAll()
+                        .anyRequest().
+                        authenticated()
                 )
 
                 .with(new JwtSecurityConfig(tokenProvider), jwtSecurityConfig -> {
