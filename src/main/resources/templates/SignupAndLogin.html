@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up and Login</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400|Lora');
+
+        body {
+            background: #CBC0D3;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .container {
+            margin: auto;
+            width: 650px;
+            height: 550px;
+            position: relative;
+        }
+
+        .welcome {
+            background: #f6f6f6;
+            width: 650px;
+            height: 415px;
+            position: absolute;
+            top: 25%;
+            border-radius: 5px;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, .1);
+        }
+
+        .pinkbox {
+            position: absolute;
+            top: -10%;
+            left: 5%;
+            background: #EAC7CC;
+            width: 320px;
+            height: 500px;
+            border-radius: 5px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, .1);
+            transition: all .5s ease-in-out;
+            z-index: 2;
+        }
+
+        .nodisplay {
+            display: none;
+        }
+
+        .leftbox, .rightbox {
+            position: absolute;
+            width: 50%;
+            transition: 1s all ease;
+        }
+
+        .leftbox {
+            left: -2%;
+        }
+
+        .rightbox {
+            right: -2%;
+        }
+
+        h1 {
+            font-family: 'Open Sans', sans-serif;
+            text-align: center;
+            margin-top: 95px;
+            text-transform: uppercase;
+            color: #f6f6f6;
+            font-size: 2em;
+            letter-spacing: 8px;
+        }
+
+        .title {
+            font-family: 'Lora', serif;
+            color: #8E9AAF;
+            font-size: 1.8em;
+            line-height: 1.1em;
+            letter-spacing: 3px;
+            text-align: center;
+            font-weight: 300;
+            margin-top: 20%;
+        }
+
+        .desc {
+            margin-top: -8px;
+        }
+
+        .account {
+            margin-top: 45%;
+            font-size: 10px;
+        }
+
+        p {
+            font-family: 'Open Sans', sans-serif;
+            font-size: .7em;
+            letter-spacing: 2px;
+            color: #8E9AAF;
+            text-align: center;
+        }
+
+        span {
+            color: #EAC7CC;
+        }
+
+        .flower {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            top: 46%;
+            left: 29%;
+            opacity: .7;
+        }
+
+        .smaller {
+            width: 90px;
+            height: 100px;
+            top: 48%;
+            left: 38%;
+            opacity: .9;
+        }
+
+        button {
+            padding: 12px;
+            font-family: 'Open Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 11px;
+            border-radius: 10px;
+            margin: auto;
+            outline: none;
+            display: block;
+            cursor: pointer;
+            transition: background-color 1s ease-out;
+        }
+
+        .button {
+            margin-top: 3%;
+            background: #f6f6f6;
+            color: #C19999;
+            border: solid 1px #EAC7CC;
+        }
+
+        button:hover {
+            background: #EAC7CC;
+            color: #f6f6f6;
+        }
+
+        form {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            padding-top: 7px;
+        }
+
+        input {
+            background: #EAC7CC;
+            width: 65%;
+            color: #C19999;
+            border: none;
+            border-bottom: 1px solid rgba(246, 246, 246, 0.5);
+            padding: 9px;
+            margin: 7px;
+        }
+
+        input::placeholder {
+            color: rgba(246, 246, 246, 1);
+            letter-spacing: 2px;
+            font-size: 1.3em;
+            font-weight: 100;
+        }
+
+        input:focus {
+            outline: none;
+            border-bottom: 1.2px solid rgba(193, 153, 153, 0.7);
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#signup').click(function () {
+                $('.pinkbox').css('transform', 'translateX(80%)');
+                $('.signin').addClass('nodisplay');
+                $('.signup').removeClass('nodisplay');
+            });
+
+            $('#signin').click(function () {
+                $('.pinkbox').css('transform', 'translateX(0%)');
+                $('.signup').addClass('nodisplay');
+                $('.signin').removeClass('nodisplay');
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="welcome">
+        <div class="pinkbox">
+            <!-- 회원가입 -->
+            <div class="signup nodisplay">
+                <h1>Register</h1>
+                <form id="signUpForm" autocomplete="off">
+                    <input type="text" id="nickName" placeholder="Nickname" required>
+                    <input type="email" id="emailSignUp" placeholder="Email" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <input type="password" id="checkPassword" placeholder="Confirm Password" required>
+                    <button type="submit" class="button submit">Create Account</button>
+                </form>
+            </div>
+            <!-- 로그인 -->
+            <div class="signin">
+                <h1>Sign In</h1>
+                <form id="loginForm" class="more-padding" autocomplete="off">
+                    <input type="email" id="emailLogin" placeholder="Email" required>
+                    <input type="password" id="passwordLogin" placeholder="Password" required>
+                    <button type="submit" class="button submit">Login</button>
+                </form>
+            </div>
+        </div>
+        <!-- 좌측 설명 -->
+        <div class="leftbox">
+            <h2 class="title"><span>레시피 공유</span>&<br>추천</h2>
+            <p class="desc">당신만의 완벽한 <span>레시피</span>를 찾아보세요</p>
+            <img class="flower smaller" src="https://image.ibb.co/d5X6pn/1357d638624297b.jpg" alt="레시피 이미지" border="0">
+            <p class="account">계정이 있으신가요?</p>
+            <button class="button" id="showSignIn">로그인</button>
+        </div>
+        <!-- 우측 설명 -->
+        <div class="rightbox">
+            <h2 class="title"><span>레시피 공유</span>&<br>추천</h2>
+            <p class="desc">나만의 특별한 <span>레시피</span>를 공유해보세요</p>
+            <img class="flower" src="https://preview.ibb.co/jvu2Un/0057c1c1bab51a0.jpg" alt="레시피 이미지">
+            <p class="account">아직 계정이 없으신가요?</p>
+            <button class="button" id="showSignUp">회원가입</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("showSignIn").addEventListener("click", function () {
+        document.querySelector(".signup").classList.add("nodisplay");
+        document.querySelector(".signin").classList.remove("nodisplay");
+    });
+
+    document.getElementById("showSignUp").addEventListener("click", function () {
+        document.querySelector(".signin").classList.add("nodisplay");
+        document.querySelector(".signup").classList.remove("nodisplay");
+    });
+
+
+    // 회원가입 API 연결
+    document.getElementById("signUpForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const nickName = document.getElementById("nickName").value;
+        const email = document.getElementById("emailSignUp").value;
+        const password = document.getElementById("password").value;
+        const checkPassword = document.getElementById("checkPassword").value;
+
+        if (password !== checkPassword) {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        const response = await fetch("/api/member/signUp", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({nickName, email, password, checkPassword}),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert("회원가입 성공!");
+            document.getElementById("showSignIn").click();
+        } else {
+            // 서버에서 전달한 에러 메시지를 표시
+            alert(data.data || "회원가입에 실패했습니다.");
+        }
+    });
+
+    // 로그인 API 연결
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("emailLogin").value;
+        const password = document.getElementById("passwordLogin").value;
+
+        const response = await fetch("/api/member/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({email, password}),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert("로그인 성공!");
+            window.location.href = data.data || "/";
+        } else {
+            // 서버에서 전달한 에러 메시지를 표시
+            alert(data.data || "로그인에 실패했습니다.");
+        }
+    });
+</script>
+</body>
+</html>
