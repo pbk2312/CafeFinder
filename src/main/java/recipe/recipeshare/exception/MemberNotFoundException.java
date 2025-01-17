@@ -1,11 +1,12 @@
 package recipe.recipeshare.exception;
 
+import static recipe.recipeshare.util.ErrorMessage.MEMBER_NOT_FOUND;
+
 public class MemberNotFoundException extends RuntimeException {
 
-    private static final String MESSAGE = "회원이 존재하지 않습니다.";
 
     public MemberNotFoundException() {
-        super(MESSAGE);
+        super(MEMBER_NOT_FOUND.getMessage());
     }
-    
+
 }
