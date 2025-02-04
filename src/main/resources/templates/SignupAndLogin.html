@@ -173,6 +173,26 @@
             outline: none;
             border-bottom: 1.2px solid rgba(193, 153, 153, 0.7);
         }
+
+        .email-verify, .verify-section {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .email-verify input, .verify-section input {
+            width: 60% !important;
+        }
+
+        .signup-fields {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -199,11 +219,25 @@
             <div class="signup nodisplay">
                 <h1>Register</h1>
                 <form id="signUpForm" autocomplete="off">
-                    <input type="text" id="nickName" placeholder="Nickname" required>
-                    <input type="email" id="emailSignUp" placeholder="Email" required>
-                    <input type="password" id="password" placeholder="Password" required>
-                    <input type="password" id="checkPassword" placeholder="Confirm Password" required>
-                    <button type="submit" class="button submit">Create Account</button>
+                    <!-- 이메일 인증 섹션 -->
+                    <div class="email-verify">
+                        <input type="email" id="emailSignUp" placeholder="Email" required>
+                        <button type="button" id="sendCodeBtn" class="button">인증번호 전송</button>
+                    </div>
+
+                    <!-- 인증번호 입력 섹션 (초기 숨김) -->
+                    <div class="verify-section nodisplay">
+                        <input type="text" id="verificationCode" placeholder="인증번호 입력" required>
+                        <button type="button" id="verifyCodeBtn" class="button">인증번호 확인</button>
+                    </div>
+
+                    <!-- 기존 입력 필드 (초기 숨김) -->
+                    <div class="signup-fields nodisplay">
+                        <input type="text" id="nickName" placeholder="Nickname" required>
+                        <input type="password" id="password" placeholder="Password" required>
+                        <input type="password" id="checkPassword" placeholder="Confirm Password" required>
+                        <button type="submit" class="button submit">Create Account</button>
+                    </div>
                 </form>
             </div>
             <!-- 로그인 -->
@@ -236,6 +270,76 @@
 </div>
 
 <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const emailInput = document.getElementById("emailSignUp");
+        const sendCodeBtn = document.getElementById("sendCodeBtn");
+
+        sendCodeBtn.addEventListener("click", function () {
+            const email = emailInput.value.trim();
+
+            if (!validateEmail(email)) {
+                alert("올바른 이메일 형식을 입력해주세요.");
+                return;
+            }
+
+            fetch("/api/email/sendCode", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({email})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("인증번호가 전송되었습니다.");
+                    } else {
+                        alert("인증번호 전송에 실패했습니다: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("서버 오류가 발생했습니다.");
+                });
+        });
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+    });
+
+    document.getElementById('verifyCodeBtn').addEventListener('click', function () {
+        const email = document.getElementById('emailSignUp').value.trim();
+        const code = document.getElementById('verificationCode').value.trim();
+
+        if (!email || !code) {
+            alert("이메일과 인증번호를 입력해주세요.");
+            return;
+        }
+
+        fetch('/api/email/verifyCode', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email, code: code})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("✅ 인증이 완료되었습니다!");
+                    document.querySelector('.signup-fields').classList.remove('nodisplay');
+                    document.getElementById('verifyCodeBtn').disabled = true;
+                } else {
+                    alert("❌ 인증번호가 일치하지 않습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("⚠️ 서버 오류가 발생했습니다.");
+            });
+    });
+
     document.getElementById("showSignIn").addEventListener("click", function () {
         document.querySelector(".signup").classList.add("nodisplay");
         document.querySelector(".signin").classList.remove("nodisplay");
