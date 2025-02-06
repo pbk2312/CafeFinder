@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,8 +27,8 @@ import recipe.recipeshare.dto.MemberSignUpDto;
 public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID) // UUID 자동 생성
+    private UUID id;
 
     @Column(nullable = false, unique = true)
     private String nickName;
@@ -42,7 +43,8 @@ public class Member {
     private MemberRole memberRole;
 
     // 레시피 작성물 양방향 관계(1:N)
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Recipe> recipes = new ArrayList<>();
 
 
@@ -52,6 +54,7 @@ public class Member {
                 .memberRole(MemberRole.REGULAR)
                 .nickName(signUpDto.getNickName())
                 .password(encodedPassword)
+                .recipes(new ArrayList<>())
                 .build();
 
     }

@@ -1,16 +1,21 @@
 package recipe.recipeshare.service.member;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.Assertions;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import recipe.recipeshare.domain.Member;
+import recipe.recipeshare.domain.MemberRole;
 import recipe.recipeshare.dto.MemberSignUpDto;
 import recipe.recipeshare.exception.PasswordMismatchException;
 import recipe.recipeshare.repository.MemberRepository;
@@ -20,6 +25,14 @@ class MemberServiceImplTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Mock
+    private ValueOperations<String, String> valueOperations;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;  // 추가됨
 
     @InjectMocks
     private MemberServiceImpl memberService;
@@ -27,6 +40,9 @@ class MemberServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get(any(String.class))).thenReturn("true");  // 이메일 인증 성공 가정
+        when(passwordEncoder.encode(any(String.class))).thenReturn("encodedPassword123"); // 패스워드 암호화 Mock 설정
     }
 
     @Test
@@ -40,10 +56,12 @@ class MemberServiceImplTest {
         memberSignUpDto.setPassword("password123!");
         memberSignUpDto.setCheckPassword("password123!");
 
-        // mock
-        Member mockMember = new Member(null, "하이루", "하이루@example.com", "password123!", null);
-        when(memberRepository.save(mockMember)).thenReturn(mockMember);
-        when(memberRepository.findByEmail(memberSignUpDto.getEmail())).thenReturn(java.util.Optional.of(mockMember));
+        Member mockMember = new Member(null, "하이루", "하이루@example.com", "encodedPassword123", MemberRole.REGULAR,
+                null);
+
+        // mock 설정
+        when(memberRepository.save(any(Member.class))).thenReturn(mockMember);
+        when(memberRepository.findByEmail(memberSignUpDto.getEmail())).thenReturn(Optional.of(mockMember));
 
         // when
         memberService.save(memberSignUpDto);
@@ -51,9 +69,7 @@ class MemberServiceImplTest {
         // then
         Member member = memberRepository.findByEmail(memberSignUpDto.getEmail()).orElseThrow();
         assertThat(member.getEmail()).isEqualTo(memberSignUpDto.getEmail());
-
     }
-
 
     @Test
     @DisplayName("회원가입 실패 테스트 - 비밀번호 불일치")
@@ -65,16 +81,9 @@ class MemberServiceImplTest {
         memberSignUpDto.setPassword("kkkkkkkkk!");
         memberSignUpDto.setCheckPassword("password123!");
 
-        // mock
-        Member mockMember = new Member(null, "하이루", "하이루@example.com", "password123!", null);
-        when(memberRepository.save(mockMember)).thenReturn(mockMember);
-        when(memberRepository.findByEmail(memberSignUpDto.getEmail())).thenReturn(java.util.Optional.of(mockMember));
-
         // when, then
-        Assertions.assertThrows(PasswordMismatchException.class, () -> {
+        org.junit.jupiter.api.Assertions.assertThrows(PasswordMismatchException.class, () -> {
             memberService.save(memberSignUpDto);
         });
     }
-
-
 }
