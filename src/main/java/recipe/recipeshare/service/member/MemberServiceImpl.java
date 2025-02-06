@@ -89,6 +89,17 @@ public class MemberServiceImpl implements MemberService {
         return generateTokenDto(authentication);
     }
 
+    @Override
+    @Transactional
+    public void logout() {
+
+        // SecurityContextHolder에서 인증 정보 삭제
+        SecurityContextHolder.clearContext();
+
+        log.info("로그아웃 완료: 인증 정보 삭제");
+        
+    }
+
     private TokenDto generateTokenDto(Authentication authentication) {
         return tokenProvider.generateTokenDto(authentication);
     }

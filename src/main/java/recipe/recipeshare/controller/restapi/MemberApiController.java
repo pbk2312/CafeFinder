@@ -2,6 +2,7 @@ package recipe.recipeshare.controller.restapi;
 
 
 import static recipe.recipeshare.util.ViewMessage.LOGIN_SUCCESS;
+import static recipe.recipeshare.util.ViewMessage.LOGOUT_SUCCESS;
 import static recipe.recipeshare.util.ViewMessage.SIGN_UP_SUCCESS;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,19 @@ public class MemberApiController {
         String redirectUrl = getRedirectUrlFromSession(request);
         return ResponseEntity.ok(new ResponseDto<>(LOGIN_SUCCESS.getMessage(), redirectUrl, true));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseDto<String>> logout(HttpServletRequest request, HttpServletResponse response) {
+
+        // JWT 토큰 쿠키 제거
+        CookieUtils.removeCookie(response, "accessToken");
+        CookieUtils.removeCookie(response, "refreshToken");
+
+        memberService.logout();
+
+        return ResponseEntity.ok(new ResponseDto<>(LOGOUT_SUCCESS.getMessage(), null, true));
+    }
+
 
     private String getRedirectUrlFromSession(HttpServletRequest request) {
         String redirectUrl = (String) request.getSession().getAttribute("redirectUrl");

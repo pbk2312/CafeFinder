@@ -12,4 +12,6 @@ public interface MemberService {
     // 로그인
     TokenDto login(MemberLoginDto memberLoginDto);
 
+    // 로그아웃
+    void logout();
 }
