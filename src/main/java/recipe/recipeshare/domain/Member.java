@@ -1,7 +1,6 @@
 package recipe.recipeshare.domain;
 
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,9 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,19 +38,12 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberRole memberRole;
 
-    // 레시피 작성물 양방향 관계(1:N)
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Recipe> recipes = new ArrayList<>();
-
-
     public static Member create(MemberSignUpDto signUpDto, String encodedPassword) {
         return Member.builder()
                 .email(signUpDto.getEmail())
                 .memberRole(MemberRole.REGULAR)
                 .nickName(signUpDto.getNickName())
                 .password(encodedPassword)
-                .recipes(new ArrayList<>())
                 .build();
 
     }
