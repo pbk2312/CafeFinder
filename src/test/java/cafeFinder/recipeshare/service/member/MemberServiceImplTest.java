@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import CafeFinder.recipeshare.service.member.MemberServiceImpl;
+import CafeFinder.cafe.service.member.MemberServiceImpl;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,11 +15,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import CafeFinder.recipeshare.domain.Member;
-import CafeFinder.recipeshare.domain.MemberRole;
-import CafeFinder.recipeshare.dto.MemberSignUpDto;
-import CafeFinder.recipeshare.exception.PasswordMismatchException;
-import CafeFinder.recipeshare.repository.MemberRepository;
+import CafeFinder.cafe.domain.Member;
+import CafeFinder.cafe.domain.MemberRole;
+import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.exception.PasswordMismatchException;
+import CafeFinder.cafe.repository.MemberRepository;
 
 class MemberServiceImplTest {
 
