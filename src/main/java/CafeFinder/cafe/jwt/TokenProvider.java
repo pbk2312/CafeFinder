@@ -1,6 +1,8 @@
 package CafeFinder.cafe.jwt;
 
 
+import CafeFinder.cafe.exception.InvalidTokenException;
+import CafeFinder.cafe.exception.MemberNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -22,8 +24,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import CafeFinder.cafe.exception.InvalidTokenException;
-import CafeFinder.cafe.exception.MemberNotFoundException;
 
 @Log4j2
 @Component
@@ -61,11 +61,13 @@ public class TokenProvider {
         String accessToken = createAccessToken(authentication.getName(), authorities, now);
         String refreshToken = createRefreshToken(authentication.getName(), now);
 
+        int accessTokenMaxAge = (int) (accessTokenExpireTime / 1000); // 밀리초 -> 초 변환
+
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .accessTokenExpiresIn(now + accessTokenExpireTime)
+                .accessTokenExpiresIn(accessTokenMaxAge)
                 .build();
     }
 
