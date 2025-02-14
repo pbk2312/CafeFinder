@@ -1,5 +1,17 @@
 package CafeFinder.cafe.service.member;
 
+import CafeFinder.cafe.domain.Member;
+import CafeFinder.cafe.dto.MemberLoginDto;
+import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.exception.IncorrectPasswordException;
+import CafeFinder.cafe.exception.MemberNotFoundException;
+import CafeFinder.cafe.exception.YetVerifyEmailException;
+import CafeFinder.cafe.jwt.AccesTokenDto;
+import CafeFinder.cafe.jwt.TokenDto;
+import CafeFinder.cafe.jwt.TokenProvider;
+import CafeFinder.cafe.repository.MemberRepository;
+import CafeFinder.cafe.service.redis.RefreshTokenService;
+import CafeFinder.cafe.validator.MemberValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,16 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import CafeFinder.cafe.domain.Member;
-import CafeFinder.cafe.dto.MemberLoginDto;
-import CafeFinder.cafe.dto.MemberSignUpDto;
-import CafeFinder.cafe.exception.IncorrectPasswordException;
-import CafeFinder.cafe.exception.MemberNotFoundException;
-import CafeFinder.cafe.exception.YetVerifyEmailException;
-import CafeFinder.cafe.jwt.TokenDto;
-import CafeFinder.cafe.jwt.TokenProvider;
-import CafeFinder.cafe.repository.MemberRepository;
-import CafeFinder.cafe.validator.MemberValidator;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class MemberServiceImpl implements MemberService {
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
+    private final RefreshTokenService refreshTokenService;
 
 
     @Override
@@ -75,34 +78,56 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public TokenDto login(MemberLoginDto memberLoginDto) {
+    public AccesTokenDto login(MemberLoginDto memberLoginDto) {
         log.info("로그인 시작: 이메일={}", memberLoginDto.getEmail());
 
+        // 회원 조회
         Member member = findMemberByEmail(memberLoginDto.getEmail());
 
+        // 사용자 인증
         Authentication authentication = authenticateUser(memberLoginDto);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 토큰 발급
+        TokenDto tokenDto = getTokenDto(authentication);
+
+        // redis에 refreshToken 저장
+        refreshTokenService.saveRefreshToken(member.getId(), tokenDto.getRefreshToken(),
+                tokenDto.getRefreshTokenExpiresIn());
 
         log.info("로그인 성공: 이메일={}", memberLoginDto.getEmail());
 
-        return generateTokenDto(authentication);
+        // accessToken 반환
+        return generateAccessTokenDto(authentication);
     }
 
     @Override
     @Transactional
     public void logout() {
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Member member = findMemberByEmail(email);
+
         // SecurityContextHolder에서 인증 정보 삭제
         SecurityContextHolder.clearContext();
+        refreshTokenService.deleteRefreshToken(member.getId());
 
         log.info("로그아웃 완료: 인증 정보 삭제");
 
     }
 
-    private TokenDto generateTokenDto(Authentication authentication) {
+    private AccesTokenDto generateAccessTokenDto(Authentication authentication) {
+        TokenDto tokenDto = getTokenDto(authentication);
+        return AccesTokenDto.builder()
+                .grantType(tokenDto.getGrantType())
+                .accessToken(tokenDto.getAccessToken())
+                .accessTokenExpiresIn(tokenDto.getAccessTokenExpiresIn()).build();
+    }
+
+    private TokenDto getTokenDto(Authentication authentication) {
         return tokenProvider.generateTokenDto(authentication);
     }
+
 
     private Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
