@@ -1,6 +1,7 @@
 package CafeFinder.cafe.domain;
 
 
+import CafeFinder.cafe.dto.MemberSignUpDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,12 +9,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import CafeFinder.cafe.dto.MemberSignUpDto;
 
 @Entity
 @Builder
@@ -23,8 +22,8 @@ import CafeFinder.cafe.dto.MemberSignUpDto;
 public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID) // UUID 자동 생성
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String nickName;
