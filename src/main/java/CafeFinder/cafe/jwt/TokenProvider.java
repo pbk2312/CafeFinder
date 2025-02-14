@@ -40,10 +40,10 @@ public class TokenProvider {
 
     private final CustomUserDetailsService customUserDetailsService;
 
-    @Value("${jwt.access-token-expire-time}")
+    @Value("${jwt.access-token-expire-time}") // 60분
     private long accessTokenExpireTime;
 
-    @Value("${jwt.refresh-token-expire-time}")
+    @Value("${jwt.refresh-token-expire-time}") // 7일
     private long refreshTokenExpireTime;
 
     private final Key key;
@@ -62,12 +62,14 @@ public class TokenProvider {
         String refreshToken = createRefreshToken(authentication.getName(), now);
 
         int accessTokenMaxAge = (int) (accessTokenExpireTime / 1000); // 밀리초 -> 초 변환
+        int refreshTokenExpiresIn = (int) (refreshTokenExpireTime / 1000); // 밀리초 -> 초 변환
 
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .accessTokenExpiresIn(accessTokenMaxAge)
+                .refreshTokenExpiresIn(refreshTokenExpiresIn)
                 .build();
     }
 
