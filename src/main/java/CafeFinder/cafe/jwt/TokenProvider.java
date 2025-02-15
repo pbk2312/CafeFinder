@@ -98,25 +98,6 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, accessToken, authorities);
     }
 
-    public Authentication getAuthenticationFromRefreshToken(String refreshToken) {
-
-        // 리프레시 토큰 검증
-        validate(refreshToken);
-
-        Claims claims = parseClaims(refreshToken);
-        UserDetails userDetails = getUserDetailsFromClaims(claims);
-
-        // 새 액세스 토큰 생성
-        String newAccessToken = createAccessToken(
-                claims.getSubject(),
-                userDetails.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.joining(",")),
-                System.currentTimeMillis()
-        );
-
-        return new UsernamePasswordAuthenticationToken(userDetails, newAccessToken, userDetails.getAuthorities());
-    }
 
     private UserDetails getUserDetailsFromClaims(Claims claims) {
         if (claims == null || claims.getSubject() == null) {
