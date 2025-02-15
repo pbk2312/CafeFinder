@@ -23,6 +23,22 @@ public class RefreshTokenService {
     }
 
     /*
+     * Refresh Token Redis 조회
+     */
+    public String getRefreshToken(Long memberId) {
+        String key = "refresh_token_" + memberId;
+        String refreshToken = redisTemplate.opsForValue().get(key);
+
+        if (refreshToken != null) {
+            log.info("Refresh Token 조회 성공: key={}", key);
+        } else {
+            log.warn("Refresh Token 조회 실패: 존재하지 않음 key={}", key);
+        }
+
+        return refreshToken;
+    }
+
+    /*
      * Refresh Token Redis 삭제
      */
     public void deleteRefreshToken(Long memberId) {
@@ -35,5 +51,5 @@ public class RefreshTokenService {
             log.warn("Refresh Token 삭제 실패 또는 존재하지 않음: key={}", key);
         }
     }
-    
+
 }
