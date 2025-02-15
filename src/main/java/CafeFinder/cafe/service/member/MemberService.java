@@ -2,6 +2,7 @@ package CafeFinder.cafe.service.member;
 
 import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.dto.TokenResultDto;
 import CafeFinder.cafe.jwt.AccesTokenDto;
 
 public interface MemberService {
@@ -14,4 +15,7 @@ public interface MemberService {
 
     // 로그아웃
     void logout();
+
+    TokenResultDto validateToken(String accessToken);
+
 }

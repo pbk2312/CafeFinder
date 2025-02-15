@@ -3,6 +3,7 @@ package CafeFinder.cafe.service.member;
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.dto.TokenResultDto;
 import CafeFinder.cafe.exception.IncorrectPasswordException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
 import CafeFinder.cafe.exception.YetVerifyEmailException;
@@ -21,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -114,6 +116,76 @@ public class MemberServiceImpl implements MemberService {
 
         log.info("로그아웃 완료: 인증 정보 삭제");
 
+    }
+
+    @Override
+    public TokenResultDto validateToken(String accessToken) {
+
+        // 1. 액세스 토큰 검증
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        boolean isAccessTokenValid = tokenProvider.validate(accessToken);
+
+        if (isAccessTokenValid) {
+            return TokenResultDto.builder()
+                    .isAccessTokenValid(true)
+                    .isRefreshTokenValid(false)
+                    .message("유효한 AccessToken")
+                    .newAccessToken(null)
+                    .build();
+        }
+
+        // 2. 액세스 토큰이 만료되었으므로, Redis에서 리프레시 토큰 확인
+        Member member;
+        try {
+            member = findMemberByAuthentication(authentication);
+        } catch (MemberNotFoundException e) {
+            log.warn("인증되지 않은 사용자: authentication={}", authentication);
+            return TokenResultDto.builder()
+                    .isAccessTokenValid(false)
+                    .isRefreshTokenValid(false)
+                    .newAccessToken(null)
+                    .message("인증되지 않은 사용자")
+                    .build();
+        }
+
+        String refreshToken = refreshTokenService.getRefreshToken(member.getId());
+        if (refreshToken == null) {
+            log.warn("유효한 리프레시 토큰 없음: memberId={}", member.getId());
+            return TokenResultDto.builder()
+                    .isAccessTokenValid(false)
+                    .isRefreshTokenValid(false)
+                    .newAccessToken(null)
+                    .message("인증되지 않은 사용자")
+                    .build();
+        }
+
+        // 3. 리프레시 토큰 유효성 검증
+        boolean isRefreshTokenValid = tokenProvider.validate(refreshToken);
+        if (!isRefreshTokenValid) {
+            log.warn("리프레시 토큰 유효하지 않음: memberId={}", member.getId());
+            return TokenResultDto.builder()
+                    .isAccessTokenValid(false)
+                    .isRefreshTokenValid(false)
+                    .newAccessToken(null)
+                    .message("인증되지 않은 사용자")
+                    .build();
+        }
+
+        // 4. 리프레시 토큰이 유효하므로 새로운 액세스 토큰 발급
+        log.info("액세스 토큰 만료됨, 하지만 리프레시 토큰이 유효함: 새로운 액세스 토큰 필요");
+        AccesTokenDto newAccessToken = generateAccessTokenDto(authentication);
+
+        return TokenResultDto.builder()
+                .isAccessTokenValid(false)
+                .isRefreshTokenValid(true)
+                .message("액세스 토큰 만료됨, 새로운 액세스 토큰 발급 완료")
+                .newAccessToken(newAccessToken)
+                .build();
+    }
+
+    private Member findMemberByAuthentication(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return findMemberByEmail(userDetails.getUsername());
     }
 
     private AccesTokenDto generateAccessTokenDto(Authentication authentication) {
