@@ -1,5 +1,8 @@
 package CafeFinder.cafe.config;
 
+import CafeFinder.cafe.jwt.JwtAccessDeniedHandler;
+import CafeFinder.cafe.jwt.JwtAuthenticationEntryPoint;
+import CafeFinder.cafe.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -12,9 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import CafeFinder.cafe.jwt.JwtAccessDeniedHandler;
-import CafeFinder.cafe.jwt.JwtAuthenticationEntryPoint;
-import CafeFinder.cafe.jwt.TokenProvider;
 
 @Configuration
 @RequiredArgsConstructor
@@ -49,7 +49,7 @@ public class SecurityConfig {
                                 "/api/email/verifyCode",
                                 "/"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
 
                 .with(new JwtSecurityConfig(tokenProvider), jwtSecurityConfig -> {
