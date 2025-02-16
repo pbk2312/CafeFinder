@@ -1,410 +1,280 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up and Login</title>
+    <title>Cafe Login & Signup</title>
     <style>
-        @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400|Lora');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
         body {
-            background: #CBC0D3;
-            font-family: 'Open Sans', sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background: url('https://source.unsplash.com/1600x900/?cafe,coffee') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
         .container {
-            margin: auto;
-            width: 650px;
-            height: 550px;
-            position: relative;
-        }
-
-        .welcome {
-            background: #f6f6f6;
-            width: 650px;
-            height: 415px;
-            position: absolute;
-            top: 25%;
-            border-radius: 5px;
-            box-shadow: 5px 5px 5px rgba(0, 0, 0, .1);
-        }
-
-        .pinkbox {
-            position: absolute;
-            top: -10%;
-            left: 5%;
-            background: #EAC7CC;
-            width: 320px;
-            height: 500px;
-            border-radius: 5px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, .1);
-            transition: all .5s ease-in-out;
-            z-index: 2;
-        }
-
-        .nodisplay {
-            display: none;
-        }
-
-        .leftbox, .rightbox {
-            position: absolute;
-            width: 50%;
-            transition: 1s all ease;
-        }
-
-        .leftbox {
-            left: -2%;
-        }
-
-        .rightbox {
-            right: -2%;
-        }
-
-        h1 {
-            font-family: 'Open Sans', sans-serif;
-            text-align: center;
-            margin-top: 95px;
-            text-transform: uppercase;
-            color: #f6f6f6;
-            font-size: 2em;
-            letter-spacing: 8px;
-        }
-
-        .title {
-            font-family: 'Lora', serif;
-            color: #8E9AAF;
-            font-size: 1.8em;
-            line-height: 1.1em;
-            letter-spacing: 3px;
-            text-align: center;
-            font-weight: 300;
-            margin-top: 20%;
-        }
-
-        .desc {
-            margin-top: -8px;
-        }
-
-        .account {
-            margin-top: 45%;
-            font-size: 10px;
-        }
-
-        p {
-            font-family: 'Open Sans', sans-serif;
-            font-size: .7em;
-            letter-spacing: 2px;
-            color: #8E9AAF;
+            width: 400px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
 
-        span {
-            color: #EAC7CC;
+        h2 {
+            color: #4A4A4A;
+            margin-bottom: 25px;
         }
 
-        .flower {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            top: 46%;
-            left: 29%;
-            opacity: .7;
-        }
-
-        .smaller {
-            width: 90px;
-            height: 100px;
-            top: 48%;
-            left: 38%;
-            opacity: .9;
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: #f5f5f5;
+            font-size: 14px;
         }
 
         button {
             padding: 12px;
-            font-family: 'Open Sans', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-size: 11px;
-            border-radius: 10px;
-            margin: auto;
-            outline: none;
-            display: block;
-            cursor: pointer;
-            transition: background-color 1s ease-out;
-        }
-
-        .button {
-            margin-top: 3%;
-            background: #f6f6f6;
-            color: #C19999;
-            border: solid 1px #EAC7CC;
-        }
-
-        button:hover {
-            background: #EAC7CC;
-            color: #f6f6f6;
-        }
-
-        form {
-            display: flex;
-            align-items: center;
-            flex-direction: column;
-            padding-top: 7px;
-        }
-
-        input {
-            background: #EAC7CC;
-            width: 65%;
-            color: #C19999;
+            margin: 10px 0;
             border: none;
-            border-bottom: 1px solid rgba(246, 246, 246, 0.5);
-            padding: 9px;
-            margin: 7px;
+            border-radius: 8px;
+            background: #C19977;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: auto;
         }
 
-        input::placeholder {
-            color: rgba(246, 246, 246, 1);
-            letter-spacing: 2px;
-            font-size: 1.3em;
-            font-weight: 100;
-        }
-
-        input:focus {
-            outline: none;
-            border-bottom: 1.2px solid rgba(193, 153, 153, 0.7);
-        }
-
-        .email-verify, .verify-section {
+        .button-group {
             display: flex;
             gap: 10px;
-            width: 100%;
             justify-content: center;
+            margin: 15px 0;
         }
 
-        .email-verify input, .verify-section input {
-            width: 60% !important;
+        .switch {
+            margin-top: 15px;
+            font-size: 14px;
         }
 
-        .signup-fields {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .switch a {
+            color: #C19977;
+            cursor: pointer;
+            font-weight: 600;
         }
 
-
+        .hidden {
+            display: none !important;
+        }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#signup').click(function () {
-                $('.pinkbox').css('transform', 'translateX(80%)');
-                $('.signin').addClass('nodisplay');
-                $('.signup').removeClass('nodisplay');
-            });
-
-            $('#signin').click(function () {
-                $('.pinkbox').css('transform', 'translateX(0%)');
-                $('.signup').addClass('nodisplay');
-                $('.signin').removeClass('nodisplay');
-            });
-        });
-    </script>
 </head>
 <body>
-<div class="container">
-    <div class="welcome">
-        <div class="pinkbox">
-            <!-- 회원가입 -->
-            <div class="signup nodisplay">
-                <h1>Register</h1>
-                <form id="signUpForm" autocomplete="off">
-                    <!-- 이메일 인증 섹션 -->
-                    <div class="email-verify">
-                        <input type="email" id="emailSignUp" placeholder="Email" required>
-                        <button type="button" id="sendCodeBtn" class="button">인증번호 전송</button>
-                    </div>
+<div class="container" id="authContainer">
+    <h2 id="formTitle">로그인</h2>
+    <form id="authForm">
+        <!-- 로그인 폼 -->
+        <div id="loginForm">
+            <input type="email" id="loginEmail" placeholder="이메일" required>
+            <input type="password" id="loginPassword" placeholder="비밀번호" required>
+            <button type="submit">로그인</button>
+        </div>
 
-                    <!-- 인증번호 입력 섹션 (초기 숨김) -->
-                    <div class="verify-section nodisplay">
-                        <input type="text" id="verificationCode" placeholder="인증번호 입력" required>
-                        <button type="button" id="verifyCodeBtn" class="button">인증번호 확인</button>
-                    </div>
-
-                    <!-- 기존 입력 필드 (초기 숨김) -->
-                    <div class="signup-fields nodisplay">
-                        <input type="text" id="nickName" placeholder="Nickname" required>
-                        <input type="password" id="password" placeholder="Password" required>
-                        <input type="password" id="checkPassword" placeholder="Confirm Password" required>
-                        <button type="submit" class="button submit">Create Account</button>
-                    </div>
-                </form>
+        <!-- 회원가입 폼 (초기 숨김) -->
+        <div id="signupForm" class="hidden">
+            <div class="email-verify">
+                <input type="email" id="signupEmail" placeholder="이메일" required>
+                <button type="button" id="sendCodeBtn">인증번호 전송</button>
             </div>
-            <!-- 로그인 -->
-            <div class="signin">
-                <h1>Sign In</h1>
-                <form id="loginForm" class="more-padding" autocomplete="off">
-                    <input type="email" id="emailLogin" placeholder="Email" required>
-                    <input type="password" id="passwordLogin" placeholder="Password" required>
-                    <button type="submit" class="button submit">Login</button>
-                </form>
+
+            <div id="verificationSection" class="hidden">
+                <input type="text" id="verificationCode" placeholder="인증번호 입력" required>
+                <button type="button" id="verifyCodeBtn">인증번호 확인</button>
+            </div>
+
+            <div id="signupFields" class="hidden">
+                <input type="text" id="nickName" placeholder="닉네임" required>
+                <input type="password" id="password" placeholder="비밀번호" required>
+                <input type="password" id="checkPassword" placeholder="비밀번호 확인" required>
+                <button type="submit" id="signupSubmitBtn" disabled>회원가입</button>
             </div>
         </div>
-        <!-- 좌측 설명 -->
-        <div class="leftbox">
-            <h2 class="title"><span>카페 추천</span>&<br>리뷰</h2>
-            <p class="desc">당신의 취향에 맞는 <span>카페</span>를 찾아보세요</p>
-            <img class="flower smaller" src="/static/img/the-coffee-4651087_1280.jpg" alt="카페 이미지" border="0">
-            <p class="account">계정이 있으신가요?</p>
-            <button class="button" id="showSignIn">로그인</button>
-        </div>
-        <div class="rightbox">
-            <h2 class="title"><span>카페 추천</span>&<br>리뷰</h2>
-            <p class="desc">나만의 특별한 <span>카페</span>를 공유해보세요</p>
-            <img class="flower" src="/static/img/coffee-2714970_1280.jpg" alt="카페 이미지">
-            <p class="account">아직 계정이 없으신가요?</p>
-            <button class="button" id="showSignUp">회원가입</button>
-        </div>
-
-    </div>
+    </form>
+    <p class="switch" id="formSwitch">계정이 없으신가요? <a id="toggleForm">회원가입</a></p>
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleForm = document.getElementById('toggleForm');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const formTitle = document.getElementById('formTitle');
+        const formSwitch = document.getElementById('formSwitch');
+        const authForm = document.getElementById('authForm');
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const emailInput = document.getElementById("emailSignUp");
-        const sendCodeBtn = document.getElementById("sendCodeBtn");
+        // 폼 전환 핸들러
+        function toggleAuthForm(event) {
+            event.preventDefault(); // 🔥 페이지 새로고침 방지
 
-        sendCodeBtn.addEventListener("click", function () {
-            const email = emailInput.value.trim();
+            const isLogin = loginForm.classList.toggle('hidden');
+            signupForm.classList.toggle('hidden');
+            formTitle.textContent = isLogin ? '회원가입' : '로그인';
 
+            // 전환할 때 기존 폼 데이터 초기화
+            authForm.reset();
+
+            // 🔥 새롭게 생성된 a 태그에 다시 이벤트 리스너 추가
+            formSwitch.innerHTML = isLogin
+                ? '이미 계정이 있으신가요? <a href="#" id="toggleForm">로그인</a>'
+                : '계정이 없으신가요? <a href="#" id="toggleForm">회원가입</a>';
+
+            document.getElementById('toggleForm').addEventListener('click', toggleAuthForm);
+
+            // 숨겨진 폼의 required 속성 제거 (오류 방지)
+            document.querySelectorAll('#loginForm input, #signupForm input').forEach(input => {
+                if (input.closest('.hidden')) {
+                    input.removeAttribute('required');
+                } else {
+                    input.setAttribute('required', 'true');
+                }
+            });
+        }
+
+        // 초기 이벤트 리스너 등록
+        toggleForm.addEventListener('click', toggleAuthForm);
+
+        // 이메일 인증 관련 요소
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+        const verificationSection = document.getElementById('verificationSection');
+        const signupFields = document.getElementById('signupFields');
+        const signupSubmitBtn = document.getElementById('signupSubmitBtn'); // 회원가입 버튼
+
+        // 인증번호 전송
+        sendCodeBtn.addEventListener('click', async () => {
+            const email = document.getElementById('signupEmail').value.trim();
             if (!validateEmail(email)) {
-                alert("올바른 이메일 형식을 입력해주세요.");
+                alert('유효한 이메일을 입력해주세요.');
                 return;
             }
 
-            fetch("/api/email/sendCode", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({email})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("인증번호가 전송되었습니다.");
-                    } else {
-                        alert("인증번호 전송에 실패했습니다: " + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("서버 오류가 발생했습니다.");
+            try {
+                const response = await fetch('/api/email/sendCode', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email})
                 });
-        });
 
-        function validateEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-    });
-
-    document.getElementById('verifyCodeBtn').addEventListener('click', function () {
-        const email = document.getElementById('emailSignUp').value.trim();
-        const code = document.getElementById('verificationCode').value.trim();
-
-        if (!email || !code) {
-            alert("이메일과 인증번호를 입력해주세요.");
-            return;
-        }
-
-        fetch('/api/email/verifyCode', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({email: email, code: code})
-        })
-            .then(response => response.json())
-            .then(data => {
+                const data = await response.json();
                 if (data.success) {
-                    alert("✅ 인증이 완료되었습니다!");
-                    document.querySelector('.signup-fields').classList.remove('nodisplay');
-                    document.getElementById('verifyCodeBtn').disabled = true;
+                    verificationSection.classList.remove('hidden');
+                    sendCodeBtn.disabled = true;
                 } else {
-                    alert("❌ 인증번호가 일치하지 않습니다.");
+                    alert(data.message || '인증번호 전송 실패');
                 }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("⚠️ 서버 오류가 발생했습니다.");
-            });
-    });
-
-    document.getElementById("showSignIn").addEventListener("click", function () {
-        document.querySelector(".signup").classList.add("nodisplay");
-        document.querySelector(".signin").classList.remove("nodisplay");
-    });
-
-    document.getElementById("showSignUp").addEventListener("click", function () {
-        document.querySelector(".signin").classList.add("nodisplay");
-        document.querySelector(".signup").classList.remove("nodisplay");
-    });
-
-
-    // 회원가입 API 연결
-    document.getElementById("signUpForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const nickName = document.getElementById("nickName").value;
-        const email = document.getElementById("emailSignUp").value;
-        const password = document.getElementById("password").value;
-        const checkPassword = document.getElementById("checkPassword").value;
-
-        if (password !== checkPassword) {
-            alert("비밀번호가 일치하지 않습니다.");
-            return;
-        }
-
-        const response = await fetch("/api/member/signUp", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({nickName, email, password, checkPassword}),
+            } catch (error) {
+                console.error('Error:', error);
+                alert('서버 연결 실패');
+            }
         });
 
-        const data = await response.json();
-        if (data.success) {
-            alert("회원가입 성공!");
-            document.getElementById("showSignIn").click();
-        } else {
-            // 서버에서 전달한 에러 메시지를 표시
-            alert(data.data || "회원가입에 실패했습니다.");
-        }
-    });
+        // 인증번호 확인
+        verifyCodeBtn.addEventListener('click', async () => {
+            const email = document.getElementById('signupEmail').value;
+            const code = document.getElementById('verificationCode').value;
 
-    // 로그인 API 연결
-    document.getElementById("loginForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
+            try {
+                const response = await fetch('/api/email/verifyCode', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, code})
+                });
 
-        const email = document.getElementById("emailLogin").value;
-        const password = document.getElementById("passwordLogin").value;
-
-        const response = await fetch("/api/member/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({email, password}),
+                const data = await response.json();
+                if (data.success) {
+                    signupFields.classList.remove('hidden');
+                    verifyCodeBtn.disabled = true;
+                    signupSubmitBtn.disabled = false; // 🔥 회원가입 버튼 활성화
+                } else {
+                    alert('인증번호가 일치하지 않습니다.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('서버 연결 실패');
+            }
         });
 
-        const data = await response.json();
-        if (data.success) {
-            alert("로그인 성공!");
-            window.location.href = data.data || "/";
-        } else {
-            // 서버에서 전달한 에러 메시지를 표시
-            alert(data.data || "로그인에 실패했습니다.");
+        // 로그인 & 회원가입 처리
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // 🔥 기본 제출 동작 방지
+
+            if (signupForm.classList.contains('hidden')) {
+                // 로그인 처리
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                try {
+                    const response = await fetch('/api/member/login', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({email, password})
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        window.location.href = data.data || '/';
+                    } else {
+                        alert(data.data || '로그인 실패');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('서버 연결 실패');
+                }
+            } else {
+                // 회원가입 처리
+                const nickName = document.getElementById('nickName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('password').value;
+                const checkPassword = document.getElementById('checkPassword').value;
+
+                if (password !== checkPassword) {
+                    alert('비밀번호가 일치하지 않습니다.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/member/signUp', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({nickName, email, password, checkPassword})
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        alert('회원가입 성공!');
+                        toggleForm.click(); // 🔥 로그인 폼으로 자동 전환
+                    } else {
+                        alert(data.data || '회원가입 실패');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('서버 연결 실패');
+                }
+            }
+        });
+
+        // 이메일 유효성 검사 함수
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
         }
     });
 </script>
