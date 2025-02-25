@@ -6,9 +6,18 @@ import static CafeFinder.cafe.util.ErrorMessage.NOT_VERIFY_CODE;
 import static CafeFinder.cafe.util.ErrorMessage.PASSWORDS_DO_NOT_MATCH;
 import static CafeFinder.cafe.util.ErrorMessage.PASSWORD_INCORRECT;
 import static CafeFinder.cafe.util.ErrorMessage.SERVER_ERROR;
+import static CafeFinder.cafe.util.ErrorMessage.UnsupportedProvider;
 import static CafeFinder.cafe.util.ErrorMessage.VALIDATION_FAILED;
 import static CafeFinder.cafe.util.ErrorMessage.VERIFY_CODE_MIS_MATCH;
 
+import CafeFinder.cafe.dto.ResponseDto;
+import CafeFinder.cafe.exception.IncorrectPasswordException;
+import CafeFinder.cafe.exception.MemberAlreadyExistsException;
+import CafeFinder.cafe.exception.MemberNotFoundException;
+import CafeFinder.cafe.exception.PasswordMismatchException;
+import CafeFinder.cafe.exception.UnsupportedProviderException;
+import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
+import CafeFinder.cafe.exception.YetVerifyEmailException;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -16,13 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import CafeFinder.cafe.dto.ResponseDto;
-import CafeFinder.cafe.exception.IncorrectPasswordException;
-import CafeFinder.cafe.exception.MemberAlreadyExistsException;
-import CafeFinder.cafe.exception.MemberNotFoundException;
-import CafeFinder.cafe.exception.PasswordMismatchException;
-import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
-import CafeFinder.cafe.exception.YetVerifyEmailException;
 
 @RestControllerAdvice
 @Log4j2
@@ -80,6 +82,14 @@ public class GlobalExceptionHandler {
     ) {
         log.info("handleAlreadyVerifyEmailException :{}", ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, NOT_VERIFY_CODE.getMessage(), null);
+    }
+
+    @ExceptionHandler(UnsupportedProviderException.class)
+    public ResponseEntity<ResponseDto<String>> handleAlreadyUnsupportedProviderException(
+            VerifyCodeMisMatchException ex
+    ) {
+        log.info("UnsupportedProviderException :{}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, UnsupportedProvider.getMessage(), null);
     }
 
     @ExceptionHandler(Exception.class)
