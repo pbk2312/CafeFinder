@@ -35,12 +35,16 @@ public class Member {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    private Provider provider; // 구글, 카카오 , 네이버
+
+    @Enumerated(EnumType.STRING)
     private MemberRole memberRole;
 
     public static Member create(MemberSignUpDto signUpDto, String encodedPassword) {
         return Member.builder()
                 .email(signUpDto.getEmail())
                 .memberRole(MemberRole.REGULAR)
+                .provider(Provider.LOCAL)
                 .nickName(signUpDto.getNickName())
                 .password(encodedPassword)
                 .build();
