@@ -18,7 +18,7 @@
         }
 
         .container {
-            width: 400px;
+            width: 500px;
             background: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 15px;
@@ -51,14 +51,19 @@
             font-size: 14px;
             cursor: pointer;
             transition: 0.3s;
-            width: auto;
+            width: 100%;
         }
 
-        .button-group {
+        .social-buttons {
             display: flex;
-            gap: 10px;
-            justify-content: center;
+            justify-content: space-around;
             margin: 15px 0;
+        }
+
+        .social-buttons img {
+            width: 140px;
+            height: 45px;
+            cursor: pointer;
         }
 
         .switch {
@@ -108,6 +113,20 @@
             </div>
         </div>
     </form>
+
+    <!-- 소셜 로그인 버튼 -->
+    <div class="social-buttons">
+        <a href="/oauth2/authorization/google">
+            <img src="/static/img/구글.png" alt="Google 로그인">
+        </a>
+        <a href="/oauth2/authorization/kakao">
+            <img src="/static/img/카카오.png" alt="Kakao 로그인">
+        </a>
+        <a href="/oauth2/authorization/naver">
+            <img src="/static/img/네이버.png" alt="Naver 로그인">
+        </a>
+    </div>
+
     <p class="switch" id="formSwitch">계정이 없으신가요? <a id="toggleForm">회원가입</a></p>
 </div>
 
@@ -118,164 +137,41 @@
         const signupForm = document.getElementById('signupForm');
         const formTitle = document.getElementById('formTitle');
         const formSwitch = document.getElementById('formSwitch');
-        const authForm = document.getElementById('authForm');
 
-        // 폼 전환 핸들러
-        function toggleAuthForm(event) {
-            event.preventDefault(); // 🔥 페이지 새로고침 방지
-
+        toggleForm.addEventListener('click', (event) => {
+            event.preventDefault();
             const isLogin = loginForm.classList.toggle('hidden');
             signupForm.classList.toggle('hidden');
             formTitle.textContent = isLogin ? '회원가입' : '로그인';
-
-            // 전환할 때 기존 폼 데이터 초기화
-            authForm.reset();
-
-            // 🔥 새롭게 생성된 a 태그에 다시 이벤트 리스너 추가
             formSwitch.innerHTML = isLogin
                 ? '이미 계정이 있으신가요? <a href="#" id="toggleForm">로그인</a>'
                 : '계정이 없으신가요? <a href="#" id="toggleForm">회원가입</a>';
 
-            document.getElementById('toggleForm').addEventListener('click', toggleAuthForm);
-
-            // 숨겨진 폼의 required 속성 제거 (오류 방지)
-            document.querySelectorAll('#loginForm input, #signupForm input').forEach(input => {
-                if (input.closest('.hidden')) {
-                    input.removeAttribute('required');
-                } else {
-                    input.setAttribute('required', 'true');
-                }
+            document.getElementById('toggleForm').addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleForm.click();
             });
-        }
-
-        // 초기 이벤트 리스너 등록
-        toggleForm.addEventListener('click', toggleAuthForm);
-
-        // 이메일 인증 관련 요소
-        const sendCodeBtn = document.getElementById('sendCodeBtn');
-        const verifyCodeBtn = document.getElementById('verifyCodeBtn');
-        const verificationSection = document.getElementById('verificationSection');
-        const signupFields = document.getElementById('signupFields');
-        const signupSubmitBtn = document.getElementById('signupSubmitBtn'); // 회원가입 버튼
-
-        // 인증번호 전송
-        sendCodeBtn.addEventListener('click', async () => {
-            const email = document.getElementById('signupEmail').value.trim();
-            if (!validateEmail(email)) {
-                alert('유효한 이메일을 입력해주세요.');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/email/sendCode', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email})
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    verificationSection.classList.remove('hidden');
-                    sendCodeBtn.disabled = true;
-                } else {
-                    alert(data.message || '인증번호 전송 실패');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('서버 연결 실패');
-            }
         });
 
-        // 인증번호 확인
-        verifyCodeBtn.addEventListener('click', async () => {
-            const email = document.getElementById('signupEmail').value;
-            const code = document.getElementById('verificationCode').value;
-
-            try {
-                const response = await fetch('/api/email/verifyCode', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email, code})
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    signupFields.classList.remove('hidden');
-                    verifyCodeBtn.disabled = true;
-                    signupSubmitBtn.disabled = false; // 🔥 회원가입 버튼 활성화
-                } else {
-                    alert('인증번호가 일치하지 않습니다.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('서버 연결 실패');
-            }
-        });
-
-        // 로그인 & 회원가입 처리
-        authForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // 🔥 기본 제출 동작 방지
-
-            if (signupForm.classList.contains('hidden')) {
-                // 로그인 처리
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-
-                try {
-                    const response = await fetch('/api/member/login', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({email, password})
-                    });
-
-                    const data = await response.json();
-                    if (data.success) {
-                        window.location.href = data.data || '/';
-                    } else {
-                        alert(data.data || '로그인 실패');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('서버 연결 실패');
-                }
-            } else {
-                // 회원가입 처리
-                const nickName = document.getElementById('nickName').value;
-                const email = document.getElementById('signupEmail').value;
-                const password = document.getElementById('password').value;
-                const checkPassword = document.getElementById('checkPassword').value;
-
-                if (password !== checkPassword) {
-                    alert('비밀번호가 일치하지 않습니다.');
+        // 소셜 로그인 핸들러
+        window.socialLogin = function (platform) {
+            let loginUrl;
+            switch (platform) {
+                case 'google':
+                    loginUrl = '/oauth2/authorization/google';
+                    break;
+                case 'kakao':
+                    loginUrl = '/oauth2/authorization/kakao';
+                    break;
+                case 'naver':
+                    loginUrl = '/oauth2/authorization/naver';
+                    break;
+                default:
+                    alert('지원하지 않는 로그인 방식입니다.');
                     return;
-                }
-
-                try {
-                    const response = await fetch('/api/member/signUp', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({nickName, email, password, checkPassword})
-                    });
-
-                    const data = await response.json();
-                    if (data.success) {
-                        alert('회원가입 성공!');
-                        toggleForm.click(); // 🔥 로그인 폼으로 자동 전환
-                    } else {
-                        alert(data.data || '회원가입 실패');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('서버 연결 실패');
-                }
             }
-        });
-
-        // 이메일 유효성 검사 함수
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
+            window.location.href = loginUrl;
+        };
     });
 </script>
 </body>
