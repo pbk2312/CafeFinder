@@ -200,8 +200,8 @@ public class MemberServiceImpl implements MemberService {
         return tokenProvider.generateTokenDto(authentication);
     }
 
-
-    private Member findMemberByEmail(String email) {
+    @Override
+    public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("회원 조회 실패: 이메일={}", email);
