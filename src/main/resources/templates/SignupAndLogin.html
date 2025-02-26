@@ -90,6 +90,15 @@
             display: none !important;
         }
 
+        #profileImage {
+            margin-top: 5px;
+        }
+
+        label[for="profileImage"] {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -120,9 +129,13 @@
                 <input type="text" id="nickName" placeholder="닉네임" required>
                 <input type="password" id="password" placeholder="비밀번호" required>
                 <input type="password" id="checkPassword" placeholder="비밀번호 확인" required>
-                <input type="file" id="profileImage" accept="image/*">  <!--프로필 이미지-->
+
+                <label for="profileImage">프로필 이미지 업로드 (선택)</label>
+                <input type="file" id="profileImage" accept="image/*">
+
                 <button type="submit" id="signupSubmitBtn" disabled>회원가입</button>
             </div>
+
         </div>
     </form>
 
