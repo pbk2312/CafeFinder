@@ -8,6 +8,7 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Value;
 
 @Builder
 @Getter
@@ -20,6 +21,9 @@ public class OAuth2UserInfo {
     private String email;
     private String nickname;
     private Provider provider;
+
+    @Value("${file.default.image}")
+    private String DEFAULT_PROFILE_IMAG;
 
     public static OAuth2UserInfo of(String provider, Map<String, Object> attributes) {
         return switch (provider) {
@@ -69,6 +73,7 @@ public class OAuth2UserInfo {
     public Member toEntity() {
         return Member.builder()
                 .email(email)
+                .profileImagePath(DEFAULT_PROFILE_IMAG)
                 .password(password) // 소셜 로그인에서 제공하는 ID를 password로 사용
                 .provider(provider)
                 .nickName(nickname)
