@@ -10,6 +10,7 @@ import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
 import CafeFinder.cafe.dto.ResponseDto;
 import CafeFinder.cafe.dto.TokenResultDto;
+import CafeFinder.cafe.dto.UserInfoDto;
 import CafeFinder.cafe.jwt.AccesTokenDto;
 import CafeFinder.cafe.service.member.MemberService;
 import CafeFinder.cafe.util.CookieUtils;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,11 +36,12 @@ public class MemberApiController {
 
     @PostMapping("/signUp")
     public ResponseEntity<ResponseDto<String>> signUp(
-            @Valid @RequestBody MemberSignUpDto memberSignUpDto
+            @Valid @ModelAttribute MemberSignUpDto memberSignUpDto
     ) {
         memberService.save(memberSignUpDto);
         return ResponseEntity.ok(new ResponseDto<>(SIGN_UP_SUCCESS.getMessage(), null, true));
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDto<String>> login(
@@ -61,24 +64,33 @@ public class MemberApiController {
     }
 
     @GetMapping("/validateToken")
-    public ResponseEntity<ResponseDto<String>> validateToken(
+    public ResponseEntity<ResponseDto<UserInfoDto>> validateToken(
             @CookieValue(value = "accessToken", required = false) String accessToken,
             HttpServletResponse response
     ) {
-        if (accessToken == null || accessToken.isEmpty()) { // accessToken을 가지고 있지 않으면 비 로그인 상태
+
+        if (accessToken == null || accessToken.isEmpty()) {
             return ResponseEntity.ok(new ResponseDto<>(NOT_LOGIN.getMessage(), null, false));
         }
+
         TokenResultDto result = memberService.validateToken(accessToken);
-        if (!result.isAccessTokenValid()) { // accessToken이 유효하지 않으면
-            if (result.isRefreshTokenValid()) { // refreshToken 확인 -> 만약 refreshToken이 유효하다면
-                CookieUtils.addCookie(response, "accessToken", result.getNewAccessToken().getAccessToken(),
+
+        if (!result.isAccessTokenValid()) {
+            if (result.isRefreshTokenValid()) {
+                accessToken = result.getNewAccessToken().getAccessToken();
+                CookieUtils.addCookie(response, "accessToken", accessToken,
                         result.getNewAccessToken().getAccessTokenExpiresIn());
-                return ResponseEntity.ok(new ResponseDto<>(result.getMessage(), null, true));
+            } else {
+                return ResponseEntity.ok(new ResponseDto<>(result.getMessage(), null, false));
             }
-            return ResponseEntity.ok(new ResponseDto<>(result.getMessage(), null, false)); // 유효하지 않다면 false
         }
-        return ResponseEntity.ok(new ResponseDto<>(result.getMessage(), null, true)); // 원래 accessToken은 유효함
+
+        // accessToken을 사용하여 사용자 정보 조회
+        UserInfoDto userInfo = memberService.findUserInfoByToken(accessToken);
+
+        return ResponseEntity.ok(new ResponseDto<>("로그인 성공", userInfo, true));
     }
+
 
     private String getRedirectUrlFromSession(HttpServletRequest request) {
         String redirectUrl = (String) request.getSession().getAttribute("redirectUrl");
