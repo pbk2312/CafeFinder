@@ -36,20 +36,27 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private Provider provider; // 구글, 카카오 , 네이버
+    private Provider provider; // 구글, 카카오 , 네이버, 일반
 
     @Enumerated(EnumType.STRING)
     private MemberRole memberRole;
 
-    public static Member create(MemberSignUpDto signUpDto, String encodedPassword) {
+    @Column(length = 255)
+    private String profileImagePath; // 프로필 이미지 파일 경로
+
+    public static Member create(MemberSignUpDto signUpDto, String encodedPassword, String profileImagePath) {
         return Member.builder()
                 .email(signUpDto.getEmail())
                 .memberRole(MemberRole.REGULAR)
                 .provider(Provider.LOCAL)
                 .nickName(signUpDto.getNickName())
                 .password(encodedPassword)
+                .profileImagePath(profileImagePath)
                 .build();
-
     }
 
+    public void updateProfileImage(String newProfileImagePath) {
+        this.profileImagePath = newProfileImagePath;
+    }
+    
 }
