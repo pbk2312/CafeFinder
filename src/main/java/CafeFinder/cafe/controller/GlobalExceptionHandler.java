@@ -37,13 +37,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MemberNotFoundException.class)
     public ResponseEntity<ResponseDto<String>> handleMemberNotFoundException(MemberNotFoundException e) {
         log.error("MemberNotFoundException: {}", e.getMessage(), e);
-        return buildResponse(HttpStatus.UNAUTHORIZED, MEMBER_NOT_FOUND.getMessage(), null);
+        return buildResponse(HttpStatus.NOT_FOUND, MEMBER_NOT_FOUND.getMessage(), null);
     }
 
     @ExceptionHandler(MemberAlreadyExistsException.class)
     public ResponseEntity<ResponseDto<String>> handleMemberAlreadyExistsException(MemberAlreadyExistsException e) {
         log.error("MemberAlreadyExistsException: {}", e.getMessage(), e);
-        return buildResponse(HttpStatus.UNAUTHORIZED, Member_AlreadyExists.getMessage(), null);
+        return buildResponse(HttpStatus.CONFLICT, Member_AlreadyExists.getMessage(), null);
     }
 
     @ExceptionHandler(IncorrectPasswordException.class)
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
             VerifyCodeMisMatchException ex
     ) {
         log.info("handleAlreadyVerifyEmailException :{}", ex.getMessage());
-        return buildResponse(HttpStatus.BAD_REQUEST, NOT_VERIFY_CODE.getMessage(), null);
+        return buildResponse(HttpStatus.FORBIDDEN, NOT_VERIFY_CODE.getMessage(), null);
     }
 
     @ExceptionHandler(UnsupportedProviderException.class)
@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
             VerifyCodeMisMatchException ex
     ) {
         log.info("UnsupportedProviderException :{}", ex.getMessage());
-        return buildResponse(HttpStatus.BAD_REQUEST, UnsupportedProvider.getMessage(), null);
+        return buildResponse(HttpStatus.NOT_ACCEPTABLE, UnsupportedProvider.getMessage(), null);
     }
 
     @ExceptionHandler(Exception.class)
