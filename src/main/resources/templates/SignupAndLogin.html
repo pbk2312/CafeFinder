@@ -89,10 +89,12 @@
         .hidden {
             display: none !important;
         }
+
     </style>
 </head>
 <body>
 <div class="container" id="authContainer">
+
     <h2 id="formTitle">로그인</h2>
     <form id="authForm">
         <!-- 로그인 폼 -->
@@ -118,6 +120,7 @@
                 <input type="text" id="nickName" placeholder="닉네임" required>
                 <input type="password" id="password" placeholder="비밀번호" required>
                 <input type="password" id="checkPassword" placeholder="비밀번호 확인" required>
+                <input type="file" id="profileImage" accept="image/*">  <!--프로필 이미지-->
                 <button type="submit" id="signupSubmitBtn" disabled>회원가입</button>
             </div>
         </div>
@@ -204,7 +207,10 @@
                 });
 
                 const data = await response.json();
-                if (data.success) {
+
+                if (response.status === 409) { // 🔥 이미 가입된 이메일 예외 처리
+                    alert('이미 가입된 이메일입니다.');
+                } else if (data.success) {
                     verificationSection.classList.remove('hidden');
                     sendCodeBtn.disabled = true;
                 } else {
@@ -215,6 +221,7 @@
                 alert('서버 연결 실패');
             }
         });
+
 
         // 인증번호 확인
         verifyCodeBtn.addEventListener('click', async () => {
@@ -274,17 +281,28 @@
                 const email = document.getElementById('signupEmail').value;
                 const password = document.getElementById('password').value;
                 const checkPassword = document.getElementById('checkPassword').value;
+                const profileImage = document.getElementById('profileImage').files[0];
 
                 if (password !== checkPassword) {
                     alert('비밀번호가 일치하지 않습니다.');
                     return;
                 }
 
+                //  FormData 생성 (파일 포함)
+                const formData = new FormData();
+                formData.append('nickName', nickName);
+                formData.append('email', email);
+                formData.append('password', password);
+                formData.append('checkPassword', checkPassword);
+
+                if (profileImage) {
+                    formData.append('profileImage', profileImage); // 파일 추가
+                }
+
                 try {
                     const response = await fetch('/api/member/signUp', {
                         method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({nickName, email, password, checkPassword})
+                        body: formData,  // 🔥 JSON이 아니라 FormData 사용
                     });
 
                     const data = await response.json();
