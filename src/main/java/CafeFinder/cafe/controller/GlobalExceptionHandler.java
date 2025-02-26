@@ -6,7 +6,7 @@ import static CafeFinder.cafe.util.ErrorMessage.NOT_VERIFY_CODE;
 import static CafeFinder.cafe.util.ErrorMessage.PASSWORDS_DO_NOT_MATCH;
 import static CafeFinder.cafe.util.ErrorMessage.PASSWORD_INCORRECT;
 import static CafeFinder.cafe.util.ErrorMessage.SERVER_ERROR;
-import static CafeFinder.cafe.util.ErrorMessage.UnsupportedProvider;
+import static CafeFinder.cafe.util.ErrorMessage.UNSUPPORTEDPROVIDER;
 import static CafeFinder.cafe.util.ErrorMessage.VALIDATION_FAILED;
 import static CafeFinder.cafe.util.ErrorMessage.VERIFY_CODE_MIS_MATCH;
 
@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
             VerifyCodeMisMatchException ex
     ) {
         log.info("UnsupportedProviderException :{}", ex.getMessage());
-        return buildResponse(HttpStatus.NOT_ACCEPTABLE, UnsupportedProvider.getMessage(), null);
+        return buildResponse(HttpStatus.NOT_ACCEPTABLE, UNSUPPORTEDPROVIDER.getMessage(), null);
     }
 
     @ExceptionHandler(Exception.class)
