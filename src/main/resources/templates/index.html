@@ -49,6 +49,54 @@
             font-size: 0.9rem;
             color: #666;
         }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* 이미지와 닉네임 간 간격 */
+            padding: 5px 10px;
+            border-radius: 50px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .profile-container:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-container img {
+            border: 2px solid #ddd;
+            transition: transform 0.3s;
+        }
+
+        .profile-container:hover img {
+            transform: scale(1.1); /* 호버 시 확대 효과 */
+        }
+
+        .navbar .nav-link {
+            font-size: 1rem;
+        }
+
+        .navbar .nav-item a {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .nav-item .rounded-circle {
+            border: 2px solid #ddd;
+            transition: transform 0.2s;
+        }
+
+        .navbar .nav-item .rounded-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .navbar .nav-item .fw-semibold {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+
     </style>
 </head>
 <body>
@@ -126,26 +174,36 @@
         })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    updateNavbarForLoggedInUser();
+                if (data.success && data.data) {  // 로그인 성공 + 유저 정보 존재
+                    updateNavbarForLoggedInUser(data.data.nickName, data.data.profileImagePath);
                 }
             })
             .catch(error => console.error("로그인 상태 확인 오류:", error));
     }
 
-    function updateNavbarForLoggedInUser() {
+
+    function updateNavbarForLoggedInUser(nickName, profileImagePath) {
         const navbar = document.getElementById("navbarNav");
         const loginLink = document.getElementById("login-link");
+        if (loginLink) loginLink.remove();  // 로그인 링크 제거
 
-        if (loginLink) {
-            loginLink.remove(); // 로그인 링크 삭제
-        }
+        const profileImageTag = profileImagePath
+            ? `<img src="${profileImagePath}" class="rounded-circle" width="40" height="40" alt="프로필 이미지">`
+            : `<img src="/default-profile.png" class="rounded-circle" width="40" height="40" alt="기본 프로필">`;
 
         navbar.innerHTML += `
-            <li class="nav-item"><a class="nav-link" href="/profile">내 프로필</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="logout()">로그아웃</a></li>
-        `;
+       <li class="nav-item d-flex align-items-start me-3">
+    <a class="nav-link" href="#" onclick="logout()">로그아웃</a>
+</li>
+<li class="nav-item d-flex align-items-start ms-auto">
+    <a class="nav-link d-flex align-items-center" href="/profile">
+        ${profileImageTag} <span class="ms-2 fw-semibold">${nickName}</span>
+    </a>
+</li>
+
+    `;
     }
+
 
     function logout() {
         fetch("/api/member/logout", {
