@@ -35,6 +35,7 @@ public class Member {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private Provider provider; // 구글, 카카오 , 네이버
 
     @Enumerated(EnumType.STRING)
