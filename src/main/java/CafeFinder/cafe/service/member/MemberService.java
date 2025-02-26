@@ -4,6 +4,7 @@ import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
 import CafeFinder.cafe.dto.TokenResultDto;
+import CafeFinder.cafe.dto.UserInfoDto;
 import CafeFinder.cafe.jwt.AccesTokenDto;
 
 public interface MemberService {
@@ -21,5 +22,9 @@ public interface MemberService {
     TokenResultDto validateToken(String accessToken);
 
     Member findMemberByEmail(String email);
+
+    // 회원 정보 가져오기
+    UserInfoDto findUserInfoByToken(String accessToken);
+
 
 }
