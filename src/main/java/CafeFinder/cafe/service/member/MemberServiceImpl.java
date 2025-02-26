@@ -4,6 +4,7 @@ import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
 import CafeFinder.cafe.dto.TokenResultDto;
+import CafeFinder.cafe.dto.UserInfoDto;
 import CafeFinder.cafe.exception.IncorrectPasswordException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
 import CafeFinder.cafe.exception.YetVerifyEmailException;
@@ -37,6 +38,7 @@ public class MemberServiceImpl implements MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
     private final RefreshTokenService refreshTokenService;
+    private final FileService fileService;
 
 
     @Override
@@ -50,14 +52,42 @@ public class MemberServiceImpl implements MemberService {
         // 비밀번호 검증
         MemberValidator.validatePassword(memberSignUpDto.getPassword(), memberSignUpDto.getCheckPassword());
 
+        // 프로필 이미지 저장
+        String profileImagePath = fileService.saveProfileImage(memberSignUpDto.getProfileImage());
+
         // 회원 생성 및 저장
-        Member member = Member.create(memberSignUpDto, passwordEncoder.encode(memberSignUpDto.getPassword()));
+        Member member = Member.create(
+                memberSignUpDto,
+                passwordEncoder.encode(memberSignUpDto.getPassword()),
+                profileImagePath // 프로필 이미지 경로 추가
+        );
         memberRepository.save(member);
 
         // 이메일 인증 데이터 삭제
         deleteEmailVerification(memberSignUpDto.getEmail());
 
         log.info("회원가입 성공: 이메일={}", memberSignUpDto.getEmail());
+    }
+
+    @Override
+    public UserInfoDto findUserInfoByToken(String accessToken) {
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        Member member = findMemberByAuthentication(authentication);
+
+        // 절대 경로 -> 상대 경로 변환
+        String profileImagePath = convertToRelativePath(member.getProfileImagePath());
+
+        return UserInfoDto.builder()
+                .nickName(member.getNickName())
+                .profileImagePath(profileImagePath)
+                .build();
+    }
+
+    private String convertToRelativePath(String path) {
+        if (path != null && path.startsWith("/Users/park/")) {
+            return "/img/profile/" + path.substring(path.lastIndexOf("/") + 1);
+        }
+        return path; // 이미 상대 경로면 그대로 반환
     }
 
     private void deleteEmailVerification(String email) {
