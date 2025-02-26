@@ -1,9 +1,9 @@
 package CafeFinder.cafe.exception;
 
-import static CafeFinder.cafe.util.ErrorMessage.UnsupportedProvider;
+import static CafeFinder.cafe.util.ErrorMessage.UNSUPPORTEDPROVIDER;
 
 public class UnsupportedProviderException extends RuntimeException {
     public UnsupportedProviderException(String message) {
-        super(UnsupportedProvider.getMessage() + message);
+        super(UNSUPPORTEDPROVIDER.getMessage() + message);
     }
 }
