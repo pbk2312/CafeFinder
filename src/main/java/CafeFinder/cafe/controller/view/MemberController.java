@@ -1,13 +1,13 @@
 package CafeFinder.cafe.controller.view;
 
 
+import CafeFinder.cafe.dto.MemberLoginDto;
+import CafeFinder.cafe.dto.MemberSignUpDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import CafeFinder.cafe.dto.MemberLoginDto;
-import CafeFinder.cafe.dto.MemberSignUpDto;
 
 @RequestMapping("/member")
 @Controller
@@ -25,6 +25,11 @@ public class MemberController {
             request.getSession().setAttribute("redirectUrl", referer);
         }
         return "SignupAndLogin";
+    }
+
+    @GetMapping("/profile")
+    public String profile() {
+        return "profile";
     }
 
 }
