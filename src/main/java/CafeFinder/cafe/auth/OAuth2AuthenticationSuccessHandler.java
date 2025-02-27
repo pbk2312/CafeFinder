@@ -54,7 +54,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String email = extractEmail(oAuth2User);
 
         // 3. Member 조회 또는 생성
-        Member member = memberService.findMemberByEmail(email);
+        Member member = memberService.getMemberByEmail(email);
 
         // 4. UsernamePasswordAuthenticationToken 생성
         Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
