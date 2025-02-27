@@ -3,8 +3,10 @@ package CafeFinder.cafe.service.member;
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.dto.ProfileDto;
 import CafeFinder.cafe.dto.TokenResultDto;
 import CafeFinder.cafe.dto.UserInfoDto;
+import CafeFinder.cafe.dto.UserUpdateDto;
 import CafeFinder.cafe.exception.IncorrectPasswordException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
 import CafeFinder.cafe.exception.YetVerifyEmailException;
@@ -14,7 +16,6 @@ import CafeFinder.cafe.jwt.TokenProvider;
 import CafeFinder.cafe.repository.MemberRepository;
 import CafeFinder.cafe.service.redis.RefreshTokenService;
 import CafeFinder.cafe.validator.MemberValidator;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -70,9 +72,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public UserInfoDto findUserInfoByToken(String accessToken) {
-        Authentication authentication = tokenProvider.getAuthentication(accessToken);
-        Member member = findMemberByAuthentication(authentication);
+    public UserInfoDto getUserInfoByToken(String accessToken) {
+        Member member = getMemberByToken(accessToken);
 
         // 절대 경로 -> 상대 경로 변환
         String profileImagePath = convertToRelativePath(member.getProfileImagePath());
@@ -83,38 +84,13 @@ public class MemberServiceImpl implements MemberService {
                 .build();
     }
 
-    private String convertToRelativePath(String path) {
-        if (path != null && path.startsWith("/Users/park/")) {
-            return "/img/profile/" + path.substring(path.lastIndexOf("/") + 1);
-        }
-        return path; // 이미 상대 경로면 그대로 반환
-    }
-
-    private void deleteEmailVerification(String email) {
-        String key = "verified:" + email;
-        if (redisTemplate.hasKey(key)) {
-            redisTemplate.delete(key);
-            log.info("Redis 인증 데이터 삭제 완료: 이메일={}", email);
-        } else {
-            log.warn("Redis 인증 데이터 없음: 이메일={}", email);
-        }
-    }
-
-    private void isEmailVerify(MemberSignUpDto memberSignUpDto) {
-        String isVerified = redisTemplate.opsForValue().get("verified:" + memberSignUpDto.getEmail());
-        if (!"true".equals(isVerified)) {
-            log.warn("회원가입 실패: 이메일 인증 미완료 이메일={}", memberSignUpDto.getEmail());
-            throw new YetVerifyEmailException();
-        }
-    }
-
     @Override
     @Transactional
     public AccesTokenDto login(MemberLoginDto memberLoginDto) {
         log.info("로그인 시작: 이메일={}", memberLoginDto.getEmail());
 
         // 회원 조회
-        Member member = findMemberByEmail(memberLoginDto.getEmail());
+        Member member = getMemberByEmail(memberLoginDto.getEmail());
 
         // 사용자 인증
         Authentication authentication = authenticateUser(memberLoginDto);
@@ -138,7 +114,7 @@ public class MemberServiceImpl implements MemberService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        Member member = findMemberByEmail(email);
+        Member member = getMemberByEmail(email);
 
         // SecurityContextHolder에서 인증 정보 삭제
         SecurityContextHolder.clearContext();
@@ -213,9 +189,70 @@ public class MemberServiceImpl implements MemberService {
                 .build();
     }
 
+    @Override
+    @Transactional
+    public void update(UserUpdateDto userUpdateDto, String accessToken) {
+        Member member = getMemberByToken(accessToken);
+
+        // 기존 프로필 이미지 삭제 후, 새 이미지 저장
+        if (userUpdateDto.getNewProfileImage() != null && !userUpdateDto.getNewProfileImage().isEmpty()) {
+            fileService.deleteProfileImage(member.getProfileImagePath()); // 기존 이미지 삭제
+            String newProfileImagePath = fileService.saveProfileImage(userUpdateDto.getNewProfileImage()); // 새 이미지 저장
+            member.updateProfile(userUpdateDto.getNickName(), newProfileImagePath);
+        } else {
+            member.updateProfile(userUpdateDto.getNickName(), member.getProfileImagePath()); // 기존 이미지 유지
+        }
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProfileDto getProfileByToken(String accessToken) {
+        Member member = getMemberByToken(accessToken);
+        String convertToRelativePath = convertToRelativePath(member.getProfileImagePath());
+        return ProfileDto.builder()
+                .email(member.getEmail())
+                .nickName(member.getNickName())
+                .memberRole(member.getMemberRole())
+                .provider(member.getProvider())
+                .profileImagePath(convertToRelativePath)
+                .build();
+    }
+
+
+    private Member getMemberByToken(String accessToken) {
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        return findMemberByAuthentication(authentication);
+    }
+
+    private String convertToRelativePath(String path) {
+        if (path != null && path.startsWith("/Users/park/")) {
+            return "/img/profile/" + path.substring(path.lastIndexOf("/") + 1);
+        }
+        return path; // 이미 상대 경로면 그대로 반환
+    }
+
+    private void deleteEmailVerification(String email) {
+        String key = "verified:" + email;
+        if (redisTemplate.hasKey(key)) {
+            redisTemplate.delete(key);
+            log.info("Redis 인증 데이터 삭제 완료: 이메일={}", email);
+        } else {
+            log.warn("Redis 인증 데이터 없음: 이메일={}", email);
+        }
+    }
+
+    private void isEmailVerify(MemberSignUpDto memberSignUpDto) {
+        String isVerified = redisTemplate.opsForValue().get("verified:" + memberSignUpDto.getEmail());
+        if (!"true".equals(isVerified)) {
+            log.warn("회원가입 실패: 이메일 인증 미완료 이메일={}", memberSignUpDto.getEmail());
+            throw new YetVerifyEmailException();
+        }
+    }
+
     private Member findMemberByAuthentication(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return findMemberByEmail(userDetails.getUsername());
+        return getMemberByEmail(userDetails.getUsername());
     }
 
     private AccesTokenDto generateAccessTokenDto(Authentication authentication) {
@@ -231,7 +268,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Member findMemberByEmail(String email) {
+    public Member getMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("회원 조회 실패: 이메일={}", email);

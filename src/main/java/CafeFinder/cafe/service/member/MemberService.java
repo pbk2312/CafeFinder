@@ -3,8 +3,10 @@ package CafeFinder.cafe.service.member;
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.dto.ProfileDto;
 import CafeFinder.cafe.dto.TokenResultDto;
 import CafeFinder.cafe.dto.UserInfoDto;
+import CafeFinder.cafe.dto.UserUpdateDto;
 import CafeFinder.cafe.jwt.AccesTokenDto;
 
 public interface MemberService {
@@ -21,10 +23,16 @@ public interface MemberService {
     // 토큰 검증
     TokenResultDto validateToken(String accessToken);
 
-    Member findMemberByEmail(String email);
+    // 이메일로 회원 찾기
+    Member getMemberByEmail(String email);
 
     // 회원 정보 가져오기
-    UserInfoDto findUserInfoByToken(String accessToken);
+    UserInfoDto getUserInfoByToken(String accessToken);
 
+    // 회원 정보 수정
+    void update(UserUpdateDto userUpdateDto, String accessToken);
+
+    // 회원 정보 보기
+    ProfileDto getProfileByToken(String accessToken);
 
 }
