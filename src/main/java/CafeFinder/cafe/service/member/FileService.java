@@ -42,4 +42,17 @@ public class FileService {
         }
     }
 
+    public void deleteProfileImage(String filePath) {
+        if (filePath == null || filePath.equals(DEFAULT_PROFILE_IMAG)) {
+            return; // 기본 프로필 이미지라면 삭제하지 않음
+        }
+
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
+        }
+        
+    }
+
+
 }
