@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 정보 수정</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f1e4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 300px;
+            position: relative;
+        }
+
+        .profile-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            background-color: #6f4e37;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .profile-btn:hover {
+            background-color: #5a392a;
+        }
+
+        h2 {
+            color: #6f4e37;
+            margin-bottom: 20px;
+        }
+
+        input {
+            margin-top: 10px;
+            padding: 10px;
+            width: 90%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #6f4e37;
+            font-weight: bold;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px;
+            width: 90%;
+            border: none;
+            border-radius: 5px;
+            background-color: #6f4e37;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #5a392a;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/member/profile" class="profile-btn">👤 프로필 보기</a>
+    <h2>회원 정보 수정</h2>
+    <form id="updateForm" enctype="multipart/form-data">
+        <input type="text" id="nickName" name="nickName" placeholder="새 닉네임" required>
+        <label for="newProfileImage">📷 프로필 이미지 수정 (선택)</label>
+        <input type="file" id="newProfileImage" name="newProfileImage" accept="image/*">
+        <button type="submit">수정하기</button>
+    </form>
+</div>
+<script>
+    document.getElementById("updateForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const response = await fetch("/api/member/update", {
+            method: "PATCH",
+            body: formData,
+            credentials: 'include'
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert("프로필이 성공적으로 수정되었습니다.");
+            window.location.href = "/member/profile";
+        } else {
+            alert("수정 실패: " + result.message);
+        }
+    });
+</script>
+</body>
+</html>
