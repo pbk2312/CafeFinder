@@ -55,8 +55,13 @@ public class Member {
                 .build();
     }
 
-    public void updateProfileImage(String newProfileImagePath) {
-        this.profileImagePath = newProfileImagePath;
+    public void updateProfile(String newNickName, String newProfileImagePath) {
+        if (newNickName != null && !newNickName.isEmpty()) {
+            this.nickName = newNickName;
+        }
+        if (newProfileImagePath != null && !newProfileImagePath.isEmpty()) {
+            this.profileImagePath = newProfileImagePath;
+        }
     }
-    
+
 }
