@@ -10,5 +10,4 @@ import lombok.Getter;
 public class UserInfoDto {
     private String nickName;
     private String profileImagePath;
-
 }
