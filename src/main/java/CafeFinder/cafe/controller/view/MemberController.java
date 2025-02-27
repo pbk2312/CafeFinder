@@ -32,4 +32,9 @@ public class MemberController {
         return "profile";
     }
 
+    @GetMapping("/edit")
+    public String edit() {
+        return "profileEdit";
+    }
+
 }
