@@ -7,30 +7,23 @@
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .cafe-card {
-            transition: transform 0.3s;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        :root {
+            --primary-color: #6F4E37;
+            --secondary-color: #A68A64;
+            --card-bg: #fff;
+            --text-dark: #333;
+            --text-muted: #555;
         }
 
-        .cafe-card:hover {
-            transform: translateY(-5px);
+        body {
+            background: #f8f9fa;
         }
 
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .category-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 500;
+        .hero-section {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 3rem;
         }
 
         .search-bar {
@@ -38,62 +31,83 @@
             margin: 2rem auto;
         }
 
-        .hero-section {
-            background: linear-gradient(45deg, #6F4E37, #A68A64);
-            color: white;
-            padding: 4rem 0;
-            margin-bottom: 3rem;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .cafe-info {
+        .cafe-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .cafe-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-img-top {
+            height: 120px;
+            object-fit: cover;
+            transition: transform 0.3s, filter 0.3s;
+        }
+
+        .card-img-top:hover {
+            transform: scale(1.05);
+            filter: brightness(1.05);
+        }
+
+        .card-body {
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-text {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
             font-size: 0.9rem;
-            color: #666;
         }
 
-        .profile-container {
-            display: flex;
-            align-items: center;
-            gap: 10px; /* 이미지와 닉네임 간 간격 */
-            padding: 5px 10px;
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+            padding: 0.375rem 0.75rem;
             border-radius: 50px;
-            transition: background-color 0.3s, box-shadow 0.3s;
         }
 
-        .profile-container:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        .btn-primary:hover {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
         }
 
-        .profile-container img {
-            border: 2px solid #ddd;
-            transition: transform 0.3s;
-        }
-
-        .profile-container:hover img {
-            transform: scale(1.1); /* 호버 시 확대 효과 */
-        }
-
-        .navbar .nav-link {
-            font-size: 1rem;
-        }
-
-        .navbar .nav-item a {
+        .star-rating {
+            font-size: 1.2rem;
+            color: gold; /* 기본적으로 회색 */
             display: flex;
-            align-items: center;
+            justify-content: center;
         }
 
-        .navbar .nav-item .rounded-circle {
-            border: 2px solid #ddd;
-            transition: transform 0.2s;
-        }
-
-        .navbar .nav-item .rounded-circle:hover {
-            transform: scale(1.1);
-        }
-
-        .navbar .nav-item .fw-semibold {
-            font-weight: 600;
-            font-size: 1rem;
+        .star-rating .filled {
+            color: gold; /* 채워진 별 */
         }
 
 
@@ -103,7 +117,7 @@
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#">☕ Cafe Finder</a>
+        <a class="navbar-brand fw-bold" href="/">☕ Cafe Finder</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -133,39 +147,141 @@
     </form>
 </div>
 
-<!-- Cafe Grid -->
-<div class="container">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <!-- Cafe Card 1 -->
-        <div class="col">
-            <div class="card cafe-card">
-                <div class="position-relative">
-                    <img src="https://source.unsplash.com/random/600x400?cafe=1" class="card-img-top" alt="카페 이미지">
-                    <span class="category-badge">커피 전문</span>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">로스터리 커피랩</h5>
-                    <p class="card-text text-muted">싱글오리진 커피의 진수를 느껴보세요</p>
-                    <div class="cafe-info">
-                        <div class="d-flex justify-content-between">
-                            <span>⭐ 4.9 (87)</span>
-                            <span>🚇 홍대입구역</span>
-                        </div>
-                        <div class="mt-2">🕘 09:00 - 22:00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- 카드 컨테이너 -->
+<div class="container mt-5">
+    <div class="row" id="gu-review-container">
+        <!-- JS에서 동적으로 카드 추가 -->
     </div>
 </div>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        fetchGuReviewStats();
         checkLoginStatus();
     });
+
+    // 서버에 업로드한 이미지 URL 매핑 객체 (필요에 따라 경로와 파일명을 변경)
+    const guImageMapping = {
+        "강남구": "/static/assets/images/district/gangnam.jpg", // https://www.istockphoto.com/kr
+        "강동구": "/static/assets/images/district/gangdong.jpg", // https://pixabay.com/ko/photos/
+        "강북구": "/static/assets/images/district/gangbuk.jpg",
+        "강서구": "/static/assets/images/district/gangseo.jpg",
+        "관악구": "/static/assets/images/district/gwanak.jpg", // https://www.gwanak.go.kr/site/enews/news/news_view.do?mvid=1265&aid=9602
+        "광진구": "/static/assets/images/district/gwangjin.jpg", // https://www.newsro.kr/local/%EA%B4%91%EC%A7%84%EA%B5%AC/?mytheme=active
+        "구로구": "/static/assets/images/district/guro.jpg", // https://www.yna.co.kr/view/AKR20181231253800004
+        "금천구": "/static/assets/images/district/geumcheon.jpg", // https://www.welfarehello.com/community/hometownNews/b203ad57-680f-4e31-8fe3-019a585bd893
+        "노원구": "/static/assets/images/district/nowon.jpg", // https://pnpspace.blogspot.com/2017/06/ci-symbol-mark-logo-emblem-of-nowon-gu-in-Seoul.html
+        "도봉구": "/static/assets/images/district/dobong.jpg", // https://namu.wiki/w/%EB%8F%84%EB%B4%89%EA%B5%AC
+        "동대문구": "/static/assets/images/district/dongdaemun.jpg", // https://www.hankyung.com/article/202001158800g
+        "동작구": "/static/assets/images/district/dongjak.jpg", // https://namu.wiki/w/%EB%8F%99%EC%9E%91%EA%B5%AC
+        "마포구": "/static/assets/images/district/mapo.jpg", // https://stock.adobe.com
+        "서대문구": "/static/assets/images/district/seodaemun.jpg", // https://archisafety.com
+        "서초구": "/static/assets/images/district/seocho.jpg", // https://www.seocho.go.kr/site/seocho/main.do
+        "성동구": "/static/assets/images/district/seongdong.jpg", // 나무위키
+        "성북구": "/static/assets/images/district/seongbuk.jpg", // 위키백과
+        "송파구": "/static/assets/images/district/songpa.jpg", // 나무 위키
+        "양천구": "/static/assets/images/district/yangcheon.jpg", // https://go.seoul.co.kr/news/newsView.php?id=20211019014001
+        "영등포구": "/static/assets/images/district/yeongdeungpo.jpg", // https://www.ydp.go.kr/tour/index.do
+        "용산구": "/static/assets/images/district/yongsan.jpg", // 나무위키
+        "은평구": "/static/assets/images/district/eunpyeong.jpg", // https://blog.naver.com/darkpegasus/221678917821
+        "종로구": "/static/assets/images/district/jongno.jpg", //https://www.tripadvisor.co.kr/Attractions-g294197-Activities-zfn15566271-Seoul.html
+        "중구": "/static/assets/images/district/jung.jpg", // 위키백과
+        "중랑구": "/staitc/assets/images/district/jungrang.jpg" // 위키백과
+    };
+
+    // 구 이름을 받아 서버에 있는 이미지 URL을 반환
+    function getImageUrl(fullName) {
+        return guImageMapping[fullName] || "/assets/images/default.jpg";
+    }
+
+    function fetchGuReviewStats() {
+        fetch("/api/cafes/guReviewStats")
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayGuReviewStats(data.data);
+                    updateStarRatings(); // 별점 업데이트
+                }
+            })
+            .catch(error => console.error("구 리뷰 통계 가져오기 오류:", error));
+    }
+
+    function displayGuReviewStats(statsList) {
+        // 구 코드와 한국어 이름 매핑
+        const guMapping = {
+            "GN": "강남구",
+            "GD": "강동구",
+            "GB": "강북구",
+            "GS": "강서구",
+            "GA": "관악구",
+            "GJ": "광진구",
+            "GR": "구로구",
+            "GC": "금천구",
+            "NW": "노원구",
+            "DB": "도봉구",
+            "DD": "동대문구",
+            "DJ": "동작구",
+            "MP": "마포구",
+            "SDM": "서대문구",
+            "SC": "서초구",
+            "SDG": "성동구",
+            "SB": "성북구",
+            "SP": "송파구",
+            "YC": "양천구",
+            "YD": "영등포구",
+            "YS": "용산구",
+            "EP": "은평구",
+            "JR": "종로구",
+            "JG": "중구",
+            "JL": "중랑구"
+        };
+
+        const container = document.getElementById("gu-review-container");
+        container.innerHTML = "";
+
+        statsList.forEach(stat => {
+            const fullName = guMapping[stat.guCode] || stat.guCode;
+            const imageUrl = getImageUrl(fullName);
+
+            const cardHtml = `
+          <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card cafe-card">
+              <img src="${imageUrl}" class="card-img-top" alt="${fullName} 이미지">
+              <div class="card-body">
+                <h5 class="card-title">${fullName}</h>
+                <div class="star-rating" data-rating="${stat.averageRating.toFixed(1)}">
+    ★★★★★
+</div>
+
+                <p class="card-text">💬 총 리뷰 수: <strong>${stat.totalReviews}</strong></p>
+                <a href="/gu/${stat.guCode}" class="btn btn-primary">탐험 하기</a>
+              </div>
+            </div>
+          </div>
+        `;
+            container.innerHTML += cardHtml;
+        });
+    }
+
+    function updateStarRatings() {
+        document.querySelectorAll('.star-rating').forEach(starContainer => {
+            const rating = parseFloat(starContainer.getAttribute('data-rating')); // 데이터 가져오기
+            let stars = '';
+
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '★'; // 채워진 별
+                } else {
+                    stars += '☆'; // 빈 별
+                }
+            }
+
+            starContainer.innerHTML = stars;
+        });
+    }
+
 
     function checkLoginStatus() {
         fetch("/api/member/validateToken", {
@@ -174,36 +290,33 @@
         })
             .then(response => response.json())
             .then(data => {
-                if (data.success && data.data) {  // 로그인 성공 + 유저 정보 존재
+                if (data.success && data.data) {
                     updateNavbarForLoggedInUser(data.data.nickName, data.data.profileImagePath);
                 }
             })
             .catch(error => console.error("로그인 상태 확인 오류:", error));
     }
 
-
     function updateNavbarForLoggedInUser(nickName, profileImagePath) {
         const navbar = document.getElementById("navbarNav");
         const loginLink = document.getElementById("login-link");
-        if (loginLink) loginLink.remove();  // 로그인 링크 제거
+        if (loginLink) loginLink.remove();
 
         const profileImageTag = profileImagePath
             ? `<img src="${profileImagePath}" class="rounded-circle" width="40" height="40" alt="프로필 이미지">`
             : `<img src="/default-profile.png" class="rounded-circle" width="40" height="40" alt="기본 프로필">`;
 
         navbar.innerHTML += `
-       <li class="nav-item d-flex align-items-start me-3">
-    <a class="nav-link" href="#" onclick="logout()">로그아웃</a>
-</li>
-<li class="nav-item d-flex align-items-start ms-auto">
-    <a class="nav-link d-flex align-items-center" href="/member/profile">
-        ${profileImageTag} <span class="ms-2 fw-semibold">${nickName}</span>
-    </a>
-</li>
-
-    `;
+        <li class="nav-item d-flex align-items-start me-3">
+          <a class="nav-link" href="#" onclick="logout()">로그아웃</a>
+        </li>
+        <li class="nav-item d-flex align-items-start ms-auto">
+          <a class="nav-link d-flex align-items-center" href="/member/profile">
+            ${profileImageTag} <span class="ms-2 fw-semibold">${nickName}</span>
+          </a>
+        </li>
+      `;
     }
-
 
     function logout() {
         fetch("/api/member/logout", {
@@ -212,7 +325,7 @@
         })
             .then(response => {
                 if (response.ok) {
-                    location.reload(); // 로그아웃 후 새로고침
+                    location.reload();
                 } else {
                     console.error("로그아웃 실패");
                 }
