@@ -16,7 +16,8 @@ public enum ErrorMessage {
     VERIFY_CODE_MIS_MATCH("인증번호가 일치하지 않습니다."),
     NOT_VERIFY_CODE("이메일 인증이 완료 되지 않았습니다."),
     UNSUPPORTEDPROVIDER("소셜로그인 오류(제공자 오류) : "),
-    PROFILESAVEEXCEPTION("프로필 이미지 저장 중 오류 발생");
+    PROFILESAVEEXCEPTION("프로필 이미지 저장 중 오류 발생"),
+    WRONG_DISTRCIT_THEME("잘못된 district 또는 theme 값입니다.");
 
     private final String message;
 
