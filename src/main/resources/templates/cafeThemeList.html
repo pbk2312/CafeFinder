@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카페 탐험가</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6F4E37;
+            --secondary-color: #A68A64;
+            --card-bg: #fff;
+            --text-dark: #333;
+            --text-muted: #555;
+        }
+
+        body {
+            background: #f8f9fa;
+        }
+
+        .hero-section {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 3rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cafe-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .cafe-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-img-top {
+            height: 120px;
+            object-fit: cover;
+            transition: transform 0.3s, filter 0.3s;
+        }
+
+        .card-img-top:hover {
+            transform: scale(1.05);
+            filter: brightness(1.05);
+        }
+
+        .card-body {
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-text {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 50px;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+        }
+
+        /* 선택된 테마 카드 스타일 */
+        .theme-card.selected {
+            border: 3px solid var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">☕ Cafe Finder</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto" id="navbarNav">
+                <li class="nav-item"><a class="nav-link" href="/">홈</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">지도 보기</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">테마별</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">커뮤니티</a></li>
+                <li class="nav-item"><a class="nav-link" href="/member/signupAndLogin" id="login-link">로그인</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 테마 선택 카드 영역 -->
+<div class="container my-4">
+    <h2 class="mb-3">테마 선택</h2>
+    <div class="row" id="themeCardContainer">
+        <!-- API에서 받아온 테마 데이터로 카드가 동적으로 생성됩니다. -->
+    </div>
+</div>
+
+<!-- 검색 및 기타 컨텐츠 영역 -->
+<div class="container search-bar">
+    <!-- 추가 검색 요소나 카페 리스트 등을 배치 -->
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 테마별 카드에 사용할 이미지 매핑 (예시)
+    const themeImages = {
+        "COZY": "/static/assets/images/cafeTheme/cozy.jpg",
+        "QUIET": "/static/assets/images/cafeTheme/quiet.jpg",
+        "STUDY_FRIENDLY": "/static/assets/images/cafeTheme/study_friendly.jpg",
+        "DESSERT": "/static/assets/images/cafeTheme/dessert.jpg",
+        "SPECIALTY_COFFEE": "/static/assets/images/cafeTheme/specialty_coffee.jpg",
+        "NONE": "/static/assets/images/cafeTheme/none.jpg"
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // '/theme' 엔드포인트 호출
+        fetch("/api/cafes/theme")
+            .then(response => response.json())
+            .then(result => {
+                // result = { message, data, success }
+                const themes = result.data;
+                const container = document.getElementById("themeCardContainer");
+
+                themes.forEach(theme => {
+                    // theme = { name: "COZY", description: "분위기 좋은" } 등
+                    const themeName = theme.name;
+                    const themeDesc = theme.description;
+
+                    // 카드 생성
+                    const colDiv = document.createElement("div");
+                    colDiv.className = "col-md-4 mb-4";
+
+                    const cardDiv = document.createElement("div");
+                    cardDiv.className = "card cafe-card theme-card";
+                    cardDiv.style.cursor = "pointer";
+                    // data-theme 속성에 영어 Enum 이름 저장
+                    cardDiv.dataset.theme = themeName;
+
+                    const img = document.createElement("img");
+                    img.className = "card-img-top";
+                    img.alt = themeDesc;
+                    img.src = themeImages[themeName] || "https://via.placeholder.com/300x200?text=No+Image";
+
+                    const cardBody = document.createElement("div");
+                    cardBody.className = "card-body";
+
+                    // 카드 제목: 한글 설명
+                    const cardTitle = document.createElement("h5");
+                    cardTitle.className = "card-title";
+                    cardTitle.textContent = themeDesc;
+
+                    // 카드 텍스트: 영어 Enum 이름
+                    const cardText = document.createElement("p");
+                    cardText.className = "card-text";
+                    cardText.textContent = themeName;
+
+                    // 카드 조립
+                    cardBody.appendChild(cardTitle);
+                    cardBody.appendChild(cardText);
+                    cardDiv.appendChild(img);
+                    cardDiv.appendChild(cardBody);
+                    colDiv.appendChild(cardDiv);
+                    container.appendChild(colDiv);
+
+                    // 클릭 시 선택 상태 표시 및 /theme/테마명 페이지로 이동
+                    cardDiv.addEventListener("click", function () {
+                        // 기존 선택 해제
+                        document.querySelectorAll(".theme-card").forEach(card => card.classList.remove("selected"));
+                        // 현재 카드에 selected 표시
+                        cardDiv.classList.add("selected");
+                        // /theme/{themeName} 경로로 이동
+                        window.location.href = `/gu/theme/${cardDiv.dataset.theme}`;
+                    });
+                });
+            })
+            .catch(error => console.error("테마 로드 실패:", error));
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        checkLoginStatus();
+    });
+
+    function checkLoginStatus() {
+        fetch("/api/member/validateToken", {
+            method: "GET",
+            credentials: "include"
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    updateNavbarForLoggedInUser(data.data.nickName, data.data.profileImagePath);
+                }
+            })
+            .catch(error => console.error("로그인 상태 확인 오류:", error));
+    }
+
+    function updateNavbarForLoggedInUser(nickName, profileImagePath) {
+        const navbar = document.getElementById("navbarNav");
+        const loginLink = document.getElementById("login-link");
+        if (loginLink) loginLink.remove();
+
+        const profileImageTag = profileImagePath
+            ? `<img src="${profileImagePath}" class="rounded-circle" width="40" height="40" alt="프로필 이미지">`
+            : `<img src="/default-profile.png" class="rounded-circle" width="40" height="40" alt="기본 프로필">`;
+
+        navbar.innerHTML += `
+        <li class="nav-item d-flex align-items-start me-3">
+          <a class="nav-link" href="#" onclick="logout()">로그아웃</a>
+        </li>
+        <li class="nav-item d-flex align-items-start ms-auto">
+          <a class="nav-link d-flex align-items-center" href="/member/profile">
+            ${profileImageTag} <span class="ms-2 fw-semibold">${nickName}</span>
+          </a>
+        </li>
+      `;
+    }
+
+    function logout() {
+        fetch("/api/member/logout", {
+            method: "POST",
+            credentials: "include"
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error("로그아웃 실패");
+                }
+            })
+            .catch(error => console.error("로그아웃 요청 오류:", error));
+    }
+</script>
+</body>
+</html>
