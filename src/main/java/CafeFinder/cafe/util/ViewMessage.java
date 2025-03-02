@@ -12,8 +12,10 @@ public enum ViewMessage {
     EMAIL_SEND_SUCCESS("인증번호 이메일 전송 성공"),
     EMAIL_VERIFY_SUCCESS("이메일 인증 성공"),
     UPDATE_PROFILE("프로필 수정 성공"),
-    PROFILE_INFO("프로필 정보 조회 성공");
-
+    PROFILE_INFO("프로필 정보 조회 성공"),
+    GUREVIEW_STATS_SUCCESS("구 별 리뷰 통계 데이터 조회 성공"),
+    DISTRCT_THEME_GET_SUCCESS("구 , 테마별 조회 성공"),
+    GET_CAFE_THEME("카페 테마 조회");
     private final String message;
 
     ViewMessage(String message) {
