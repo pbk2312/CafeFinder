@@ -11,6 +11,6 @@ public enum CafeTheme {
     STUDY_FRIENDLY("공부하기 좋은"),
     DESSERT("디저트 맛집"),
     SPECIALTY_COFFEE("커피 맛집"),
-    NONE("테마 없음");
+    NONE("기타");
     private final String description;
 }
