@@ -8,8 +8,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,75 +31,57 @@ public class CafeInfoCsvImporter {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath, StandardCharsets.UTF_8))) {
             String line;
             boolean isFirstLine = true;
+
             while ((line = br.readLine()) != null) {
                 if (isFirstLine) {
                     isFirstLine = false;
                     continue;
                 }
-                String[] data = line.split("\\|", -1);
-                if (data.length < 3 || data[0].trim().isEmpty() || data[1].trim().isEmpty() || data[2].trim()
-                        .isEmpty()) {
-                    log.warn("필수 데이터가 없는 행 스킵: {}", line);
-                    skippedRows++;
-                    continue;
-                }
-                CafeInfo cafe = createCafeInfo(data);
-                if (cafe != null) {
-                    cafeList.add(cafe);
+                Optional<CafeInfo> cafe = parseCafeInfo(line);
+                if (cafe.isPresent()) {
+                    cafeList.add(cafe.get());
                 } else {
                     skippedRows++;
                 }
             }
-            if (!cafeList.isEmpty()) {
-                cafeInfoService.saveCafes(cafeList);
-                log.info("CSV 데이터가 성공적으로 DB에 저장되었습니다! 저장된 행 수: {}", cafeList.size());
-            } else {
-                log.warn("저장할 데이터가 없습니다.");
-            }
-            log.info("스킵된 데이터 행 수: {}", skippedRows);
+
+            saveCafes(cafeList);
+            log.info("총 스킵된 데이터 행 수: {}", skippedRows);
+
         } catch (Exception e) {
             log.error("CSV 파일 읽기 오류: {}", e.getMessage(), e);
         }
     }
 
-    private static CafeInfo createCafeInfo(String[] data) {
+    private Optional<CafeInfo> parseCafeInfo(String line) {
+        String[] data = line.split("\\|", -1);
+
+        if (!isValidData(data)) {
+            log.warn("필수 데이터가 없는 행 스킵: {}", line);
+            return Optional.empty();
+        }
+
         String cafeCode = data[0].trim();
         String name = data[1].trim();
         String address = data[2].trim();
-        String hours = data.length > 3 && !data[3].trim().isEmpty() ? data[3].trim() : null;
-        String phone = data.length > 4 && !data[4].trim().isEmpty() ? data[4].trim() : null;
-        String imageUrl = data.length > 5 && !data[5].trim().isEmpty() ? data[5].trim() : null;
-        Double review = null;
-        if (data.length > 6 && !data[6].trim().isEmpty()) {
-            try {
-                review = Double.parseDouble(data[6].trim());
-            } catch (NumberFormatException e) {
-                log.warn("잘못된 평점 값: {} (카페 ID: {})", data[6], cafeCode);
-                return null;
-            }
-        }
-        Set<CafeTheme> themes = new HashSet<>();
-        if (data.length > 7 && !data[7].trim().isEmpty()) {
-            String[] themeStrings = data[7].split(",");
-            for (String themeStr : themeStrings) {
-                try {
-                    themes.add(CafeTheme.valueOf(themeStr.trim()));
-                } catch (IllegalArgumentException e) {
-                    log.warn("잘못된 테마 값: {} (카페 ID: {})", themeStr, cafeCode);
-                }
-            }
-        }
-        if (themes.isEmpty()) {
-            log.warn("테마 값이 없음 (카페 ID: {}, 카페명: {})", cafeCode, name);
+        String hours = getValueOrNull(data, 3);
+        String phone = getValueOrNull(data, 4);
+        String imageUrl = getValueOrNull(data, 5);
+
+        Double review = parseReview(data, cafeCode);
+        if (review == null) {
+            return Optional.empty();
         }
 
-        String districtCode = cafeCode.substring(0, 2).toUpperCase();
-        CafeDistrict district = getDistrictByCode(districtCode);
+        Set<CafeTheme> themes = parseThemes(data, cafeCode);
+
+        CafeDistrict district = getDistrictByCode(cafeCode.substring(0, 2).toUpperCase());
         if (district == null) {
-            log.warn("유효하지 않은 구 코드: {} (카페 ID: {})", districtCode, cafeCode);
-            return null;
+            log.warn("유효하지 않은 구 코드: {} (카페 ID: {})", cafeCode.substring(0, 2), cafeCode);
+            return Optional.empty();
         }
-        return CafeInfo.builder()
+
+        return Optional.of(CafeInfo.builder()
                 .cafeCode(cafeCode)
                 .name(name)
                 .address(address)
@@ -106,16 +90,55 @@ public class CafeInfoCsvImporter {
                 .phone(phone)
                 .imageUrl(imageUrl)
                 .review(review)
-                .theme(themes.isEmpty() ? null : themes.iterator().next()) // 하나의 테마만 저장 (DB 구조에 따라 변경 가능)
-                .build();
+                .themes(themes)
+                .build());
     }
 
-    private static CafeDistrict getDistrictByCode(String code) {
-        for (CafeDistrict district : CafeDistrict.values()) {
-            if (district.name().equalsIgnoreCase(code)) {
-                return district;
+    private void saveCafes(List<CafeInfo> cafeList) {
+        if (!cafeList.isEmpty()) {
+            cafeInfoService.saveCafes(cafeList);
+            log.info("CSV 데이터가 성공적으로 DB에 저장되었습니다! 저장된 행 수: {}", cafeList.size());
+        } else {
+            log.warn("저장할 데이터가 없습니다.");
+        }
+    }
+
+    private boolean isValidData(String[] data) {
+        return data.length >= 3 && !data[0].trim().isEmpty() && !data[1].trim().isEmpty() && !data[2].trim().isEmpty();
+    }
+
+    private String getValueOrNull(String[] data, int index) {
+        return (data.length > index && !data[index].trim().isEmpty()) ? data[index].trim() : null;
+    }
+
+    private Double parseReview(String[] data, String cafeCode) {
+        try {
+            return (data.length > 6 && !data[6].trim().isEmpty()) ? Double.parseDouble(data[6].trim()) : null;
+        } catch (NumberFormatException e) {
+            log.warn("잘못된 평점 값: {} (카페 ID: {})", data[6], cafeCode);
+            return null;
+        }
+    }
+
+    private Set<CafeTheme> parseThemes(String[] data, String cafeCode) {
+        Set<CafeTheme> themes = new HashSet<>();
+        if (data.length > 7 && !data[7].trim().isEmpty()) {
+            for (String themeStr : data[7].split(",")) {
+                try {
+                    themes.add(CafeTheme.valueOf(themeStr.trim()));
+                } catch (IllegalArgumentException e) {
+                    log.warn("잘못된 테마 값: {} (카페 ID: {})", themeStr, cafeCode);
+                }
             }
         }
-        return null;
+        return themes;
     }
+
+    private CafeDistrict getDistrictByCode(String code) {
+        return Arrays.stream(CafeDistrict.values())
+                .filter(district -> district.name().equalsIgnoreCase(code))
+                .findFirst()
+                .orElse(null);
+    }
+
 }
