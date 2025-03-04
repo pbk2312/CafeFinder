@@ -1,10 +1,14 @@
 package CafeFinder.cafe.domain;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,9 +47,10 @@ public class CafeInfo {
     @Column(length = 20)
     private Double review;  // 평균 평점
 
+    @ElementCollection
+    @CollectionTable(name = "cafe_themes", joinColumns = @JoinColumn(name = "cafe_code"))
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private CafeTheme theme; // 카페 테마
+    private Set<CafeTheme> themes; // 여러 개의 테마
 
     public void updateReview(Double review) {
         this.review = review;
