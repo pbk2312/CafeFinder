@@ -203,7 +203,9 @@
                         // 현재 카드에 selected 표시
                         cardDiv.classList.add("selected");
                         // /theme/{themeName} 경로로 이동
-                        window.location.href = `/gu/theme/${cardDiv.dataset.theme}`;
+                        const parts = window.location.pathname.split('/');
+                        const district = parts[2] || "GN"; // URL의 세 번째 부분을 district로 사용 (없으면 기본값 "GN")
+                        window.location.href = `/gu/${district}/${cardDiv.dataset.theme}`;
                     });
                 });
             })
