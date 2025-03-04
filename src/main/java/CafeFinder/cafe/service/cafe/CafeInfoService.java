@@ -36,13 +36,13 @@ public class CafeInfoService {
             CafeDistrict cafeDistrict = CafeDistrict.valueOf(district.toUpperCase());
             CafeTheme cafeTheme = CafeTheme.valueOf(theme.toUpperCase());
 
-            Page<CafeInfo> byDistrictAndTheme = cafeInfoRepository.findByDistrictAndTheme(cafeDistrict, cafeTheme,
+            Page<CafeInfo> byDistrictAndTheme = cafeInfoRepository.findByDistrictAndThemesContaining(cafeDistrict,
+                    cafeTheme,
                     pageable);
             return byDistrictAndTheme.map(CafeInfoDto::fromEntity);
         } catch (IllegalArgumentException e) {
             throw new WrongDistrictAndTheme();
         }
     }
-
 
 }
