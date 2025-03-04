@@ -3,6 +3,7 @@ package CafeFinder.cafe.dto;
 import CafeFinder.cafe.domain.CafeDistrict;
 import CafeFinder.cafe.domain.CafeInfo;
 import CafeFinder.cafe.domain.CafeTheme;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +23,8 @@ public class CafeInfoDto {
     private String phone;  // 전화번호
     private String imageUrl;  // 대표사진 URL
     private Double review;  // 평균 평점
-    private CafeTheme theme; // 카페 테마
+    private Set<CafeTheme> themes; // 여러 개의 카페 테마 저장
+
 
     // 엔티티 -> DTO
     public static CafeInfoDto fromEntity(CafeInfo cafeInfo) {
@@ -35,7 +37,7 @@ public class CafeInfoDto {
                 .phone(cafeInfo.getPhone())
                 .imageUrl(cafeInfo.getImageUrl())
                 .review(cafeInfo.getReview())
-                .theme(cafeInfo.getTheme())
+                .themes(cafeInfo.getThemes())
                 .build();
     }
 
