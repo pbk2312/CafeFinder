@@ -28,14 +28,14 @@ public class CafeInfo {
     @Column(nullable = false, length = 100)
     private String name;  // 카페명
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String address;  // 주소
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private CafeDistrict district;  // 행정구 (ex: MP -> 마포구)
 
-    @Column(length = 255)
+
     private String hours;  // 영업시간
 
     @Column(length = 20)
