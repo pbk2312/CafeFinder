@@ -15,7 +15,8 @@ public enum ViewMessage {
     PROFILE_INFO("프로필 정보 조회 성공"),
     GUREVIEW_STATS_SUCCESS("구 별 리뷰 통계 데이터 조회 성공"),
     DISTRCT_THEME_GET_SUCCESS("구 , 테마별 조회 성공"),
-    GET_CAFE_THEME("카페 테마 조회");
+    GET_CAFE_THEME("카페 테마 조회"),
+    GENERATE_ACCESSTOKEN("액세스 토큰 만료됨, 새로운 액세스 토큰 발급 완료");
     private final String message;
 
     ViewMessage(String message) {
