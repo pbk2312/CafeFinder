@@ -25,5 +25,4 @@ public class CafeInfoController {
         return "themeListCafes";
     }
 
-
 }
