@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,29 +19,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 @Log4j2
-@SuppressWarnings("unchecked")
+@RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private MemberService memberService;
-    private TokenProvider tokenProvider;
-    private RefreshTokenService refreshTokenService;
-
-
-    public OAuth2AuthenticationSuccessHandler(MemberService memberService, TokenProvider tokenProvider,
-                                              RefreshTokenService refreshTokenService) {
-        this.memberService = memberService;
-        this.tokenProvider = tokenProvider;
-        this.refreshTokenService = refreshTokenService;
-    }
-
-
-    public OAuth2AuthenticationSuccessHandler(String defaultTargetUrl, MemberService memberService,
-                                              TokenProvider tokenProvider, RefreshTokenService refreshTokenService) {
-        super(defaultTargetUrl);
-        this.memberService = memberService;
-        this.tokenProvider = tokenProvider;
-        this.refreshTokenService = refreshTokenService;
-    }
+    private final MemberService memberService;
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -99,12 +83,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     private String extractEmailFromKakao(OAuth2User oAuth2User) {
-        Map<String, Object> kakaoAccount = (Map<String, Object>) oAuth2User.getAttribute("kakao_account");
+        Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
         return kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
     }
 
     private String extractEmailFromNaver(OAuth2User oAuth2User) {
-        Map<String, Object> naverResponse = (Map<String, Object>) oAuth2User.getAttribute("response");
+        Map<String, Object> naverResponse = oAuth2User.getAttribute("response");
         return naverResponse != null ? (String) naverResponse.get("email") : null;
     }
 
