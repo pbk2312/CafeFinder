@@ -49,9 +49,12 @@ public class FileService {
 
         File file = new File(filePath);
         if (file.exists()) {
-            file.delete();
+            boolean deleted = file.delete();
+            if (!deleted) {
+                log.warn("파일 삭제 실패: {}", filePath);
+            }
         }
-        
+
     }
 
 
