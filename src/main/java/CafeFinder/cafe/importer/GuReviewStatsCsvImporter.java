@@ -2,7 +2,7 @@ package CafeFinder.cafe.importer;
 
 import CafeFinder.cafe.domain.GuReviewStats;
 import CafeFinder.cafe.service.cafe.GuReviewStatsService;
-import CafeFinder.cafe.util.GuReviewStatsCsvParser;
+import CafeFinder.cafe.util.CsvParserUtil;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
@@ -32,15 +32,7 @@ public class GuReviewStatsCsvImporter {
                     continue;
                 }
 
-                String[] data = line.split(",", -1);
-                if (data.length < 3 || data[0].trim().isEmpty() || data[1].trim().isEmpty() || data[2].trim()
-                        .isEmpty()) {
-                    log.warn("필수 데이터가 없는 행 스킵: {}", line);
-                    skippedRows++;
-                    continue;
-                }
-
-                GuReviewStats stats = GuReviewStatsCsvParser.parse(data);
+                GuReviewStats stats = CsvParserUtil.parse(line);
                 if (stats != null) {
                     statsList.add(stats);
                 } else {
