@@ -2,7 +2,10 @@ package CafeFinder.cafe.util;
 
 import CafeFinder.cafe.domain.CafeDistrict;
 import CafeFinder.cafe.domain.CafeInfo;
+import CafeFinder.cafe.domain.CafeReview;
 import CafeFinder.cafe.domain.CafeTheme;
+import CafeFinder.cafe.domain.GuReviewStats;
+import CafeFinder.cafe.repository.CafeInfoRepository;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -41,6 +44,59 @@ public class CsvParserUtil {
                 cafeCode, name, address, district, hours, phone, imageUrl, review, themes
         ));
     }
+
+    public static GuReviewStats parse(String line) {
+        String[] data = line.split(",", -1); // -1 옵션: 빈 문자열도 유지
+
+        if (data.length < 3 || data[0].trim().isEmpty() || data[1].trim().isEmpty() || data[2].trim().isEmpty()) {
+            log.warn("필수 데이터가 없는 행 스킵: {}", line);
+            return null;
+        }
+
+        try {
+            String guCode = data[0].trim();
+            double averageRating = Double.parseDouble(data[1].trim());
+            int totalReviews = Integer.parseInt(data[2].trim());
+
+            return GuReviewStats.create(guCode, averageRating, totalReviews);
+        } catch (NumberFormatException e) {
+            log.warn("잘못된 숫자 형식: {}", line, e);
+        } catch (Exception e) {
+            log.error("데이터 파싱 중 오류 발생: {}", line, e);
+        }
+        return null;
+    }
+
+
+    public static Optional<CafeReview> parseCafeReview(String line, CafeInfoRepository cafeInfoRepository) {
+        String[] parts = line.split(DELIMITER);
+        if (parts.length < 3) {
+            return Optional.empty();
+        }
+
+        String cafeCode = parts[0];
+        String ratingStr = parts[1];
+        String reviewText = parts[2];
+
+        if (ratingStr.contains("평균 평점")) {
+            return Optional.empty();
+        }
+
+        double rating;
+        try {
+            rating = Double.parseDouble(ratingStr);
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+
+        CafeInfo cafe = cafeInfoRepository.findById(cafeCode).orElse(null);
+        if (cafe == null) {
+            return Optional.empty();  // 카페 정보 없으면 스킵
+        }
+
+        return Optional.of(CafeReview.create(cafe, rating, reviewText));
+    }
+
 
     private static boolean isValidData(String[] data) {
         return data.length >= 3 && !data[0].trim().isEmpty() && !data[1].trim().isEmpty() && !data[2].trim().isEmpty();
