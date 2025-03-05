@@ -33,10 +33,20 @@ public class CsvParserUtil {
         String imageUrl = getValueOrNull(data, 5);
         Double review = parseReview(data, cafeCode);
         Set<CafeTheme> themes = parseThemes(data, cafeCode);
-        CafeDistrict district = getDistrictByCode(cafeCode.substring(0, 2).toUpperCase());
+
+        // 3글자 코드 먼저 확인, 없으면 2글자 코드 사용
+        CafeDistrict district = null;
+        String upperCode = cafeCode.toUpperCase();
+
+        if (upperCode.length() >= 3) {
+            district = getDistrictByCode(upperCode.substring(0, 3));
+        }
+        if (district == null && upperCode.length() >= 2) {
+            district = getDistrictByCode(upperCode.substring(0, 2));
+        }
 
         if (district == null) {
-            log.debug("유효하지 않은 구 코드 (카페 ID: {}): {}", cafeCode, cafeCode.substring(0, 2));
+            log.debug("유효하지 않은 구 코드 (카페 ID: {}): {}", cafeCode, cafeCode);
             return Optional.empty();
         }
 
@@ -44,6 +54,7 @@ public class CsvParserUtil {
                 cafeCode, name, address, district, hours, phone, imageUrl, review, themes
         ));
     }
+
 
     public static GuReviewStats parse(String line) {
         String[] data = line.split(",", -1); // -1 옵션: 빈 문자열도 유지
