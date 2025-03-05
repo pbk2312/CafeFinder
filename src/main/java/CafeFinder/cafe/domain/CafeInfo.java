@@ -8,6 +8,9 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,12 +55,16 @@ public class CafeInfo {
     @Enumerated(EnumType.STRING)
     private Set<CafeTheme> themes; // 여러 개의 테마
 
+    @OneToMany(mappedBy = "cafe")
+    private List<CafeReview> reviews = new ArrayList<>();
+
+
     public void updateReview(Double review) {
         this.review = review;
     }
 
     public static CafeInfo create(String cafeCode, String name, String address, CafeDistrict district,
-                                  String hours, String phone, String imageUrl) {
+                                  String hours, String phone, String imageUrl, Double review, Set<CafeTheme> themes) {
         return CafeInfo.builder()
                 .cafeCode(cafeCode)
                 .name(name)
@@ -66,6 +73,8 @@ public class CafeInfo {
                 .hours(hours)
                 .phone(phone)
                 .imageUrl(imageUrl)
+                .review(review)
+                .themes(themes)
                 .build();
     }
 
