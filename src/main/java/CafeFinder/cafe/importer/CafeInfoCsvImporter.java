@@ -33,7 +33,7 @@ public class CafeInfoCsvImporter {
                 if (cafe.isPresent()) {
                     cafeList.add(cafe.get());
                 } else {
-                    skippedRows++;  // 일반 변수 사용 가능
+                    skippedRows++;
                 }
             }
 
