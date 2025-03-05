@@ -1,26 +1,25 @@
 package CafeFinder.cafe.service.member;
 
 
-import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
 import CafeFinder.cafe.dto.EmailDto;
 import CafeFinder.cafe.dto.EmailVerifyDto;
 import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
+import CafeFinder.cafe.service.redis.RedisEmailVerifyService;
 import CafeFinder.cafe.validator.MemberValidator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Log4j2
 public class EmailService {
 
-    private final RedisTemplate<String, String> redisTemplate;
     private final JavaMailSender mailSender;
     private final MemberValidator memberValidator;
+    private final RedisEmailVerifyService redisEmailVerifyService;
 
     public void sendVerificationCode(EmailDto emailDto) {
 
@@ -28,17 +27,12 @@ public class EmailService {
         memberValidator.isMemberExists(emailDto.getEmail());
         String verificationCode = generateVerificationCode();
 
-        // 유효시간 5분
-        redisTemplate.opsForValue().set(emailDto.getEmail(), verificationCode, 5, TimeUnit.MINUTES);
+        redisEmailVerifyService.saveVerificationCode(emailDto.getEmail(), verificationCode);
 
         // 이메일 발송
         sendEmail(emailDto.getEmail(), verificationCode);
         log.info("이메일 발송 성공 : {} ", emailDto.getEmail());
 
-    }
-
-    private String generateVerificationCode() {
-        return String.valueOf((int) (Math.random() * 900000) + 100000); // 6자리 랜덤
     }
 
     private void sendEmail(String email, String verificationCode) {
@@ -51,16 +45,19 @@ public class EmailService {
 
     public void verifyCode(EmailVerifyDto emailVerifyDto) {
         log.info("인증 코드 인증 시작 : {}", emailVerifyDto.getEmail());
-        String storedCode = redisTemplate.opsForValue().get(emailVerifyDto.getEmail());
+        String storedCode = redisEmailVerifyService.getVerificationCode(emailVerifyDto.getEmail());
         boolean isMatch = emailVerifyDto.getCode().equals(storedCode);
 
         if (!isMatch) {
             throw new VerifyCodeMisMatchException();
         }
 
-        // 인증 성공 시 Redis에 인증 상태 저장 (TTL 설정: 30분)
-        redisTemplate.opsForValue().set("verified:" + emailVerifyDto.getEmail(), "true", 30, TimeUnit.MINUTES);
+        redisEmailVerifyService.changeStatus(emailVerifyDto.getEmail());
         log.info("인증 코드 인증 성공 및 Redis 삭제 완료 : {}", emailVerifyDto.getEmail());
+    }
+
+    private String generateVerificationCode() {
+        return String.valueOf((int) (Math.random() * 900000) + 100000); // 6자리 랜덤
     }
 
 }
