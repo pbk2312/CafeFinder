@@ -1,5 +1,7 @@
-package CafeFinder.cafe.util;
+package CafeFinder.cafe.config;
 
+import CafeFinder.cafe.importer.CafeInfoCsvImporter;
+import CafeFinder.cafe.importer.GuReviewStatsCsvImporter;
 import CafeFinder.cafe.service.cafe.CafeInfoService;
 import CafeFinder.cafe.service.cafe.GuReviewStatsService;
 import java.nio.file.Files;
@@ -34,24 +36,24 @@ public class CafeDataInitializer {
             if (cafeInfoService.countCafes() == 0) { // DB에 데이터가 없을 때만 실행
                 if (Files.exists(Paths.get(cafeInfoPath))) {
                     cafeInfoCsvImporter.importCsv(cafeInfoPath);
-                    log.info("✅ 카페 정보 CSV import 완료");
+                    log.info("카페 정보 CSV import 완료");
                 } else {
                     log.error("카페 정보 CSV 파일이 존재하지 않습니다: {}", cafeInfoPath);
                 }
             } else {
-                log.info("✅ DB에 이미 카페 데이터가 존재하므로 CSV Import를 건너뜁니다.");
+                log.info("DB에 이미 카페 데이터가 존재하므로 CSV Import를 건너뜁니다.");
             }
 
             // 구별 리뷰 통계 CSV import
             if (guReviewStatsService.countGuReviewStats() == 0) { // DB에 데이터가 없을 때만 실행
                 if (Files.exists(Paths.get(guReviewStatsPath))) {
                     guReviewStatsCsvImporter.importCsv(guReviewStatsPath);
-                    log.info("✅ 구별 리뷰 통계 CSV import 완료");
+                    log.info("구별 리뷰 통계 CSV import 완료");
                 } else {
-                    log.error("🚨 구별 리뷰 통계 CSV 파일이 존재하지 않습니다: {}", guReviewStatsPath);
+                    log.error("구별 리뷰 통계 CSV 파일이 존재하지 않습니다: {}", guReviewStatsPath);
                 }
             } else {
-                log.info("✅ DB에 이미 구별 리뷰 통계 데이터가 존재하므로 CSV Import를 건너뜁니다.");
+                log.info("DB에 이미 구별 리뷰 통계 데이터가 존재하므로 CSV Import를 건너뜁니다.");
             }
         };
     }

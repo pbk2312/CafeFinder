@@ -1,7 +1,8 @@
-package CafeFinder.cafe.util;
+package CafeFinder.cafe.importer;
 
 import CafeFinder.cafe.domain.GuReviewStats;
 import CafeFinder.cafe.service.cafe.GuReviewStatsService;
+import CafeFinder.cafe.util.GuReviewStatsCsvParser;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +40,7 @@ public class GuReviewStatsCsvImporter {
                     continue;
                 }
 
-                GuReviewStats stats = createGuReviewStats(data);
+                GuReviewStats stats = GuReviewStatsCsvParser.parse(data);
                 if (stats != null) {
                     statsList.add(stats);
                 } else {
@@ -49,7 +50,7 @@ public class GuReviewStatsCsvImporter {
 
             if (!statsList.isEmpty()) {
                 guReviewStatsService.saveGuReviewStats(statsList);
-                log.info("구별 리뷰 통계 CSV 데이터가 성공적으로 DB에 저장되었습니다! 저장된 행 수: {}", statsList.size());
+                log.info("구별 리뷰 통계 CSV 데이터 저장 완료! 저장된 행 수: {}", statsList.size());
             } else {
                 log.warn("저장할 데이터가 없습니다.");
             }
@@ -58,22 +59,6 @@ public class GuReviewStatsCsvImporter {
             log.error("CSV 파일 읽기 오류: {}", e.getMessage(), e);
         }
     }
-
-    private static GuReviewStats createGuReviewStats(String[] data) {
-        try {
-            String guCode = data[0].trim();
-            double averageRating = Double.parseDouble(data[1].trim());
-            int totalReviews = Integer.parseInt(data[2].trim());
-
-            return GuReviewStats.builder()
-                    .guCode(guCode)
-                    .averageRating(averageRating)
-                    .totalReviews(totalReviews)
-                    .build();
-        } catch (NumberFormatException e) {
-            log.warn("잘못된 숫자 형식: {}", data);
-            return null;
-        }
-    }
-
+    
 }
+
