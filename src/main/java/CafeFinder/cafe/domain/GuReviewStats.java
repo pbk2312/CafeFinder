@@ -25,4 +25,12 @@ public class GuReviewStats {
     @Column(name = "total_reviews", nullable = false)
     private int totalReviews;  // 총 리뷰 수
 
+    public static GuReviewStats create(String guCode, double averageRating, int totalReviews) {
+        return GuReviewStats.builder()
+                .guCode(guCode)
+                .averageRating(averageRating)
+                .totalReviews(totalReviews)
+                .build();
+    }
+
 }
