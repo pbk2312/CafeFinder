@@ -101,7 +101,7 @@
 
         /* Footer 스타일 (카페 느낌) */
         footer {
-            background-color: #f1e8dd; /* 부드러운 커피톤 배경 */
+            background-color: #f1e8dd;
             color: var(--primary-color);
             padding: 40px 0 20px;
             margin-top: 50px;
@@ -164,6 +164,32 @@
                 margin-bottom: 10px;
             }
         }
+
+        /* 새로운 헤더 스타일 (.cafe-header) */
+        @keyframes textFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cafe-header {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+            display: inline-block;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: textFadeIn 1s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -188,7 +214,7 @@
 
 <!-- 테마 선택 카드 영역 -->
 <div class="container my-4">
-    <h2 class="mb-3">테마 선택</h2>
+    <h2 class="cafe-header mb-3">커피 한 잔의 여유, 어디서 즐기실래요?</h2>
     <div class="row" id="themeCardContainer">
         <!-- API에서 받아온 테마 데이터로 카드가 동적으로 생성됩니다. -->
     </div>
@@ -251,8 +277,18 @@
         "NONE": "/static/assets/images/cafeTheme/none.jpg"
     };
 
+    // 각 테마의 성격에 맞는 아이콘 매핑
+    const themeIcons = {
+        "COZY": "🛋️",
+        "QUIET": "🤫",
+        "STUDY_FRIENDLY": "📚",
+        "DESSERT": "🍰",
+        "SPECIALTY_COFFEE": "☕",
+        "NONE": "✨"
+    };
+
     document.addEventListener("DOMContentLoaded", function () {
-        // '/theme' 엔드포인트 호출
+        // '/api/cafes/theme' 엔드포인트 호출
         fetch("/api/cafes/theme")
             .then(response => response.json())
             .then(result => {
@@ -283,33 +319,28 @@
                     const cardBody = document.createElement("div");
                     cardBody.className = "card-body";
 
-                    // 카드 제목: 한글 설명
+                    // 카드 제목: 설명과 각 테마에 맞는 아이콘만 표시
                     const cardTitle = document.createElement("h5");
                     cardTitle.className = "card-title";
-                    cardTitle.textContent = themeDesc;
+                    const icon = themeIcons[themeName] || "";
+                    cardTitle.textContent = icon + " " + themeDesc;
 
-                    // 카드 텍스트: 영어 Enum 이름
-                    const cardText = document.createElement("p");
-                    cardText.className = "card-text";
-                    cardText.textContent = themeName;
-
-                    // 카드 조립
+                    // 테마 이름은 표시하지 않음
                     cardBody.appendChild(cardTitle);
-                    cardBody.appendChild(cardText);
                     cardDiv.appendChild(img);
                     cardDiv.appendChild(cardBody);
                     colDiv.appendChild(cardDiv);
                     container.appendChild(colDiv);
 
-                    // 클릭 시 선택 상태 표시 및 /theme/테마명 페이지로 이동
+                    // 클릭 시 선택 상태 표시 및 /cafe/{district}/{themeName} 페이지로 이동
                     cardDiv.addEventListener("click", function () {
                         // 기존 선택 해제
                         document.querySelectorAll(".theme-card").forEach(card => card.classList.remove("selected"));
                         // 현재 카드에 selected 표시
                         cardDiv.classList.add("selected");
-                        // /theme/{themeName} 경로로 이동
+                        // URL의 세 번째 부분을 district로 사용 (없으면 기본값 "GN")
                         const parts = window.location.pathname.split('/');
-                        const district = parts[2] || "GN"; // URL의 세 번째 부분을 district로 사용 (없으면 기본값 "GN")
+                        const district = parts[2] || "GN";
                         window.location.href = `/cafe/${district}/${cardDiv.dataset.theme}`;
                     });
                 });
