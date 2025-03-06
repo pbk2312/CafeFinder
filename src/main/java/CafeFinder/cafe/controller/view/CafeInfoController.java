@@ -1,5 +1,6 @@
 package CafeFinder.cafe.controller.view;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,8 +8,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/gu")
+@RequestMapping("/cafe")
 public class CafeInfoController {
+
+    @Value("${google.map.key}")
+    private String googleKey;
 
     @GetMapping("/{district}")
     public String getCafeListByDistrict(@PathVariable String district, Model model) {
@@ -23,6 +27,13 @@ public class CafeInfoController {
         model.addAttribute("district", district);
         model.addAttribute("theme", theme);
         return "themeListCafes";
+    }
+
+    @GetMapping("/detail/{cafeCode}")
+    public String getCafeDetail(@PathVariable String cafeCode, Model model) {
+        model.addAttribute("cafeCode", cafeCode);
+        model.addAttribute("googleAppkey", googleKey);
+        return "cafeDetail";
     }
 
 }
