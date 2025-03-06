@@ -1,15 +1,19 @@
 package CafeFinder.cafe.controller.restapi;
 
-import static CafeFinder.cafe.util.ViewMessage.DISTRCT_THEME_GET_SUCCESS;
-import static CafeFinder.cafe.util.ViewMessage.GUREVIEW_STATS_SUCCESS;
-
+import CafeFinder.cafe.domain.CafeTheme;
 import CafeFinder.cafe.dto.CafeInfoDto;
 import CafeFinder.cafe.dto.GuReviewStatsDto;
 import CafeFinder.cafe.dto.ResponseDto;
+import CafeFinder.cafe.dto.ThemeDto;
 import CafeFinder.cafe.service.cafe.CafeInfoService;
 import CafeFinder.cafe.service.cafe.GuReviewStatsService;
+import static CafeFinder.cafe.util.ViewMessage.DISTRCT_THEME_GET_SUCCESS;
+import static CafeFinder.cafe.util.ViewMessage.GET_CAFE_THEME;
+import static CafeFinder.cafe.util.ViewMessage.GUREVIEW_STATS_SUCCESS;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/cafes")
+@Log4j2
 public class CafeApiController {
 
     private final GuReviewStatsService guReviewStatsService;
@@ -34,17 +39,39 @@ public class CafeApiController {
         return ResponseEntity.ok(new ResponseDto<>(GUREVIEW_STATS_SUCCESS.getMessage(), guReviews, true));
     }
 
-    @GetMapping("/district/{distric}/{theme}")
-    public ResponseEntity<ResponseDto<Page<CafeInfoDto>>> getCafeInfoByDistrictAndTheme(
-            @PathVariable String distric,
-            @PathVariable String theme,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        Page<CafeInfoDto> cafeInfoDtos = cafeInfoService.getCafesByDistrictAndTheme(distric, theme,
-                pageable);
+    @GetMapping("/theme")
+    public ResponseEntity<ResponseDto<List<ThemeDto>>> getCafeThemes() {
+        // Enum 전체 목록을 DTO로 변환
+        List<ThemeDto> themeList = Arrays.stream(CafeTheme.values())
+                .map(ThemeDto::fromEntity)
+                .toList();
 
         return ResponseEntity.ok(
-                new ResponseDto<>(DISTRCT_THEME_GET_SUCCESS.getMessage(), cafeInfoDtos, true));
+                new ResponseDto<>(
+                        GET_CAFE_THEME.getMessage(),
+                        themeList,
+                        true
+                )
+        );
+    }
+
+    @GetMapping("/district/{district}/{theme}")
+    public ResponseEntity<ResponseDto<Page<CafeInfoDto>>> getCafesByDistrictAndTheme(
+            @PathVariable String district,
+            @PathVariable String theme,
+            @PageableDefault(size = 9) Pageable pageable) {
+        
+        return ResponseEntity.ok(
+                new ResponseDto<>(DISTRCT_THEME_GET_SUCCESS.getMessage(),
+                        cafeInfoService.getCafesByDistrictAndTheme(district, theme, pageable),
+                        true)
+        );
+    }
+
+    @GetMapping("/{cafeCode}")
+    public ResponseEntity<ResponseDto<CafeInfoDto>> getCafeInfo(@PathVariable String cafeCode) {
+        CafeInfoDto cafeInfoDto = cafeInfoService.getCafeInfo(cafeCode);
+        return ResponseEntity.ok(new ResponseDto<>(GET_CAFE_THEME.getMessage(), cafeInfoDto, true));
     }
 
 }
