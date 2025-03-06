@@ -1,5 +1,15 @@
 package CafeFinder.cafe.controller;
 
+import CafeFinder.cafe.dto.ResponseDto;
+import CafeFinder.cafe.exception.CafeInfoNotFoundException;
+import CafeFinder.cafe.exception.IncorrectPasswordException;
+import CafeFinder.cafe.exception.MemberAlreadyExistsException;
+import CafeFinder.cafe.exception.MemberNotFoundException;
+import CafeFinder.cafe.exception.PasswordMismatchException;
+import CafeFinder.cafe.exception.UnsupportedProviderException;
+import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
+import CafeFinder.cafe.exception.YetVerifyEmailException;
+import static CafeFinder.cafe.util.ErrorMessage.CAFE_INFO_NOT_FOUND;
 import static CafeFinder.cafe.util.ErrorMessage.MEMBER_NOT_FOUND;
 import static CafeFinder.cafe.util.ErrorMessage.Member_AlreadyExists;
 import static CafeFinder.cafe.util.ErrorMessage.NOT_VERIFY_CODE;
@@ -9,15 +19,6 @@ import static CafeFinder.cafe.util.ErrorMessage.SERVER_ERROR;
 import static CafeFinder.cafe.util.ErrorMessage.UNSUPPORTEDPROVIDER;
 import static CafeFinder.cafe.util.ErrorMessage.VALIDATION_FAILED;
 import static CafeFinder.cafe.util.ErrorMessage.VERIFY_CODE_MIS_MATCH;
-
-import CafeFinder.cafe.dto.ResponseDto;
-import CafeFinder.cafe.exception.IncorrectPasswordException;
-import CafeFinder.cafe.exception.MemberAlreadyExistsException;
-import CafeFinder.cafe.exception.MemberNotFoundException;
-import CafeFinder.cafe.exception.PasswordMismatchException;
-import CafeFinder.cafe.exception.UnsupportedProviderException;
-import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
-import CafeFinder.cafe.exception.YetVerifyEmailException;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -90,6 +91,12 @@ public class GlobalExceptionHandler {
     ) {
         log.info("UnsupportedProviderException :{}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_ACCEPTABLE, UNSUPPORTEDPROVIDER.getMessage(), null);
+    }
+
+    @ExceptionHandler(CafeInfoNotFoundException.class)
+    public ResponseEntity<ResponseDto<String>> handleCafeInfoNotFoundException(CafeInfoNotFoundException e) {
+        log.error("CafeInfoNotFoundException: {}", e.getMessage(), e);
+        return buildResponse(HttpStatus.NOT_FOUND, CAFE_INFO_NOT_FOUND.getMessage(), null);
     }
 
     @ExceptionHandler(Exception.class)
