@@ -1,8 +1,11 @@
 package CafeFinder.cafe.jwt;
 
-
 import CafeFinder.cafe.exception.InvalidTokenException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
+import static CafeFinder.cafe.jwt.JwtErrorMessage.EXPIRED_JWT;
+import static CafeFinder.cafe.jwt.JwtErrorMessage.ILLEGAL_JWT;
+import static CafeFinder.cafe.jwt.JwtErrorMessage.INVALID_JWT;
+import static CafeFinder.cafe.jwt.JwtErrorMessage.UNSUPPORTED_JWT;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -32,11 +35,6 @@ public class TokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "Bearer";
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
-    private static final String INVALID_JWT = "유효하지 않은 JWT 토큰입니다.";
-    private static final String EXPIRED_JWT = "만료된 JWT 토큰입니다.";
-    private static final String UNSUPPORTED_JWT = "지원하지 않는 JWT 토큰입니다.";
-    private static final String ILLEGAL_JWT = "잘못된 JWT 토큰입니다.";
-
 
     private final CustomUserDetailsService customUserDetailsService;
 
@@ -98,10 +96,9 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, accessToken, authorities);
     }
 
-
     private UserDetails getUserDetailsFromClaims(Claims claims) {
         if (claims == null || claims.getSubject() == null) {
-            throw new InvalidTokenException(INVALID_JWT);
+            throw new InvalidTokenException(INVALID_JWT.getMessage());
         }
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(claims.getSubject());
@@ -115,12 +112,12 @@ public class TokenProvider {
     private Collection<? extends GrantedAuthority> extractAuthoritiesFromClaims(Claims claims) {
         Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
         if (authoritiesClaim == null) {
-            throw new InvalidTokenException(INVALID_JWT);
+            throw new InvalidTokenException(INVALID_JWT.getMessage());
         }
 
         return Arrays.stream(authoritiesClaim.toString().split(","))
                 .map(SimpleGrantedAuthority::new)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public boolean validate(String token) {
@@ -128,13 +125,13 @@ public class TokenProvider {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            throw new InvalidTokenException(INVALID_JWT);
+            throw new InvalidTokenException(INVALID_JWT.getMessage());
         } catch (ExpiredJwtException e) {
-            throw new InvalidTokenException(EXPIRED_JWT);
+            throw new InvalidTokenException(EXPIRED_JWT.getMessage());
         } catch (UnsupportedJwtException e) {
-            throw new InvalidTokenException(UNSUPPORTED_JWT);
+            throw new InvalidTokenException(UNSUPPORTED_JWT.getMessage());
         } catch (IllegalArgumentException e) {
-            throw new InvalidTokenException(ILLEGAL_JWT);
+            throw new InvalidTokenException(ILLEGAL_JWT.getMessage());
         }
     }
 
@@ -153,4 +150,3 @@ public class TokenProvider {
     }
 
 }
-
