@@ -2,6 +2,7 @@ package CafeFinder.cafe.dto;
 
 import CafeFinder.cafe.domain.CafeDistrict;
 import CafeFinder.cafe.domain.CafeInfo;
+import CafeFinder.cafe.domain.CafeInfoDocument;
 import CafeFinder.cafe.domain.CafeTheme;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,24 @@ public class CafeInfoDto {
 
     // 목록 조회 때 사용 X
     private List<CafeReviewDto> reviews;
+
+
+    // Elasticsearch Document -> DTO 변환 메서드 추가
+    public static CafeInfoDto fromDocumentForList(CafeInfoDocument document) {
+        return CafeInfoDto.builder()
+                .cafeCode(document.getCafeCode())
+                .name(document.getName())
+                .address(document.getAddress())
+                .district(CafeDistrict.valueOf(document.getDistrict().toUpperCase())) // 문자열을 Enum으로 변환
+                .hours(document.getHours())
+                .phone(document.getPhone())
+                .imageUrl(document.getImageUrl())
+                .review(document.getReview())
+                .themes(Set.of(document.getThemes().stream()
+                        .map(theme -> CafeTheme.valueOf(theme.toUpperCase()))
+                        .toArray(CafeTheme[]::new))) // 문자열 배열을 Enum Set으로 변환
+                .build();
+    }
 
 
     // 엔티티 -> DTO
