@@ -6,6 +6,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -50,7 +51,7 @@ public class CafeInfo {
     @Column(length = 20)
     private Double review;  // 평균 평점
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER) // Elasticsearch 저장 시 JSON에 포함되도록
     @CollectionTable(name = "cafe_themes", joinColumns = @JoinColumn(name = "cafe_code"))
     @Enumerated(EnumType.STRING)
     private Set<CafeTheme> themes; // 여러 개의 테마
