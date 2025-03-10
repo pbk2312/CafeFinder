@@ -77,9 +77,11 @@ public class CafeApiController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ResponseDto<Page<CafeInfoDto>>> getCafesBySeach(@RequestParam("name") String name,
-                                                                          @PageableDefault(size = 9) Pageable pageable) {
-        Page<CafeInfoDto> result = cafeInfoService.getCafesByName(name, pageable);
+    public ResponseEntity<ResponseDto<Page<CafeInfoDto>>> searchCafes(
+            @RequestParam("keyword") String keyword,
+            @PageableDefault(size = 9) Pageable pageable) {
+
+        Page<CafeInfoDto> result = cafeInfoService.searchCafesByNameOrAddress(keyword, pageable);
         return ResponseEntity.ok(new ResponseDto<>(ViewMessage.GET_CAFE_INFO_LIST_BY_NAME.getMessage(), result, true));
     }
 
