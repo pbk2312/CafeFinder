@@ -82,7 +82,6 @@
             transition: transform 0.3s, filter 0.3s;
         }
 
-
         .card-img-top:hover {
             transform: scale(1.05);
             filter: brightness(1.05);
@@ -135,10 +134,9 @@
             font-weight: 500;
         }
 
-
         /* Footer 스타일 (카페 느낌) */
         footer {
-            background-color: #f1e8dd; /* 부드러운 커피톤 배경 */
+            background-color: #f1e8dd;
             color: var(--primary-color);
             padding: 20px 0;
             margin-top: 50px;
@@ -156,18 +154,38 @@
             text-decoration: underline;
         }
 
+        /* Navbar 그라데이션 배경 */
+        .navbar {
+            background: linear-gradient(90deg, rgba(111, 78, 55, 1) 0%, rgba(166, 138, 100, 1) 100%);
+        }
+
+        /* 브랜드 텍스트 크기 및 색상 */
+        .navbar-brand {
+            font-size: 1.8rem;
+            color: #fff !important;
+        }
+
+        /* 네비게이션 링크 색상과 호버 효과 */
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #FFD700 !important;
+        }
     </style>
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+<nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/">☕ Cafe Finder</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto" id="navbarNav">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="/">홈</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">지도 보기</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">테마별</a></li>
@@ -186,8 +204,8 @@
 
 <!-- Search Bar -->
 <div class="container search-bar">
-    <form class="d-flex">
-        <input type="search" class="form-control rounded-pill me-2" placeholder="지역, 카페명으로 검색">
+    <form class="d-flex" id="cafe-search-form">
+        <input type="search" class="form-control rounded-pill me-2" id="cafe-search-input" placeholder="지역, 카페명으로 검색">
         <button class="btn btn-primary rounded-pill px-4" type="submit">검색</button>
     </form>
 </div>
@@ -216,14 +234,26 @@
     </div>
 </footer>
 
-
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 로그인 상태 확인 후 네비게이션 업데이트 및 카페 데이터 로드
+    // 전역 변수: 현재 검색어 저장
+    let currentSearchValue = "";
+
     document.addEventListener("DOMContentLoaded", function () {
         checkLoginStatus();
-        loadCafes();
+        loadCafes(); // URL에 district/테마가 있을 경우 로드
+        // 검색폼 제출 이벤트 리스너 추가
+        document.getElementById("cafe-search-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const searchValue = document.getElementById("cafe-search-input").value.trim();
+            if (!searchValue) {
+                alert("검색어를 입력해주세요.");
+                return;
+            }
+            currentSearchValue = searchValue;
+            searchCafes(searchValue, 0);
+        });
     });
 
     function checkLoginStatus() {
@@ -276,44 +306,7 @@
             .catch(error => console.error("로그아웃 요청 오류:", error));
     }
 
-    // 평점을 별 아이콘으로 표시하는 함수
-    function getStarRating(rating) {
-        const fullStars = Math.floor(rating);
-        const halfStar = (rating - fullStars) >= 0.5 ? 1 : 0;
-        const emptyStars = 5 - fullStars - halfStar;
-        let starsHtml = '';
-        for (let i = 0; i < fullStars; i++) {
-            starsHtml += '<i class="fa-solid fa-star" style="color: gold;"></i>';
-        }
-        if (halfStar) {
-            starsHtml += '<i class="fa-solid fa-star-half-alt" style="color: gold;"></i>';
-        }
-        for (let i = 0; i < emptyStars; i++) {
-            starsHtml += '<i class="fa-regular fa-star" style="color: gold;"></i>';
-        }
-        return starsHtml;
-    }
-
-    /* 각 테마별 배지 스타일과 설명을 지정 */
-    const themeStyles = {
-        COZY: 'background-color: #FAD7A0; color: #6F4E37;',
-        QUIET: 'background-color: #D5F5E3; color: #27AE60;',
-        STUDY_FRIENDLY: 'background-color: #AED6F1; color: #2E86C1;',
-        DESSERT: 'background-color: #F9E79F; color: #B7950B;',
-        SPECIALTY_COFFEE: 'background-color: #F5B7B1; color: #C0392B;',
-        NONE: 'background-color: #D7DBDD; color: #7B7D7D;'
-    };
-
-    const themeDescriptions = {
-        COZY: '분위기 좋은',
-        QUIET: '조용한',
-        STUDY_FRIENDLY: '공부하기 좋은',
-        DESSERT: '디저트 맛집',
-        SPECIALTY_COFFEE: '커피 맛집',
-        NONE: '기타'
-    };
-
-    // 카페 데이터를 불러와 카드와 페이지네이션을 렌더링
+    // district/테마에 따른 초기 카페 로드 (검색하지 않은 상태)
     function loadCafes() {
         const pathParts = window.location.pathname.split('/');
         const district = pathParts[2] ? decodeURIComponent(pathParts[2]) : '';
@@ -338,43 +331,171 @@
                 return response.json();
             })
             .then(data => {
-                const container = document.getElementById("gu-review-container");
-                container.innerHTML = "";
-                // 각 카페 데이터를 카드로 생성
-                data.data.content.forEach(cafe => {
-                    const col = document.createElement("div");
-                    col.className = "col-md-4 mb-4 cafe-item";
-                    col.setAttribute("data-cafe-code", cafe.cafeCode); // 카페 코드 숨김 저장
-                    col.innerHTML = `
-      <div class="card h-100 cafe-card">
-        <img src="${cafe.imageUrl}" class="card-img-top" alt="${cafe.name}">
-        <div class="card-body">
-          <h5 class="card-title">${cafe.name}</h5>
-          <p class="card-text">${cafe.address}</p>
-          ${cafe.hours ? `<p class="card-text"><small class="text-muted">${cafe.hours}</small></p>` : ''}
-          ${cafe.phone ? `<p class="card-text"><small class="text-muted">전화번호: ${cafe.phone}</small></p>` : ''}
-          <p class="card-text">
-            <small class="text-muted">
-              평점: <span class="star-rating">${getStarRating(cafe.review)}</span>
-            </small>
-          </p>
-          <p class="card-text">
-            ${
-                        cafe.themes && Array.isArray(cafe.themes)
-                            ? cafe.themes.map(t => `<span class="badge theme-badge" style="${themeStyles[t] || 'background-color: #ccc; color: #fff;'}">${themeDescriptions[t] || t}</span>`).join('')
-                            : '<span class="badge theme-badge" style="background-color: #ccc; color: #fff;">기타</span>'
-                    }
-          </p>
-        </div>
-      </div>
-    `;
-                    container.appendChild(col);
-                });
-
-                // 페이지네이션 렌더링
+                displaySearchResults(data.data);
                 renderPagination(data.data.totalPages, data.data.number);
             })
             .catch(error => console.error("Error fetching cafe data:", error));
+    }
+
+    // 검색 API 호출 및 결과 렌더링
+    function searchCafes(keyword, page) {
+        const url = `/api/cafes/search?keyword=${encodeURIComponent(keyword)}&page=${page}`;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("네트워크 응답에 문제가 있습니다.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                displaySearchResults(data.data);
+                // 검색 결과용 페이지네이션 렌더링 (mode 파라미터 "search" 전달)
+                renderPagination(data.data.totalPages, data.data.number, "search");
+            })
+            .catch(error => console.error("검색 결과를 불러오는 중 오류:", error));
+    }
+
+    // 검색 또는 로드된 카페 데이터를 카드로 렌더링
+    function displaySearchResults(pageData) {
+        const container = document.getElementById("gu-review-container");
+        container.innerHTML = "";
+        pageData.content.forEach(cafe => {
+            const col = document.createElement("div");
+            col.className = "col-md-4 mb-4 cafe-item";
+            col.setAttribute("data-cafe-code", cafe.cafeCode);
+            col.innerHTML = `
+          <div class="card h-100 cafe-card">
+            <img src="${cafe.imageUrl ? cafe.imageUrl : '/default-cafe.png'}" class="card-img-top" alt="${cafe.name}">
+            <div class="card-body">
+              <h5 class="card-title">${cafe.name}</h5>
+              <p class="card-text">${cafe.address}</p>
+              ${cafe.hours ? `<p class="card-text"><small class="text-muted">${cafe.hours}</small></p>` : ''}
+              ${cafe.phone ? `<p class="card-text"><small class="text-muted">전화번호: ${cafe.phone}</small></p>` : ''}
+              <p class="card-text">
+                <small class="text-muted">
+                  평점: <span class="star-rating">${getStarRating(cafe.review)}</span>
+                </small>
+              </p>
+              <p class="card-text">
+                ${
+                cafe.themes && Array.isArray(cafe.themes)
+                    ? cafe.themes.map(t => `<span class="badge theme-badge" style="${themeStyles[t] || 'background-color: #ccc; color: #fff;'}">${themeDescriptions[t] || t}</span>`).join('')
+                    : '<span class="badge theme-badge" style="background-color: #ccc; color: #fff;">기타</span>'
+            }
+              </p>
+            </div>
+          </div>
+        `;
+            container.appendChild(col);
+        });
+    }
+
+    // 평점을 별 아이콘으로 표시하는 함수
+    function getStarRating(rating) {
+        const fullStars = Math.floor(rating);
+        const halfStar = (rating - fullStars) >= 0.5 ? 1 : 0;
+        const emptyStars = 5 - fullStars - halfStar;
+        let starsHtml = '';
+        for (let i = 0; i < fullStars; i++) {
+            starsHtml += '<i class="fa-solid fa-star" style="color: gold;"></i>';
+        }
+        if (halfStar) {
+            starsHtml += '<i class="fa-solid fa-star-half-alt" style="color: gold;"></i>';
+        }
+        for (let i = 0; i < emptyStars; i++) {
+            starsHtml += '<i class="fa-regular fa-star" style="color: gold;"></i>';
+        }
+        return starsHtml;
+    }
+
+    /* 각 테마별 배지 스타일과 설명 */
+    const themeStyles = {
+        COZY: 'background-color: #FAD7A0; color: #6F4E37;',
+        QUIET: 'background-color: #D5F5E3; color: #27AE60;',
+        STUDY_FRIENDLY: 'background-color: #AED6F1; color: #2E86C1;',
+        DESSERT: 'background-color: #F9E79F; color: #B7950B;',
+        SPECIALTY_COFFEE: 'background-color: #F5B7B1; color: #C0392B;',
+        NONE: 'background-color: #D7DBDD; color: #7B7D7D;'
+    };
+
+    const themeDescriptions = {
+        COZY: '분위기 좋은',
+        QUIET: '조용한',
+        STUDY_FRIENDLY: '공부하기 좋은',
+        DESSERT: '디저트 맛집',
+        SPECIALTY_COFFEE: '커피 맛집',
+        NONE: '기타'
+    };
+
+    // 페이지네이션 렌더링 함수 (mode: "search"일 경우 검색 결과에 맞게 처리)
+    function renderPagination(totalPages, currentPage, mode = "district") {
+        const paginationContainer = document.getElementById("pagination-container");
+        paginationContainer.innerHTML = "";
+
+        // 이전 버튼
+        const prevItem = document.createElement("li");
+        prevItem.className = "page-item" + (currentPage <= 0 ? " disabled" : "");
+        const prevLink = document.createElement("a");
+        prevLink.className = "page-link";
+        prevLink.href = "#";
+        prevLink.innerHTML = "&laquo;";
+        prevLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (currentPage > 0) {
+                if (mode === "search") {
+                    searchCafes(currentSearchValue, currentPage - 1);
+                } else {
+                    window.location.href = `?page=${currentPage - 1}`;
+                }
+            }
+        });
+        prevItem.appendChild(prevLink);
+        paginationContainer.appendChild(prevItem);
+
+        // 10페이지씩 묶어서 페이지 번호 버튼 생성
+        const startPage = Math.floor(currentPage / 10) * 10;
+        let endPage = startPage + 9;
+        if (endPage >= totalPages) {
+            endPage = totalPages - 1;
+        }
+        for (let i = startPage; i <= endPage; i++) {
+            const pageItem = document.createElement("li");
+            pageItem.className = "page-item" + (i === currentPage ? " active" : "");
+            const pageLink = document.createElement("a");
+            pageLink.className = "page-link";
+            pageLink.href = "#";
+            pageLink.innerText = i + 1;
+            pageLink.addEventListener("click", function (e) {
+                e.preventDefault();
+                if (mode === "search") {
+                    searchCafes(currentSearchValue, i);
+                } else {
+                    window.location.href = `?page=${i}`;
+                }
+            });
+            pageItem.appendChild(pageLink);
+            paginationContainer.appendChild(pageItem);
+        }
+
+        // 다음 버튼
+        const nextItem = document.createElement("li");
+        nextItem.className = "page-item" + (currentPage >= totalPages - 1 ? " disabled" : "");
+        const nextLink = document.createElement("a");
+        nextLink.className = "page-link";
+        nextLink.href = "#";
+        nextLink.innerHTML = "&raquo;";
+        nextLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (currentPage < totalPages - 1) {
+                if (mode === "search") {
+                    searchCafes(currentSearchValue, currentPage + 1);
+                } else {
+                    window.location.href = `?page=${currentPage + 1}`;
+                }
+            }
+        });
+        nextItem.appendChild(nextLink);
+        paginationContainer.appendChild(nextItem);
     }
 
     // 카페 카드 클릭 시 상세 페이지로 이동
@@ -387,52 +508,6 @@
             }
         }
     });
-
-
-    // 페이지네이션 렌더링 함수 (10페이지씩 묶어 이전/다음 화살표 포함)
-    function renderPagination(totalPages, currentPage) {
-        const paginationContainer = document.getElementById("pagination-container");
-        paginationContainer.innerHTML = "";
-
-        // 이전 버튼
-        const prevItem = document.createElement("li");
-        prevItem.className = "page-item" + (currentPage <= 0 ? " disabled" : "");
-        const prevLink = document.createElement("a");
-        prevLink.className = "page-link";
-        prevLink.href = `?page=${currentPage - 1}`;
-        prevLink.innerHTML = "&laquo;";
-        prevItem.appendChild(prevLink);
-        paginationContainer.appendChild(prevItem);
-
-        // 10페이지씩 묶어서 페이지 번호 계산
-        const startPage = Math.floor(currentPage / 10) * 10;
-        let endPage = startPage + 9;
-        if (endPage >= totalPages) {
-            endPage = totalPages - 1;
-        }
-
-        // 페이지 번호 버튼 생성
-        for (let i = startPage; i <= endPage; i++) {
-            const pageItem = document.createElement("li");
-            pageItem.className = "page-item" + (i === currentPage ? " active" : "");
-            const pageLink = document.createElement("a");
-            pageLink.className = "page-link";
-            pageLink.href = `?page=${i}`;
-            pageLink.innerText = i + 1;  // 사용자에게는 1부터 표시
-            pageItem.appendChild(pageLink);
-            paginationContainer.appendChild(pageItem);
-        }
-
-        // 다음 버튼
-        const nextItem = document.createElement("li");
-        nextItem.className = "page-item" + (currentPage >= totalPages - 1 ? " disabled" : "");
-        const nextLink = document.createElement("a");
-        nextLink.className = "page-link";
-        nextLink.href = `?page=${currentPage + 1}`;
-        nextLink.innerHTML = "&raquo;";
-        nextItem.appendChild(nextLink);
-        paginationContainer.appendChild(nextItem);
-    }
 </script>
 </body>
 </html>
