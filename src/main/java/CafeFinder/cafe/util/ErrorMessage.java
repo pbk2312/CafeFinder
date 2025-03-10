@@ -18,7 +18,8 @@ public enum ErrorMessage {
     UNSUPPORTEDPROVIDER("소셜로그인 오류(제공자 오류) : "),
     PROFILESAVEEXCEPTION("프로필 이미지 저장 중 오류 발생"),
     WRONG_DISTRCIT_THEME("잘못된 district 또는 theme 값입니다."),
-    CAFE_INFO_NOT_FOUND("해당 카페 코드가 존재하지 않습니다 : {} ");
+    CAFE_INFO_NOT_FOUND("해당 카페 코드가 존재하지 않습니다 : {} "),
+    WRONG_CAFE_NAME("잘못된 카페명입니다.");
 
     private final String message;
 
