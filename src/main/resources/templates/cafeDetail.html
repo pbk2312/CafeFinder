@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>카페 탐험가 - 카페 상세 정보</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -17,38 +19,36 @@
             --text-dark: #333;
             --text-muted: #555;
             --star-color: #FFC107;
+            --bg-light: #f8f9fa;
         }
 
+        /* Global Styles */
         body {
-            background: #f8f9fa;
-            font-family: 'Arial', sans-serif;
+            background: var(--bg-light);
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-dark);
         }
 
-        /* 네비게이션 */
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(90deg, rgba(111, 78, 55, 1) 0%, rgba(166, 138, 100, 1) 100%);
+        }
+
         .navbar-brand {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
+            color: #fff !important;
         }
 
-        /* 카페 이미지 */
-        .cafe-img {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            border-radius: 0.25rem;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            transition: color 0.3s ease;
         }
 
-        /* 테마 배지 */
-        .badge-theme {
-            background-color: var(--secondary-color);
-            color: #fff;
-            font-size: 0.9rem;
-            margin-right: 5px;
-            padding: 0.5em 0.75em;
-            border-radius: 20px;
+        .navbar-nav .nav-link:hover {
+            color: #FFD700 !important;
         }
 
-        /* 애니메이션 효과 */
+        /* Fade In Animation */
         .fadeInUp {
             animation: fadeInUp 0.8s ease forwards;
         }
@@ -64,36 +64,87 @@
             }
         }
 
-        /* 리뷰 영역 */
+        /* Cafe Image */
+        .cafe-img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .cafe-img:hover {
+            transform: scale(1.03);
+        }
+
+        /* Theme Badges */
+        .badge-theme {
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            padding: 0.5em 0.75em;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* Map Container */
+        #map {
+            height: 220px;
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Cafe Info Titles */
+        #cafe-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        #cafe-address i {
+            color: var(--secondary-color);
+        }
+
+        /* Info Paragraphs */
+        #cafe-hours, #cafe-phone, #cafe-review {
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Reviews Section */
         #reviews {
             max-height: 400px;
             overflow-y: auto;
             padding-right: 10px;
         }
 
-        /* 리뷰 카드 */
         .review-card {
             border: none;
-            border-left: 4px solid var(--secondary-color);
-            padding: 1rem;
-            background-color: #fff;
+            border-left: 5px solid var(--secondary-color);
+            padding: 1.2rem;
+            background-color: var(--card-bg);
             margin-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .review-card:hover {
             transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
         .review-rating {
             margin-bottom: 0.5rem;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: var(--star-color);
         }
 
         .rating-text {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--text-muted);
             margin-left: 0.5rem;
             vertical-align: middle;
@@ -102,20 +153,14 @@
         .review-text {
             font-size: 1rem;
             color: var(--text-dark);
-        }
-
-        /* 카페 기본 정보 */
-        #cafe-name {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
+            line-height: 1.5;
         }
 
         /* Footer */
         footer {
             background-color: #f1e8dd;
             color: var(--primary-color);
-            padding: 20px 0;
+            padding: 30px 0;
             margin-top: 50px;
             text-align: center;
             font-size: 0.9rem;
@@ -125,23 +170,25 @@
             color: var(--secondary-color);
             text-decoration: none;
             margin: 0 10px;
+            transition: color 0.3s ease;
         }
 
         footer a:hover {
+            color: var(--primary-color);
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-light shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/">☕ Cafe Finder</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto" id="navbarNav">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="/">홈</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">지도 보기</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">테마별</a></li>
@@ -152,18 +199,17 @@
     </div>
 </nav>
 
-<!-- 카페 상세 정보 영역 -->
+<!-- Cafe Details Section -->
 <div class="container mt-5 fadeInUp">
-    <div class="row">
+    <div class="row align-items-center">
         <div class="col-lg-6 mb-4">
             <img id="cafe-image" src="" alt="카페 이미지" class="cafe-img">
         </div>
         <div class="col-lg-6">
             <h2 id="cafe-name"></h2>
             <p id="cafe-address"><i class="bi bi-geo-alt-fill me-2"></i></p>
-            <!-- 주소 기반 지도 표시 영역 -->
-            <div id="map"
-                 style="height:200px; width:100%; margin-top:15px; border-radius: 0.25rem; box-shadow: 0 2px 6px rgba(0,0,0,0.15);"></div>
+            <!-- Map Display Area -->
+            <div id="map"></div>
             <p id="cafe-hours"><strong>영업시간:</strong></p>
             <p id="cafe-phone"><strong>전화번호:</strong></p>
             <p id="cafe-review"><strong>평균 평점:</strong></p>
@@ -178,9 +224,10 @@
     </div>
 </div>
 
+<!-- Footer -->
 <footer>
     <div class="container">
-        <p class="mb-1" style="font-weight: bold;">☕ Cafe Finder</p>
+        <p class="mb-1 fw-bold">☕ Cafe Finder</p>
         <p class="mb-1">© 2025 Cafe Explorer. All Rights Reserved.</p>
         <p class="mb-0">
             <a href="/about">프로젝트 소개</a> |
@@ -192,8 +239,29 @@
 
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
+    // 테마별 배지 스타일과 한국어 설명
+    const themeStyles = {
+        COZY: 'background-color: #FAD7A0; color: #6F4E37;',
+        QUIET: 'background-color: #D5F5E3; color: #27AE60;',
+        STUDY_FRIENDLY: 'background-color: #AED6F1; color: #2E86C1;',
+        DESSERT: 'background-color: #F9E79F; color: #B7950B;',
+        SPECIALTY_COFFEE: 'background-color: #F5B7B1; color: #C0392B;',
+        NONE: 'background-color: #D7DBDD; color: #7B7D7D;'
+    };
+
+    function getThemeDisplayName(themeCode) {
+        const themeNames = {
+            COZY: "분위기 좋은",
+            QUIET: "조용한",
+            STUDY_FRIENDLY: "공부하기 좋은",
+            DESSERT: "디저트 맛집",
+            SPECIALTY_COFFEE: "커피 맛집",
+            NONE: "기타"
+        };
+        return themeNames[themeCode] || "기타";
+    }
+
     // 주소를 기반으로 지도에 카페 위치와 마커 표시
     function showMapForAddress(address) {
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -204,9 +272,7 @@
         var geocoder = new google.maps.Geocoder();
         geocoder.geocode({address: address}, function (results, status) {
             if (status === 'OK') {
-                // 주소에 해당하는 좌표로 지도 중심 변경
                 map.setCenter(results[0].geometry.location);
-                // 마커 추가
                 new google.maps.Marker({
                     map: map,
                     position: results[0].geometry.location
@@ -218,17 +284,14 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        console.log("DOMContentLoaded: 시작");
         checkLoginStatus();
         loadCafeDetails();
     });
 
     function checkLoginStatus() {
-        console.log("checkLoginStatus: 호출됨");
         fetch("/api/member/validateToken", {method: "GET", credentials: "include"})
             .then(response => response.json())
             .then(data => {
-                console.log("checkLoginStatus: 응답 데이터", data);
                 if (data.success && data.data) {
                     updateNavbarForLoggedInUser(data.data.nickName, data.data.profileImagePath);
                 }
@@ -237,18 +300,19 @@
     }
 
     function updateNavbarForLoggedInUser(nickName, profileImagePath) {
-        console.log("updateNavbarForLoggedInUser: 호출됨");
         const navbar = document.getElementById("navbarNav");
         const loginLink = document.getElementById("login-link");
         if (loginLink) loginLink.remove();
+
         const profileImageTag = profileImagePath
             ? `<img src="${profileImagePath}" class="rounded-circle" width="40" height="40" alt="프로필 이미지">`
             : `<img src="/default-profile.png" class="rounded-circle" width="40" height="40" alt="기본 프로필">`;
+
         navbar.innerHTML += `
-        <li class="nav-item d-flex align-items-start me-3">
+        <li class="nav-item d-flex align-items-center me-3">
           <a class="nav-link" href="#" onclick="logout()">로그아웃</a>
         </li>
-        <li class="nav-item d-flex align-items-start ms-auto">
+        <li class="nav-item d-flex align-items-center">
           <a class="nav-link d-flex align-items-center" href="/member/profile">
             ${profileImageTag} <span class="ms-2 fw-semibold">${nickName}</span>
           </a>
@@ -256,11 +320,9 @@
     }
 
     function logout() {
-        console.log("logout: 호출됨");
         fetch("/api/member/logout", {method: "POST", credentials: "include"})
             .then(response => {
                 if (response.ok) {
-                    console.log("logout: 성공, 페이지 새로고침");
                     location.reload();
                 } else {
                     console.error("로그아웃 실패");
@@ -272,7 +334,6 @@
     function getCafeCodeFromUrl() {
         const pathParts = window.location.pathname.split('/');
         const cafeCode = pathParts[pathParts.length - 1] || null;
-        console.log("getCafeCodeFromUrl: 추출된 카페 코드", cafeCode);
         return cafeCode;
     }
 
@@ -294,7 +355,6 @@
     }
 
     function loadCafeDetails() {
-        console.log("loadCafeDetails: 호출됨");
         const cafeCode = getCafeCodeFromUrl();
         if (!cafeCode) {
             console.error("카페 코드를 찾을 수 없습니다.");
@@ -303,7 +363,6 @@
         fetch(`/api/cafes/${cafeCode}`)
             .then(response => response.json())
             .then(result => {
-                console.log("loadCafeDetails: 응답 데이터", result);
                 if (result.success && result.data) {
                     populateCafeDetails(result.data);
                 } else {
@@ -314,53 +373,58 @@
     }
 
     function populateCafeDetails(data) {
-        console.log("populateCafeDetails: 데이터 수신", data);
         // 카페 이름
+        const nameEl = document.getElementById("cafe-name");
         if (data.name) {
-            document.getElementById("cafe-name").innerText = data.name;
-            document.getElementById("cafe-name").style.display = "block";
+            nameEl.innerText = data.name;
+            nameEl.style.display = "block";
         } else {
-            document.getElementById("cafe-name").style.display = "none";
+            nameEl.style.display = "none";
         }
 
         // 카페 주소
+        const addressEl = document.getElementById("cafe-address");
         if (data.address) {
-            document.getElementById("cafe-address").innerHTML = `<i class="bi bi-geo-alt-fill me-2"></i>${data.address}`;
-            document.getElementById("cafe-address").style.display = "block";
+            addressEl.innerHTML = `<i class="bi bi-geo-alt-fill me-2"></i>${data.address}`;
+            addressEl.style.display = "block";
         } else {
-            document.getElementById("cafe-address").style.display = "none";
+            addressEl.style.display = "none";
         }
 
         // 영업시간
+        const hoursEl = document.getElementById("cafe-hours");
         if (data.hours) {
-            document.getElementById("cafe-hours").innerHTML = `<strong>영업시간:</strong> ${data.hours}`;
-            document.getElementById("cafe-hours").style.display = "block";
+            hoursEl.innerHTML = `<strong>영업시간:</strong> ${data.hours}`;
+            hoursEl.style.display = "block";
         } else {
-            document.getElementById("cafe-hours").style.display = "none";
+            hoursEl.style.display = "none";
         }
 
         // 전화번호
+        const phoneEl = document.getElementById("cafe-phone");
         if (data.phone) {
-            document.getElementById("cafe-phone").innerHTML = `<strong>전화번호:</strong> ${data.phone}`;
-            document.getElementById("cafe-phone").style.display = "block";
+            phoneEl.innerHTML = `<strong>전화번호:</strong> ${data.phone}`;
+            phoneEl.style.display = "block";
         } else {
-            document.getElementById("cafe-phone").style.display = "none";
+            phoneEl.style.display = "none";
         }
 
         // 평균 평점
+        const reviewEl = document.getElementById("cafe-review");
         if (data.review !== null && data.review !== undefined) {
-            document.getElementById("cafe-review").innerHTML = `<strong>평균 평점:</strong> ${generateStarRating(data.review)}<span class="rating-text">${data.review}</span>`;
-            document.getElementById("cafe-review").style.display = "block";
+            reviewEl.innerHTML = `<strong>평균 평점:</strong> ${generateStarRating(data.review)}<span class="rating-text">${data.review}</span>`;
+            reviewEl.style.display = "block";
         } else {
-            document.getElementById("cafe-review").style.display = "none";
+            reviewEl.style.display = "none";
         }
 
         // 카페 이미지
+        const imageEl = document.getElementById("cafe-image");
         if (data.imageUrl) {
-            document.getElementById("cafe-image").src = data.imageUrl;
-            document.getElementById("cafe-image").style.display = "block";
+            imageEl.src = data.imageUrl;
+            imageEl.style.display = "block";
         } else {
-            document.getElementById("cafe-image").style.display = "none";
+            imageEl.style.display = "none";
         }
 
         // 테마
@@ -368,17 +432,18 @@
         themesContainer.innerHTML = "";
         if (data.themes && data.themes.length > 0) {
             themesContainer.style.display = "block";
-            data.themes.forEach(theme => {
+            data.themes.forEach(themeCode => {
                 const span = document.createElement("span");
                 span.className = "badge-theme";
-                span.innerText = theme;
+                span.style = themeStyles[themeCode] || themeStyles.NONE;
+                span.innerText = getThemeDisplayName(themeCode);
                 themesContainer.appendChild(span);
             });
         } else {
             themesContainer.style.display = "none";
         }
 
-
+        // 리뷰
         const reviewsContainer = document.getElementById("reviews");
         reviewsContainer.innerHTML = "";
         if (data.reviews && data.reviews.length > 0) {
@@ -397,7 +462,7 @@
             reviewsContainer.innerHTML = "<p>등록된 리뷰가 없습니다.</p>";
         }
 
-        // 카페 주소를 이용해 지도에 위치와 마커 표시
+        // 지도에 카페 위치 표시
         showMapForAddress(data.address);
     }
 </script>
