@@ -17,7 +17,7 @@ public class CafeInfoController {
     @GetMapping("/{district}")
     public String getCafeListByDistrict(@PathVariable String district, Model model) {
         model.addAttribute("district", district);
-        return "cafeThemeList";
+        return "themeList";
     }
 
     @GetMapping("/{district}/{theme}")
@@ -26,7 +26,7 @@ public class CafeInfoController {
                                                 Model model) {
         model.addAttribute("district", district);
         model.addAttribute("theme", theme);
-        return "themeListCafes";
+        return "cafeList";
     }
 
     @GetMapping("/detail/{cafeCode}")
