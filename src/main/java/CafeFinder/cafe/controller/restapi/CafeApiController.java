@@ -7,6 +7,7 @@ import CafeFinder.cafe.dto.ResponseDto;
 import CafeFinder.cafe.dto.ThemeDto;
 import CafeFinder.cafe.service.cafe.CafeInfoService;
 import CafeFinder.cafe.service.cafe.GuReviewStatsService;
+import CafeFinder.cafe.util.ViewMessage;
 import static CafeFinder.cafe.util.ViewMessage.DISTRCT_THEME_GET_SUCCESS;
 import static CafeFinder.cafe.util.ViewMessage.GET_CAFE_THEME;
 import static CafeFinder.cafe.util.ViewMessage.GUREVIEW_STATS_SUCCESS;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -60,7 +62,7 @@ public class CafeApiController {
             @PathVariable String district,
             @PathVariable String theme,
             @PageableDefault(size = 9) Pageable pageable) {
-        
+
         return ResponseEntity.ok(
                 new ResponseDto<>(DISTRCT_THEME_GET_SUCCESS.getMessage(),
                         cafeInfoService.getCafesByDistrictAndTheme(district, theme, pageable),
@@ -72,6 +74,13 @@ public class CafeApiController {
     public ResponseEntity<ResponseDto<CafeInfoDto>> getCafeInfo(@PathVariable String cafeCode) {
         CafeInfoDto cafeInfoDto = cafeInfoService.getCafeInfo(cafeCode);
         return ResponseEntity.ok(new ResponseDto<>(GET_CAFE_THEME.getMessage(), cafeInfoDto, true));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ResponseDto<Page<CafeInfoDto>>> getCafesBySeach(@RequestParam("name") String name,
+                                                                          @PageableDefault(size = 9) Pageable pageable) {
+        Page<CafeInfoDto> result = cafeInfoService.getCafesByName(name, pageable);
+        return ResponseEntity.ok(new ResponseDto<>(ViewMessage.GET_CAFE_INFO_LIST_BY_NAME.getMessage(), result, true));
     }
 
 }
