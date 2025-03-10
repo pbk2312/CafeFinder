@@ -18,7 +18,7 @@ public enum ViewMessage {
     GET_CAFE_THEME("카페 테마 조회"),
     GENERATE_ACCESSTOKEN("액세스 토큰 만료됨, 새로운 액세스 토큰 발급 완료"),
     GET_CAFE_INFO("카페 상세 정보 조회 성공"),
-    GET_CAFE_INFO_LIST_BY_NAME("카페명으로 검색 완료");
+    GET_CAFE_INFO_LIST_BY_NAME("검색 완료");
 
 
     private final String message;
