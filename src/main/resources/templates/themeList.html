@@ -99,6 +99,28 @@
             border: 3px solid var(--primary-color);
         }
 
+        /* Navbar 그라데이션 배경 */
+        .navbar {
+            background: linear-gradient(90deg, rgba(111, 78, 55, 1) 0%, rgba(166, 138, 100, 1) 100%);
+        }
+
+        /* 브랜드 텍스트 크기 및 색상 */
+        .navbar-brand {
+            font-size: 1.8rem;
+            color: #fff !important;
+        }
+
+        /* 네비게이션 링크 색상과 호버 효과 */
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #FFD700 !important;
+        }
+
+
         /* Footer 스타일 (카페 느낌) */
         footer {
             background-color: #f1e8dd;
@@ -194,14 +216,14 @@
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+<nav class="navbar navbar-expand-lg shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/">☕ Cafe Finder</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto" id="navbarNav">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="/">홈</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">지도 보기</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">테마별</a></li>
@@ -240,13 +262,6 @@
                     <a href="/contact">문의하기</a> |
                     <a href="/privacy">개인정보처리방침</a>
                 </p>
-            </div>
-            <div class="col-md-4">
-                <h5>Search</h5>
-                <div class="search-bar d-flex justify-content-center">
-                    <input type="text" placeholder="검색어 입력">
-                    <button type="button">검색</button>
-                </div>
             </div>
         </div>
         <div class="footer-bottom text-center">
