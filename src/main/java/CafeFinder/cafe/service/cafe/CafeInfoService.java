@@ -6,8 +6,8 @@ import CafeFinder.cafe.dto.CafeInfoDto;
 import CafeFinder.cafe.dto.CafeReviewDto;
 import CafeFinder.cafe.elasticSearch.CafeInfoSearchRepository;
 import CafeFinder.cafe.exception.CafeInfoNotFoundException;
-import CafeFinder.cafe.exception.WrongCafeNameException;
 import CafeFinder.cafe.exception.WrongDistrictAndTheme;
+import CafeFinder.cafe.exception.WrongSearchException;
 import CafeFinder.cafe.repository.CafeInfoRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -54,15 +54,14 @@ public class CafeInfoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CafeInfoDto> getCafesByName(String name, Pageable pageable) {
+    public Page<CafeInfoDto> searchCafesByNameOrAddress(String keyword, Pageable pageable) {
         try {
-            log.info("카페명 : {} ", name);
-            Page<CafeInfoDocument> searchResults = cafeInfoSearchRepository.findByNameContaining(name, pageable);
-
-            // 검색 결과를 DTO로 변환하여 반환
+            log.info("검색어(카페명/주소) : {}", keyword);
+            Page<CafeInfoDocument> searchResults = cafeInfoSearchRepository.findByNameContainingOrAddressContaining(
+                    keyword, keyword, pageable);
             return searchResults.map(CafeInfoDto::fromDocumentForList);
         } catch (IllegalArgumentException e) {
-            throw new WrongCafeNameException();
+            throw new WrongSearchException();
         }
     }
 

@@ -10,7 +10,7 @@ public interface CafeInfoSearchRepository extends ElasticsearchRepository<CafeIn
     // 구,테마 검색
     Page<CafeInfoDocument> findByDistrictAndThemesContaining(String district, String theme, Pageable pageable);
 
-    // 카페명 검색
-    Page<CafeInfoDocument> findByNameContaining(String name, Pageable pageable);
-
+    // 카페명 또는 주소에 검색어가 포함된 경우 조회
+    Page<CafeInfoDocument> findByNameContainingOrAddressContaining(String name, String address, Pageable pageable);
+    
 }
