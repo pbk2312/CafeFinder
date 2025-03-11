@@ -1,16 +1,15 @@
 package CafeFinder.cafe.auth;
 
+import CafeFinder.cafe.auth.email.CompositeEmailExtractor;
 import CafeFinder.cafe.domain.Member;
-import CafeFinder.cafe.exception.MemberNotFoundException;
 import CafeFinder.cafe.jwt.TokenDto;
 import CafeFinder.cafe.jwt.TokenProvider;
-import CafeFinder.cafe.service.member.MemberService;
+import CafeFinder.cafe.service.api.MemberService;
 import CafeFinder.cafe.service.redis.RefreshTokenService;
 import CafeFinder.cafe.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +24,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final CompositeEmailExtractor extractor;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -35,7 +35,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         // 2. 이메일 추출
-        String email = extractEmail(oAuth2User);
+        String email = extractor.extractEmail(oAuth2User);
 
         // 3. Member 조회 또는 생성
         Member member = memberService.getMemberByEmail(email);
@@ -63,37 +63,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         // 9. 리다이렉트 처리
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
-    }
-
-    /**
-     * OAuth2 제공자에 따라 이메일을 추출하는 메서드
-     */
-    private String extractEmail(OAuth2User oAuth2User) {
-        String email = extractEmailFromKakao(oAuth2User);
-        if (email == null) {
-            email = extractEmailFromNaver(oAuth2User);
-        }
-        if (email == null) {
-            email = extractGenericEmail(oAuth2User);
-        }
-        if (email == null) {
-            throw new MemberNotFoundException();
-        }
-        return email;
-    }
-
-    private String extractEmailFromKakao(OAuth2User oAuth2User) {
-        Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
-        return kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
-    }
-
-    private String extractEmailFromNaver(OAuth2User oAuth2User) {
-        Map<String, Object> naverResponse = oAuth2User.getAttribute("response");
-        return naverResponse != null ? (String) naverResponse.get("email") : null;
-    }
-
-    private String extractGenericEmail(OAuth2User oAuth2User) {
-        return oAuth2User.getAttribute("email");
     }
 
 }
