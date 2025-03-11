@@ -6,6 +6,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class CookieUtils {
 
+    private CookieUtils() {
+        // 인스턴스화 방지
+    }
+
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);

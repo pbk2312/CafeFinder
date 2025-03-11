@@ -15,6 +15,10 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class CsvParserUtil {
 
+    private CsvParserUtil() {
+        // 인스턴스화 방지
+    }
+
     private static final String DELIMITER = "\\|";
 
     public static Optional<CafeInfo> parseCafeInfo(String line) {
