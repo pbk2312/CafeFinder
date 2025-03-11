@@ -4,33 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cafe Login & Signup</title>
+    <!-- Bootstrap CSS (네비게이션 및 기타 컴포넌트 사용을 위함) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
         body {
             font-family: 'Poppins', sans-serif;
             background: url('https://source.unsplash.com/1600x900/?cafe,coffee') no-repeat center center/cover;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
             margin: 0;
         }
 
-        h2 {
-            color: #4A4A4A;
-            margin-bottom: 25px;
+        /* 네비게이션 스타일 */
+        .navbar {
+            background: linear-gradient(90deg, rgba(111, 78, 55, 1) 0%, rgba(166, 138, 100, 1) 100%);
         }
 
-        .container {
+        .navbar-brand {
+            font-size: 1.8rem;
+            color: #fff !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #FFD700 !important;
+        }
+
+        /* 로그인/회원가입 컨테이너 스타일 */
+        .auth-container {
             width: 500px;
             background: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
+            margin-top: 80px; /* 네비게이션과 겹치지 않도록 여백 추가 */
         }
 
+        h2 {
+            color: #4A4A4A;
+            margin-bottom: 25px;
+        }
 
         input {
             width: 90%;
@@ -74,7 +95,6 @@
             cursor: pointer;
         }
 
-
         .switch {
             margin-top: 15px;
             font-size: 14px;
@@ -102,8 +122,27 @@
     </style>
 </head>
 <body>
-<div class="container" id="authContainer">
+<!-- 네비게이션 (상단 고정) -->
+<nav class="navbar navbar-expand-lg shadow-sm w-100">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">☕ Cafe Finder</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">홈</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">지도 보기</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">테마별</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">커뮤니티</a></li>
+                <li class="nav-item"><a class="nav-link" href="/member/signupAndLogin" id="login-link">로그인</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
+<!-- 로그인 & 회원가입 컨테이너 -->
+<div class="container auth-container" id="authContainer">
     <h2 id="formTitle">로그인</h2>
     <form id="authForm">
         <!-- 로그인 폼 -->
@@ -135,10 +174,8 @@
 
                 <button type="submit" id="signupSubmitBtn" disabled>회원가입</button>
             </div>
-
         </div>
     </form>
-
 
     <!-- 소셜 로그인 버튼 -->
     <div class="social-buttons">
@@ -152,11 +189,12 @@
             <img src="/static/img/네이버.png" alt="Naver 로그인">
         </a>
     </div>
-
-
     <p class="switch" id="formSwitch">계정이 없으신가요? <a id="toggleForm">회원가입</a></p>
 </div>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 로그인/회원가입 스크립트 -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toggleForm = document.getElementById('toggleForm');
@@ -168,23 +206,17 @@
 
         // 폼 전환 핸들러
         function toggleAuthForm(event) {
-            event.preventDefault(); // 🔥 페이지 새로고침 방지
-
+            event.preventDefault();
             const isLogin = loginForm.classList.toggle('hidden');
             signupForm.classList.toggle('hidden');
             formTitle.textContent = isLogin ? '회원가입' : '로그인';
-
-            // 전환할 때 기존 폼 데이터 초기화
             authForm.reset();
-
-            // 🔥 새롭게 생성된 a 태그에 다시 이벤트 리스너 추가
             formSwitch.innerHTML = isLogin
                 ? '이미 계정이 있으신가요? <a href="#" id="toggleForm">로그인</a>'
                 : '계정이 없으신가요? <a href="#" id="toggleForm">회원가입</a>';
-
             document.getElementById('toggleForm').addEventListener('click', toggleAuthForm);
 
-            // 숨겨진 폼의 required 속성 제거 (오류 방지)
+            // 숨겨진 폼의 required 속성 처리
             document.querySelectorAll('#loginForm input, #signupForm input').forEach(input => {
                 if (input.closest('.hidden')) {
                     input.removeAttribute('required');
@@ -194,7 +226,6 @@
             });
         }
 
-        // 초기 이벤트 리스너 등록
         toggleForm.addEventListener('click', toggleAuthForm);
 
         // 이메일 인증 관련 요소
@@ -202,7 +233,7 @@
         const verifyCodeBtn = document.getElementById('verifyCodeBtn');
         const verificationSection = document.getElementById('verificationSection');
         const signupFields = document.getElementById('signupFields');
-        const signupSubmitBtn = document.getElementById('signupSubmitBtn'); // 회원가입 버튼
+        const signupSubmitBtn = document.getElementById('signupSubmitBtn');
 
         // 인증번호 전송
         sendCodeBtn.addEventListener('click', async () => {
@@ -211,17 +242,14 @@
                 alert('유효한 이메일을 입력해주세요.');
                 return;
             }
-
             try {
                 const response = await fetch('/api/email/sendCode', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email})
                 });
-
                 const data = await response.json();
-
-                if (response.status === 409) { // 🔥 이미 가입된 이메일 예외 처리
+                if (response.status === 409) {
                     alert('이미 가입된 이메일입니다.');
                 } else if (data.success) {
                     verificationSection.classList.remove('hidden');
@@ -235,24 +263,21 @@
             }
         });
 
-
         // 인증번호 확인
         verifyCodeBtn.addEventListener('click', async () => {
             const email = document.getElementById('signupEmail').value;
             const code = document.getElementById('verificationCode').value;
-
             try {
                 const response = await fetch('/api/email/verifyCode', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email, code})
                 });
-
                 const data = await response.json();
                 if (data.success) {
                     signupFields.classList.remove('hidden');
                     verifyCodeBtn.disabled = true;
-                    signupSubmitBtn.disabled = false; // 🔥 회원가입 버튼 활성화
+                    signupSubmitBtn.disabled = false;
                 } else {
                     alert('인증번호가 일치하지 않습니다.');
                 }
@@ -262,22 +287,19 @@
             }
         });
 
-        // 로그인 & 회원가입 처리
+        // 로그인 및 회원가입 처리
         authForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // 🔥 기본 제출 동작 방지
-
+            e.preventDefault();
             if (signupForm.classList.contains('hidden')) {
                 // 로그인 처리
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
-
                 try {
                     const response = await fetch('/api/member/login', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({email, password})
                     });
-
                     const data = await response.json();
                     if (data.success) {
                         window.location.href = data.data || '/';
@@ -301,27 +323,24 @@
                     return;
                 }
 
-                //  FormData 생성 (파일 포함)
                 const formData = new FormData();
                 formData.append('nickName', nickName);
                 formData.append('email', email);
                 formData.append('password', password);
                 formData.append('checkPassword', checkPassword);
-
                 if (profileImage) {
-                    formData.append('profileImage', profileImage); // 파일 추가
+                    formData.append('profileImage', profileImage);
                 }
 
                 try {
                     const response = await fetch('/api/member/signUp', {
                         method: 'POST',
-                        body: formData,  // 🔥 JSON이 아니라 FormData 사용
+                        body: formData,
                     });
-
                     const data = await response.json();
                     if (data.success) {
                         alert('회원가입 성공!');
-                        toggleForm.click(); // 🔥 로그인 폼으로 자동 전환
+                        toggleForm.click();
                     } else {
                         alert(data.data || '회원가입 실패');
                     }
@@ -358,8 +377,6 @@
             window.location.href = loginUrl;
         };
     });
-
-
 </script>
 </body>
 </html>
