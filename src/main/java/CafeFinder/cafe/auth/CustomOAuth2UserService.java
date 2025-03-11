@@ -1,9 +1,11 @@
 package CafeFinder.cafe.auth;
 
+import CafeFinder.cafe.auth.provider.OAuth2UserInfoFactory;
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -14,6 +16,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Log4j2
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+
+    @Value("${file.default.image}")
+    private String defaultProfileImage;
 
     private final MemberRepository memberRepository;
 
@@ -28,14 +34,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         log.info("provider : {}", provider);
 
         // 3. 필요한 정보를 provider에 따라 다르게 mapping
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.of(provider, oAuth2User.getAttributes());
+        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
         log.info("oAuth2UserInfo : {}", oAuth2UserInfo.toString());
 
         // 4. oAuth2UserInfo가 저장되어 있는지 유저 정보 확인
         //    없으면 DB 저장 후 해당 유저를 저장
         //    있으면 해당 유저를 저장
         Member member = memberRepository.findByEmail(oAuth2UserInfo.getEmail())
-                .orElseGet(() -> memberRepository.save(oAuth2UserInfo.toEntity()));
+                .orElseGet(() -> memberRepository.save(oAuth2UserInfo.toEntity(defaultProfileImage)));
         log.info("user : {}", member.toString());
 
         // 5. UserDetails와 OAuth2User를 다중 상속한 CustomUserDetails
