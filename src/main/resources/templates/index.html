@@ -300,20 +300,23 @@
         const navbar = document.getElementById("navbarNav");
         const loginLink = document.getElementById("login-link");
         if (loginLink) loginLink.remove();
+
         const profileImageTag = profileImagePath
             ? `<img src="${profileImagePath}" class="rounded-circle" width="40" height="40" alt="프로필 이미지">`
             : `<img src="/default-profile.png" class="rounded-circle" width="40" height="40" alt="기본 프로필">`;
+
         navbar.innerHTML += `
         <li class="nav-item d-flex align-items-center me-3">
           <a class="nav-link" href="#" onclick="logout()">로그아웃</a>
         </li>
-        <li class="nav-item d-flex align-items-center ms-auto">
+        <li class="nav-item d-flex align-items-center">
           <a class="nav-link d-flex align-items-center" href="/member/profile">
             ${profileImageTag} <span class="ms-2 fw-semibold">${nickName}</span>
           </a>
         </li>
-      `;
+    `;
     }
+
 
     function logout() {
         fetch("/api/member/logout", {
