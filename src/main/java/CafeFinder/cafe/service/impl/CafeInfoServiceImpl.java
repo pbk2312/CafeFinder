@@ -1,4 +1,5 @@
-package CafeFinder.cafe.service.cafe;
+package CafeFinder.cafe.service.impl;
+
 
 import CafeFinder.cafe.domain.CafeInfo;
 import CafeFinder.cafe.domain.CafeInfoDocument;
@@ -9,6 +10,7 @@ import CafeFinder.cafe.exception.CafeInfoNotFoundException;
 import CafeFinder.cafe.exception.WrongDistrictAndTheme;
 import CafeFinder.cafe.exception.WrongSearchException;
 import CafeFinder.cafe.repository.CafeInfoRepository;
+import CafeFinder.cafe.service.interfaces.CafeInfoService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -20,33 +22,31 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class CafeInfoService {
+public class CafeInfoServiceImpl implements CafeInfoService {
 
     private final CafeInfoRepository cafeInfoRepository;
     private final CafeInfoSearchRepository cafeInfoSearchRepository;
 
     @Transactional
+    @Override
     public void saveCafes(List<CafeInfo> cafes) {
         cafeInfoRepository.saveAll(cafes);
     }
 
     @Transactional(readOnly = true)
+    @Override
     public long countCafes() {
-        return cafeInfoRepository.count();  // DB에 저장된 카페 개수 확인
+        return cafeInfoRepository.count();
     }
 
-    // 구별, 테마별 검색 기능
     @Transactional(readOnly = true)
+    @Override
     public Page<CafeInfoDto> getCafesByDistrictAndTheme(String district, String theme, Pageable pageable) {
         try {
             log.info("district : {} , theme : {}", district, theme);
-
-            // Elasticsearch에서 검색 수행
-            Page<CafeInfoDocument> searchResults = cafeInfoSearchRepository.findByDistrictAndThemesContaining(district,
-                    theme,
-                    pageable);
-
-            // 검색 결과를 DTO로 변환하여 반환
+            Page<CafeInfoDocument> searchResults = cafeInfoSearchRepository.findByDistrictAndThemesContainingOrderByReviewDesc(
+                    district,
+                    theme, pageable);
             return searchResults.map(CafeInfoDto::fromDocumentForList);
         } catch (IllegalArgumentException e) {
             throw new WrongDistrictAndTheme();
@@ -54,6 +54,7 @@ public class CafeInfoService {
     }
 
     @Transactional(readOnly = true)
+    @Override
     public Page<CafeInfoDto> searchCafesByNameOrAddress(String keyword, Pageable pageable) {
         try {
             log.info("검색어(카페명/주소) : {}", keyword);
@@ -65,10 +66,10 @@ public class CafeInfoService {
         }
     }
 
-
-    // 카페 상세 조회
     @Transactional(readOnly = true)
+    @Override
     public CafeInfoDto getCafeInfo(String cafeCode) {
+        log.info("카페 상세정보 조회 : {}", cafeCode);
         CafeInfo cafeInfo = cafeInfoRepository.findByCafeCodeWithReviews(cafeCode)
                 .orElseThrow(() -> new CafeInfoNotFoundException(cafeCode));
 
