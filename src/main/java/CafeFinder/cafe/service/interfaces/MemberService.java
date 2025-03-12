@@ -1,4 +1,4 @@
-package CafeFinder.cafe.service.member;
+package CafeFinder.cafe.service.interfaces;
 
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
@@ -34,5 +34,8 @@ public interface MemberService {
 
     // 회원 정보 보기
     ProfileDto getProfileByToken(String accessToken);
+
+    // 토큰으로 멤버 찾기
+    Member getMemberByToken(String accessToken);
 
 }
