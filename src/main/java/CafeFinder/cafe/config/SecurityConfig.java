@@ -2,15 +2,17 @@ package CafeFinder.cafe.config;
 
 import CafeFinder.cafe.auth.CustomOAuth2UserService;
 import CafeFinder.cafe.auth.OAuth2AuthenticationSuccessHandler;
+import CafeFinder.cafe.auth.email.CompositeEmailExtractor;
 import CafeFinder.cafe.jwt.JwtAccessDeniedHandler;
 import CafeFinder.cafe.jwt.JwtAuthenticationEntryPoint;
 import CafeFinder.cafe.jwt.TokenProvider;
-import CafeFinder.cafe.service.member.MemberService;
+import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.redis.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -28,7 +30,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final @Lazy CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -74,8 +76,11 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(MemberService memberService,
                                                                                  TokenProvider tokenProvider,
-                                                                                 RefreshTokenService refreshTokenService) {
-        return new OAuth2AuthenticationSuccessHandler(memberService, tokenProvider, refreshTokenService);
+                                                                                 RefreshTokenService refreshTokenService,
+                                                                                 CompositeEmailExtractor compositeEmailExtractor
+    ) {
+        return new OAuth2AuthenticationSuccessHandler(memberService, tokenProvider, refreshTokenService,
+                compositeEmailExtractor);
     }
 
 
