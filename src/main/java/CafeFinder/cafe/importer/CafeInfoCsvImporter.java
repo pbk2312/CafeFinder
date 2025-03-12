@@ -1,7 +1,7 @@
 package CafeFinder.cafe.importer;
 
 import CafeFinder.cafe.domain.CafeInfo;
-import CafeFinder.cafe.service.cafe.CafeInfoService;
+import CafeFinder.cafe.service.interfaces.CafeInfoService;
 import CafeFinder.cafe.util.CsvParserUtil;
 import java.io.BufferedReader;
 import java.io.FileReader;
