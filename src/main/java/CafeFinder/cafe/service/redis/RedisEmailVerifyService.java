@@ -1,6 +1,5 @@
 package CafeFinder.cafe.service.redis;
 
-
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,9 +12,18 @@ import org.springframework.stereotype.Service;
 public class RedisEmailVerifyService {
 
     private final RedisTemplate<String, String> redisTemplate;
+    
+    private static final String VERIFIED_PREFIX = "verified:";
+    private static final long VERIFICATION_CODE_EXPIRATION_MINUTES = 5;
+    private static final long VERIFIED_STATUS_EXPIRATION_MINUTES = 30;
 
     public void saveVerificationCode(String email, String verificationCode) {
-        redisTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(
+                email,
+                verificationCode,
+                VERIFICATION_CODE_EXPIRATION_MINUTES,
+                TimeUnit.MINUTES
+        );
     }
 
     public String getVerificationCode(String email) {
@@ -23,11 +31,16 @@ public class RedisEmailVerifyService {
     }
 
     public void changeStatus(String email) {
-        redisTemplate.opsForValue().set("verified:" + email, "true", 30, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(
+                VERIFIED_PREFIX + email,
+                "true",
+                VERIFIED_STATUS_EXPIRATION_MINUTES,
+                TimeUnit.MINUTES
+        );
     }
 
     public void deleteVerificationCode(String email) {
-        String key = "verified:" + email;
+        String key = VERIFIED_PREFIX + email;
         if (redisTemplate.hasKey(key)) {
             redisTemplate.delete(key);
             log.info("Redis 인증 데이터 삭제 완료: 이메일={}", email);
