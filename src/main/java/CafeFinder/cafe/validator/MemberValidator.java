@@ -1,10 +1,11 @@
 package CafeFinder.cafe.validator;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import CafeFinder.cafe.exception.MemberAlreadyExistsException;
 import CafeFinder.cafe.exception.PasswordMismatchException;
 import CafeFinder.cafe.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
 
 @RequiredArgsConstructor
 @Component

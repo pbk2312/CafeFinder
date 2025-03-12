@@ -8,7 +8,7 @@ import CafeFinder.cafe.dto.TokenResultDto;
 import CafeFinder.cafe.dto.UserInfoDto;
 import CafeFinder.cafe.dto.UserUpdateDto;
 import CafeFinder.cafe.jwt.AccesTokenDto;
-import CafeFinder.cafe.service.api.MemberService;
+import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.util.CookieUtils;
 import CafeFinder.cafe.util.ResponseUtil;
 import static CafeFinder.cafe.util.ViewMessage.LOGIN_SUCCESS;
