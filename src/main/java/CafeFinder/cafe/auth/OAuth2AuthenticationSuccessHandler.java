@@ -4,7 +4,7 @@ import CafeFinder.cafe.auth.email.CompositeEmailExtractor;
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.jwt.TokenDto;
 import CafeFinder.cafe.jwt.TokenProvider;
-import CafeFinder.cafe.service.api.MemberService;
+import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.redis.RefreshTokenService;
 import CafeFinder.cafe.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
