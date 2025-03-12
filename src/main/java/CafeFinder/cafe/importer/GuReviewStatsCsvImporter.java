@@ -1,7 +1,7 @@
 package CafeFinder.cafe.importer;
 
 import CafeFinder.cafe.domain.GuReviewStats;
-import CafeFinder.cafe.service.cafe.GuReviewStatsService;
+import CafeFinder.cafe.service.interfaces.GuReviewStatsService;
 import CafeFinder.cafe.util.CsvParserUtil;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -51,6 +51,6 @@ public class GuReviewStatsCsvImporter {
             log.error("CSV 파일 읽기 오류: {}", e.getMessage(), e);
         }
     }
-    
+
 }
 
