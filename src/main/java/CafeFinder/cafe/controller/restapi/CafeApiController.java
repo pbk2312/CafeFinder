@@ -18,6 +18,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,13 +39,13 @@ public class CafeApiController {
     @GetMapping("/guReviewStats")
     public ResponseEntity<ResponseDto<List<GuReviewStatsDto>>> getGuReviewStats() {
         List<GuReviewStatsDto> guReviews = guReviewStatsService.getAllStats();
-        return ResponseUtil.buildResponse(GUREVIEW_STATS_SUCCESS.getMessage(), guReviews, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, GUREVIEW_STATS_SUCCESS.getMessage(), guReviews, true);
     }
 
     @GetMapping("/theme")
     public ResponseEntity<ResponseDto<List<ThemeDto>>> getCafeThemes() {
         List<ThemeDto> themeList = cafeThemeService.getCafeThemes();
-        return ResponseUtil.buildResponse(GET_CAFE_THEME.getMessage(), themeList, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_THEME.getMessage(), themeList, true);
     }
 
     @GetMapping("/district/{district}/{theme}")
@@ -53,16 +54,14 @@ public class CafeApiController {
             @PathVariable String theme,
             @PageableDefault(size = 9) Pageable pageable) {
 
-        return ResponseUtil.buildResponse(
-                DISTRCT_THEME_GET_SUCCESS.getMessage(),
-                cafeInfoService.getCafesByDistrictAndTheme(district, theme, pageable),
-                true);
+        Page<CafeInfoDto> cafes = cafeInfoService.getCafesByDistrictAndTheme(district, theme, pageable);
+        return ResponseUtil.buildResponse(HttpStatus.OK, DISTRCT_THEME_GET_SUCCESS.getMessage(), cafes, true);
     }
 
     @GetMapping("/{cafeCode}")
     public ResponseEntity<ResponseDto<CafeInfoDto>> getCafeInfo(@PathVariable String cafeCode) {
         CafeInfoDto cafeInfoDto = cafeInfoService.getCafeInfo(cafeCode);
-        return ResponseUtil.buildResponse(GET_CAFE_THEME.getMessage(), cafeInfoDto, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_THEME.getMessage(), cafeInfoDto, true);
     }
 
     @GetMapping("/search")
@@ -71,7 +70,8 @@ public class CafeApiController {
             @PageableDefault(size = 9) Pageable pageable) {
 
         Page<CafeInfoDto> result = cafeInfoService.searchCafesByNameOrAddress(keyword, pageable);
-        return ResponseUtil.buildResponse(ViewMessage.GET_CAFE_INFO_LIST_BY_NAME.getMessage(), result, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, ViewMessage.GET_CAFE_INFO_LIST_BY_NAME.getMessage(), result,
+                true);
     }
 
 }

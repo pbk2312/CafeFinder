@@ -19,6 +19,7 @@ import static CafeFinder.cafe.util.ErrorMessage.SERVER_ERROR;
 import static CafeFinder.cafe.util.ErrorMessage.UNSUPPORTEDPROVIDER;
 import static CafeFinder.cafe.util.ErrorMessage.VALIDATION_FAILED;
 import static CafeFinder.cafe.util.ErrorMessage.VERIFY_CODE_MIS_MATCH;
+import CafeFinder.cafe.util.ResponseUtil;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -31,78 +32,67 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Log4j2
 public class GlobalExceptionHandler {
 
-    private <T> ResponseEntity<ResponseDto<T>> buildResponse(HttpStatus status, String message, T data) {
-        return ResponseEntity.status(status).body(new ResponseDto<>(message, data, false));
-    }
-
     @ExceptionHandler(MemberNotFoundException.class)
     public ResponseEntity<ResponseDto<String>> handleMemberNotFoundException(MemberNotFoundException e) {
         log.error("MemberNotFoundException: {}", e.getMessage(), e);
-        return buildResponse(HttpStatus.NOT_FOUND, MEMBER_NOT_FOUND.getMessage(), null);
+        return ResponseUtil.buildResponse(HttpStatus.NOT_FOUND, MEMBER_NOT_FOUND.getMessage(), null, false);
     }
 
     @ExceptionHandler(MemberAlreadyExistsException.class)
     public ResponseEntity<ResponseDto<String>> handleMemberAlreadyExistsException(MemberAlreadyExistsException e) {
         log.error("MemberAlreadyExistsException: {}", e.getMessage(), e);
-        return buildResponse(HttpStatus.CONFLICT, Member_AlreadyExists.getMessage(), null);
+        return ResponseUtil.buildResponse(HttpStatus.CONFLICT, Member_AlreadyExists.getMessage(), null, false);
     }
 
     @ExceptionHandler(IncorrectPasswordException.class)
     public ResponseEntity<ResponseDto<String>> handleIncorrectPasswordException(IncorrectPasswordException e) {
         log.error("IncorrectPasswordException: {}", e.getMessage(), e);
-        return buildResponse(HttpStatus.UNAUTHORIZED, PASSWORD_INCORRECT.getMessage(), null);
+        return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, PASSWORD_INCORRECT.getMessage(), null, false);
     }
 
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<ResponseDto<String>> handlePasswordMismatchException(PasswordMismatchException e) {
         log.error("PasswordMismatchException: {}", e.getMessage(), e);
-        return buildResponse(HttpStatus.BAD_REQUEST, PASSWORDS_DO_NOT_MATCH.getMessage(), null);
+        return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, PASSWORDS_DO_NOT_MATCH.getMessage(), null, false);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ResponseDto<String>> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
+    public ResponseEntity<ResponseDto<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         String errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " +
                         (error.getDefaultMessage() != null ? error.getDefaultMessage() : "알 수 없는 오류"))
                 .collect(Collectors.joining("\n"));
-        return buildResponse(HttpStatus.BAD_REQUEST, VALIDATION_FAILED.getMessage(), errors);
+        return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, VALIDATION_FAILED.getMessage(), errors, false);
     }
 
     @ExceptionHandler(VerifyCodeMisMatchException.class)
-    public ResponseEntity<ResponseDto<String>> handleVerifyCodeMisMatchException(
-            VerifyCodeMisMatchException ex
-    ) {
+    public ResponseEntity<ResponseDto<String>> handleVerifyCodeMisMatchException(VerifyCodeMisMatchException ex) {
         log.info("VerifyCodeMisMatchException :{}", ex.getMessage());
-        return buildResponse(HttpStatus.BAD_REQUEST, VERIFY_CODE_MIS_MATCH.getMessage(), null);
+        return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, VERIFY_CODE_MIS_MATCH.getMessage(), null, false);
     }
 
     @ExceptionHandler(YetVerifyEmailException.class)
-    public ResponseEntity<ResponseDto<String>> handleAlreadyVerifyEmailException(
-            VerifyCodeMisMatchException ex
-    ) {
-        log.info("handleAlreadyVerifyEmailException :{}", ex.getMessage());
-        return buildResponse(HttpStatus.FORBIDDEN, NOT_VERIFY_CODE.getMessage(), null);
+    public ResponseEntity<ResponseDto<String>> handleYetVerifyEmailException(YetVerifyEmailException ex) {
+        log.info("YetVerifyEmailException :{}", ex.getMessage());
+        return ResponseUtil.buildResponse(HttpStatus.FORBIDDEN, NOT_VERIFY_CODE.getMessage(), null, false);
     }
 
     @ExceptionHandler(UnsupportedProviderException.class)
-    public ResponseEntity<ResponseDto<String>> handleAlreadyUnsupportedProviderException(
-            VerifyCodeMisMatchException ex
-    ) {
+    public ResponseEntity<ResponseDto<String>> handleUnsupportedProviderException(UnsupportedProviderException ex) {
         log.info("UnsupportedProviderException :{}", ex.getMessage());
-        return buildResponse(HttpStatus.NOT_ACCEPTABLE, UNSUPPORTEDPROVIDER.getMessage(), null);
+        return ResponseUtil.buildResponse(HttpStatus.NOT_ACCEPTABLE, UNSUPPORTEDPROVIDER.getMessage(), null, false);
     }
 
     @ExceptionHandler(CafeInfoNotFoundException.class)
     public ResponseEntity<ResponseDto<String>> handleCafeInfoNotFoundException(CafeInfoNotFoundException e) {
         log.error("CafeInfoNotFoundException: {}", e.getMessage(), e);
-        return buildResponse(HttpStatus.NOT_FOUND, CAFE_INFO_NOT_FOUND.getMessage(), null);
+        return ResponseUtil.buildResponse(HttpStatus.NOT_FOUND, CAFE_INFO_NOT_FOUND.getMessage(), null, false);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDto<String>> handleGeneralException(Exception e) {
         log.error("예기치 못한 오류 발생: {}", e.getMessage(), e);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, SERVER_ERROR.getMessage(), null);
+        return ResponseUtil.buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, SERVER_ERROR.getMessage(), null, false);
     }
 
 }

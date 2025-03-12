@@ -10,6 +10,7 @@ import static CafeFinder.cafe.util.ViewMessage.EMAIL_VERIFY_SUCCESS;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,14 +30,14 @@ public class EmailVerifyApiController {
             @Valid @RequestBody EmailDto emailDto
     ) {
         emailService.sendVerificationCode(emailDto);
-        return ResponseUtil.buildResponse(EMAIL_SEND_SUCCESS.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, EMAIL_SEND_SUCCESS.getMessage(), null, true);
     }
 
     @PostMapping("/verifyCode")
     public ResponseEntity<ResponseDto<String>> verifyEmail(@Valid @RequestBody EmailVerifyDto emailVerifyDto) {
         log.info(emailVerifyDto.getEmail());
         emailService.verifyCode(emailVerifyDto);
-        return ResponseUtil.buildResponse(EMAIL_VERIFY_SUCCESS.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, EMAIL_VERIFY_SUCCESS.getMessage(), null, true);
     }
 
 }

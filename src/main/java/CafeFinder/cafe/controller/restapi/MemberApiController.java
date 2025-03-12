@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +44,7 @@ public class MemberApiController {
             @Valid @ModelAttribute MemberSignUpDto memberSignUpDto
     ) {
         memberService.save(memberSignUpDto);
-        return ResponseUtil.buildResponse(SIGN_UP_SUCCESS.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, SIGN_UP_SUCCESS.getMessage(), null, true);
     }
 
     @PostMapping("/login")
@@ -54,14 +55,14 @@ public class MemberApiController {
         CookieUtils.addCookie(response, "accessToken", accesTokenDto.getAccessToken(),
                 accesTokenDto.getAccessTokenExpiresIn());
         String redirectUrl = getRedirectUrlFromSession(request);
-        return ResponseUtil.buildResponse(LOGIN_SUCCESS.getMessage(), redirectUrl, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), redirectUrl, true);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<ResponseDto<String>> logout(HttpServletResponse response) {
         CookieUtils.removeCookie(response, "accessToken");
         memberService.logout();
-        return ResponseUtil.buildResponse(LOGOUT_SUCCESS.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, LOGOUT_SUCCESS.getMessage(), null, true);
     }
 
     @PatchMapping("/update")
@@ -70,14 +71,14 @@ public class MemberApiController {
             @CookieValue(value = "accessToken", required = false) String accessToken
     ) {
         memberService.update(userUpdateDto, accessToken);
-        return ResponseUtil.buildResponse(UPDATE_PROFILE.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, UPDATE_PROFILE.getMessage(), null, true);
     }
 
     @GetMapping("/profile")
     public ResponseEntity<ResponseDto<ProfileDto>> getProfile(
             @CookieValue(value = "accessToken", required = true) String accessToen) {
         ProfileDto profileDto = memberService.getProfileByToken(accessToen);
-        return ResponseUtil.buildResponse(PROFILE_INFO.getMessage(), profileDto, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, PROFILE_INFO.getMessage(), profileDto, true);
     }
 
     @GetMapping("/validateToken")
@@ -86,7 +87,7 @@ public class MemberApiController {
             HttpServletResponse response
     ) {
         if (accessToken == null || accessToken.isEmpty()) {
-            return ResponseUtil.buildResponse(NOT_LOGIN.getMessage(), null, false);
+            return ResponseUtil.buildResponse(HttpStatus.OK, NOT_LOGIN.getMessage(), null, false);
         }
 
         TokenResultDto result = memberService.validateToken(accessToken);
@@ -97,12 +98,12 @@ public class MemberApiController {
                 CookieUtils.addCookie(response, "accessToken", accessToken,
                         result.getNewAccessToken().getAccessTokenExpiresIn());
             } else {
-                return ResponseUtil.buildResponse(result.getMessage(), null, false);
+                return ResponseUtil.buildResponse(HttpStatus.OK, result.getMessage(), null, false);
             }
         }
 
         UserInfoDto userInfo = memberService.getUserInfoByToken(accessToken);
-        return ResponseUtil.buildResponse("로그인 성공", userInfo, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), userInfo, true);
     }
 
     private String getRedirectUrlFromSession(HttpServletRequest request) {
