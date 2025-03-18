@@ -1,11 +1,11 @@
 package CafeFinder.cafe.controller;
 
 import CafeFinder.cafe.dto.ResponseDto;
-import CafeFinder.cafe.exception.CafeInfoNotFoundException;
+import CafeFinder.cafe.exception.CafeNotFoundException;
 import CafeFinder.cafe.exception.IncorrectPasswordException;
 import CafeFinder.cafe.exception.MemberAlreadyExistsException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
-import CafeFinder.cafe.exception.PasswordMismatchException;
+import CafeFinder.cafe.exception.PasswordConfirmationMisMatch;
 import CafeFinder.cafe.exception.UnsupportedProviderException;
 import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
 import CafeFinder.cafe.exception.YetVerifyEmailException;
@@ -13,7 +13,7 @@ import static CafeFinder.cafe.util.ErrorMessage.CAFE_INFO_NOT_FOUND;
 import static CafeFinder.cafe.util.ErrorMessage.MEMBER_NOT_FOUND;
 import static CafeFinder.cafe.util.ErrorMessage.Member_AlreadyExists;
 import static CafeFinder.cafe.util.ErrorMessage.NOT_VERIFY_CODE;
-import static CafeFinder.cafe.util.ErrorMessage.PASSWORDS_DO_NOT_MATCH;
+import static CafeFinder.cafe.util.ErrorMessage.PASSWORD_CONFIRMATION_MISMATCH;
 import static CafeFinder.cafe.util.ErrorMessage.PASSWORD_INCORRECT;
 import static CafeFinder.cafe.util.ErrorMessage.SERVER_ERROR;
 import static CafeFinder.cafe.util.ErrorMessage.UNSUPPORTEDPROVIDER;
@@ -47,13 +47,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IncorrectPasswordException.class)
     public ResponseEntity<ResponseDto<String>> handleIncorrectPasswordException(IncorrectPasswordException e) {
         log.error("IncorrectPasswordException: {}", e.getMessage(), e);
-        return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, PASSWORD_INCORRECT.getMessage(), null, false);
+        return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, PASSWORD_INCORRECT.getMessage(), null, false);
     }
 
-    @ExceptionHandler(PasswordMismatchException.class)
-    public ResponseEntity<ResponseDto<String>> handlePasswordMismatchException(PasswordMismatchException e) {
-        log.error("PasswordMismatchException: {}", e.getMessage(), e);
-        return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, PASSWORDS_DO_NOT_MATCH.getMessage(), null, false);
+    @ExceptionHandler(PasswordConfirmationMisMatch.class)
+    public ResponseEntity<ResponseDto<String>> handlePasswordConfirmationMisMatch(PasswordConfirmationMisMatch e) {
+        log.error("PasswordConfirmationMisMatch: {}", e.getMessage(), e);
+        return ResponseUtil.buildResponse(HttpStatus.BAD_REQUEST, PASSWORD_CONFIRMATION_MISMATCH.getMessage(), null,
+                false);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -83,8 +84,8 @@ public class GlobalExceptionHandler {
         return ResponseUtil.buildResponse(HttpStatus.NOT_ACCEPTABLE, UNSUPPORTEDPROVIDER.getMessage(), null, false);
     }
 
-    @ExceptionHandler(CafeInfoNotFoundException.class)
-    public ResponseEntity<ResponseDto<String>> handleCafeInfoNotFoundException(CafeInfoNotFoundException e) {
+    @ExceptionHandler(CafeNotFoundException.class)
+    public ResponseEntity<ResponseDto<String>> handleCafeInfoNotFoundException(CafeNotFoundException e) {
         log.error("CafeInfoNotFoundException: {}", e.getMessage(), e);
         return ResponseUtil.buildResponse(HttpStatus.NOT_FOUND, CAFE_INFO_NOT_FOUND.getMessage(), null, false);
     }
