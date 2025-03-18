@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CafeInfo {
+public class Cafe {
 
     @Id
     @Column(nullable = false, unique = true, length = 20)
@@ -37,19 +37,18 @@ public class CafeInfo {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private CafeDistrict district;  // 행정구 (ex: MP -> 마포구)
+    private SeoulDistrict district;  // 행정구 (ex: MP -> 마포구)
 
-
-    private String hours;  // 영업시간
+    private String openingHours;  // 영업시간
 
     @Column(length = 20)
-    private String phone;  // 전화번호
+    private String phoneNumber;  // 전화번호
 
     @Column(columnDefinition = "TEXT")
     private String imageUrl;  // 대표사진 URL
 
     @Column(length = 20)
-    private Double review;  // 평균 평점
+    private Double averageRating;  // 평균 평점
 
     @ElementCollection(fetch = FetchType.EAGER) // Elasticsearch 저장 시 JSON에 포함되도록
     @CollectionTable(name = "cafe_themes", joinColumns = @JoinColumn(name = "cafe_code"))
@@ -61,20 +60,21 @@ public class CafeInfo {
 
 
     public void updateReview(Double review) {
-        this.review = review;
+        this.averageRating = review;
     }
 
-    public static CafeInfo create(String cafeCode, String name, String address, CafeDistrict district,
-                                  String hours, String phone, String imageUrl, Double review, Set<CafeTheme> themes) {
-        return CafeInfo.builder()
+    public static Cafe create(String cafeCode, String name, String address, SeoulDistrict district,
+                              String openingHours, String phoneNumber, String imageUrl, Double averageRating,
+                              Set<CafeTheme> themes) {
+        return Cafe.builder()
                 .cafeCode(cafeCode)
                 .name(name)
                 .address(address)
                 .district(district)
-                .hours(hours)
-                .phone(phone)
+                .openingHours(openingHours)
+                .phoneNumber(phoneNumber)
                 .imageUrl(imageUrl)
-                .review(review)
+                .averageRating(averageRating)
                 .themes(themes)
                 .build();
     }
