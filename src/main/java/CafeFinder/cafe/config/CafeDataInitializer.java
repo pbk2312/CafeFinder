@@ -2,10 +2,10 @@ package CafeFinder.cafe.config;
 
 import CafeFinder.cafe.importer.CafeInfoCsvImporter;
 import CafeFinder.cafe.importer.CafeReviewImporter;
-import CafeFinder.cafe.importer.GuReviewStatsCsvImporter;
+import CafeFinder.cafe.importer.SeoulDistrictStatusImporter;
 import CafeFinder.cafe.repository.CafeReviewRepository;
-import CafeFinder.cafe.service.interfaces.CafeInfoService;
-import CafeFinder.cafe.service.interfaces.GuReviewStatsService;
+import CafeFinder.cafe.service.interfaces.CafeService;
+import CafeFinder.cafe.service.interfaces.SeoulDistrictStatusService;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +20,10 @@ import org.springframework.stereotype.Component;
 @Log4j2
 public class CafeDataInitializer {
 
-    private final CafeInfoService cafeInfoService;
-    private final GuReviewStatsService guReviewStatsService;
+    private final CafeService cafeInfoService;
+    private final SeoulDistrictStatusService seoulDistrictStatusService;
     private final CafeInfoCsvImporter cafeInfoCsvImporter;
-    private final GuReviewStatsCsvImporter guReviewStatsCsvImporter;
+    private final SeoulDistrictStatusImporter seoulDistrictStatusImporter;
     private final CafeReviewImporter cafeReviewImporter;
     private final CafeReviewRepository cafeReviewRepository;
 
@@ -33,7 +33,7 @@ public class CafeDataInitializer {
     @Value("${file.guReviewStats.path}")
     private String guReviewStatsPath;
 
-    @Value("${file.cafe_reviews.path}") // 리뷰 파일 경로 추가
+    @Value("${file.cafe_reviews.path}")
     private String cafeReviewsPath;
 
     @Bean
@@ -64,9 +64,9 @@ public class CafeDataInitializer {
 
     private void guReviewStatsImport() {
         // 구별 리뷰 통계 CSV import
-        if (guReviewStatsService.countGuReviewStats() == 0) { // DB에 데이터가 없을 때만 실행
+        if (seoulDistrictStatusService.countSeoulDistrict() == 0) { // DB에 데이터가 없을 때만 실행
             if (Files.exists(Paths.get(guReviewStatsPath))) {
-                guReviewStatsCsvImporter.importCsv(guReviewStatsPath);
+                seoulDistrictStatusImporter.importCsv(guReviewStatsPath);
                 log.info("구별 리뷰 통계 CSV import 완료");
             } else {
                 log.error("구별 리뷰 통계 CSV 파일이 존재하지 않습니다: {}", guReviewStatsPath);
