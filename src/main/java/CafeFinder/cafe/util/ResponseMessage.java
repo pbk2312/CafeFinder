@@ -3,7 +3,7 @@ package CafeFinder.cafe.util;
 import lombok.Getter;
 
 @Getter
-public enum ViewMessage {
+public enum ResponseMessage {
 
     SIGN_UP_SUCCESS("회원가입 성공"),
     LOGIN_SUCCESS("로그인 성공"),
@@ -16,14 +16,15 @@ public enum ViewMessage {
     GUREVIEW_STATS_SUCCESS("구 별 리뷰 통계 데이터 조회 성공"),
     DISTRCT_THEME_GET_SUCCESS("구 , 테마별 조회 성공"),
     GET_CAFE_THEME("카페 테마 조회"),
-    GENERATE_ACCESSTOKEN("액세스 토큰 만료됨, 새로운 액세스 토큰 발급 완료"),
     GET_CAFE_INFO("카페 상세 정보 조회 성공"),
-    GET_CAFE_INFO_LIST_BY_NAME("검색 완료");
+    GET_CAFE_INFO_LIST_BY_NAME("검색 완료"),
+    GET_RECOMMAND_CAFES("추천 카페 조회"),
+    CLICK_EVENT_SUCCESS("카페 클릭 이벤트 전송 성공");
 
 
     private final String message;
 
-    ViewMessage(String message) {
+    ResponseMessage(String message) {
         this.message = message;
     }
 
