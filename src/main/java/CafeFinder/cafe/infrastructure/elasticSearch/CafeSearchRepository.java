@@ -1,6 +1,5 @@
 package CafeFinder.cafe.infrastructure.elasticSearch;
 
-import CafeFinder.cafe.domain.IndexedCafe;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
