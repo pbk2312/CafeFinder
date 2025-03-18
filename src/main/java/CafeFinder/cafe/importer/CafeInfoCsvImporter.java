@@ -1,7 +1,7 @@
 package CafeFinder.cafe.importer;
 
-import CafeFinder.cafe.domain.CafeInfo;
-import CafeFinder.cafe.service.interfaces.CafeInfoService;
+import CafeFinder.cafe.domain.Cafe;
+import CafeFinder.cafe.service.interfaces.CafeService;
 import CafeFinder.cafe.util.CsvParserUtil;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,10 +18,10 @@ import org.springframework.stereotype.Component;
 @Log4j2
 public class CafeInfoCsvImporter {
 
-    private final CafeInfoService cafeInfoService;
+    private final CafeService cafeInfoService;
 
     public void importCsv(String filePath) {
-        List<CafeInfo> cafeList = new ArrayList<>();
+        List<Cafe> cafeList = new ArrayList<>();
         int skippedRows = 0;
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath, StandardCharsets.UTF_8))) {
@@ -29,7 +29,7 @@ public class CafeInfoCsvImporter {
             String line;
 
             while ((line = br.readLine()) != null) {
-                Optional<CafeInfo> cafe = CsvParserUtil.parseCafeInfo(line);
+                Optional<Cafe> cafe = CsvParserUtil.parseCafe(line);
                 if (cafe.isPresent()) {
                     cafeList.add(cafe.get());
                 } else {
@@ -46,7 +46,7 @@ public class CafeInfoCsvImporter {
     }
 
 
-    private void saveCafes(List<CafeInfo> cafeList) {
+    private void saveCafes(List<Cafe> cafeList) {
         if (!cafeList.isEmpty()) {
             cafeInfoService.saveCafes(cafeList);
             log.info("CSV 데이터 저장 완료! 저장된 행 수: {}", cafeList.size());
