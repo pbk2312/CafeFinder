@@ -1,7 +1,7 @@
 package CafeFinder.cafe.service.impl;
 
 import CafeFinder.cafe.domain.CafeTheme;
-import CafeFinder.cafe.dto.ThemeDto;
+import CafeFinder.cafe.dto.CafeThemeDto;
 import CafeFinder.cafe.service.interfaces.CafeThemeService;
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +15,10 @@ public class CafeThemeServiceImpl implements CafeThemeService {
 
     @Override
     @Cacheable(value = "cafeThemes")
-    public List<ThemeDto> getCafeThemes() {
+    public List<CafeThemeDto> getCafeThemes() {
         log.info("테마들 조회");
         return Arrays.stream(CafeTheme.values())
-                .map(ThemeDto::fromEntity)
+                .map(CafeThemeDto::fromEntity)
                 .toList();
     }
 

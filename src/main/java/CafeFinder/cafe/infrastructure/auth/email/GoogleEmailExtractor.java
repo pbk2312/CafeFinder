@@ -1,4 +1,4 @@
-package CafeFinder.cafe.auth.email;
+package CafeFinder.cafe.infrastructure.auth.email;
 
 import org.springframework.security.oauth2.core.user.OAuth2User;
 

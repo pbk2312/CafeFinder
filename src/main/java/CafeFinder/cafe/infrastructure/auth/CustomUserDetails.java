@@ -1,4 +1,4 @@
-package CafeFinder.cafe.auth;
+package CafeFinder.cafe.infrastructure.auth;
 
 import CafeFinder.cafe.domain.Member;
 import java.util.ArrayList;

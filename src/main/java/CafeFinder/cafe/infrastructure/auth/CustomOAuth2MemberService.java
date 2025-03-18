@@ -1,7 +1,7 @@
-package CafeFinder.cafe.auth;
+package CafeFinder.cafe.infrastructure.auth;
 
-import CafeFinder.cafe.auth.provider.OAuth2UserInfoFactory;
 import CafeFinder.cafe.domain.Member;
+import CafeFinder.cafe.infrastructure.auth.AuthProvider.OAuth2MemberFactory;
 import CafeFinder.cafe.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
 
 
     @Value("${file.default.image}")
@@ -34,7 +34,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         log.info("provider : {}", provider);
 
         // 3. 필요한 정보를 provider에 따라 다르게 mapping
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
+        OAuth2Member oAuth2UserInfo = OAuth2MemberFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
         log.info("oAuth2UserInfo : {}", oAuth2UserInfo.toString());
 
         // 4. oAuth2UserInfo가 저장되어 있는지 유저 정보 확인

@@ -1,4 +1,4 @@
-package CafeFinder.cafe.auth.email;
+package CafeFinder.cafe.infrastructure.auth.email;
 
 import java.util.List;
 import org.springframework.context.annotation.Bean;

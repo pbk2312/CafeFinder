@@ -1,4 +1,4 @@
-package CafeFinder.cafe.auth.email;
+package CafeFinder.cafe.infrastructure.auth.email;
 
 import CafeFinder.cafe.exception.MemberNotFoundException;
 import java.util.List;

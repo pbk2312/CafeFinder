@@ -1,6 +1,9 @@
-package CafeFinder.cafe.jwt;
+package CafeFinder.cafe.infrastructure.jwt;
 
 
+import CafeFinder.cafe.domain.Member;
+import CafeFinder.cafe.exception.MemberNotFoundException;
+import CafeFinder.cafe.repository.MemberRepository;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,9 +12,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
-import CafeFinder.cafe.domain.Member;
-import CafeFinder.cafe.exception.MemberNotFoundException;
-import CafeFinder.cafe.repository.MemberRepository;
 
 // 사용자 인증 정보를 로드
 @Service

@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 @Getter
-public class UserInfoDto {
+public class MemberProfileDto {
     private String nickName;
     private String profileImagePath;
 }
