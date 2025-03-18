@@ -1,6 +1,6 @@
 package CafeFinder.cafe.domain;
 
-public enum Provider {
+public enum AuthProvider {
     GOOGLE,
     KAKAO,
     NAVER,
