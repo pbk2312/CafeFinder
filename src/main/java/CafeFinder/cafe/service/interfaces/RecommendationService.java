@@ -5,8 +5,6 @@ import java.util.List;
 
 public interface RecommendationService {
 
-
     List<CafeDto> getRecommendationCafes(String accessToken);
-
 
 }
