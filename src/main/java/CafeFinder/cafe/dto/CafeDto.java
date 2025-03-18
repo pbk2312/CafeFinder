@@ -2,8 +2,8 @@ package CafeFinder.cafe.dto;
 
 import CafeFinder.cafe.domain.Cafe;
 import CafeFinder.cafe.domain.CafeTheme;
-import CafeFinder.cafe.domain.IndexedCafe;
 import CafeFinder.cafe.domain.SeoulDistrict;
+import CafeFinder.cafe.infrastructure.elasticSearch.IndexedCafe;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;

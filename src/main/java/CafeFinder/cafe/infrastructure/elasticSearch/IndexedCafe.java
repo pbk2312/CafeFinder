@@ -1,4 +1,4 @@
-package CafeFinder.cafe.domain;
+package CafeFinder.cafe.infrastructure.elasticSearch;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @Builder
 @NoArgsConstructor // 기본 생성자
 @AllArgsConstructor // 모든 필드 생성자
-public class CafeInfoDocument {
+public class IndexedCafe {
 
     @Id // Elasticsearch 문서의 고유 식별자
     @Field(name = "cafe_code", type = FieldType.Keyword)
@@ -33,15 +33,19 @@ public class CafeInfoDocument {
     @Field(name = "themes", type = FieldType.Keyword)
     private List<String> themes; // 카페 테마 리스트
 
-    @Field(name = "review", type = FieldType.Double)
-    private Double review; // 평균 평점
+    @Field(name = "average_rating", type = FieldType.Double)
+    private Double averageRating; // 평균 평점
+
+    @Field(name = "review_count", type = FieldType.Integer)
+    private Integer reviewCount; // 리뷰 수
 
     @Field(name = "hours", type = FieldType.Text)
-    private String hours; // 영업시간
+    private String openingHours; // 영업시간
 
     @Field(name = "phone", type = FieldType.Text)
-    private String phone; // 전화번호 (nullable)
+    private String phoneNumber; // 전화번호 (nullable)
 
     @Field(name = "image_url", type = FieldType.Text)
     private String imageUrl; // 대표사진 URL
+
 }
