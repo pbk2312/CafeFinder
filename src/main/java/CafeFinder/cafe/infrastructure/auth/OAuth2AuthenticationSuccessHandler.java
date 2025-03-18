@@ -1,9 +1,9 @@
-package CafeFinder.cafe.auth;
+package CafeFinder.cafe.infrastructure.auth;
 
-import CafeFinder.cafe.auth.email.CompositeEmailExtractor;
+import CafeFinder.cafe.infrastructure.auth.email.CompositeEmailExtractor;
 import CafeFinder.cafe.domain.Member;
-import CafeFinder.cafe.jwt.TokenDto;
-import CafeFinder.cafe.jwt.TokenProvider;
+import CafeFinder.cafe.infrastructure.jwt.TokenDto;
+import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
 import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.redis.RefreshTokenService;
 import CafeFinder.cafe.util.CookieUtils;

@@ -1,11 +1,11 @@
 package CafeFinder.cafe.config;
 
-import CafeFinder.cafe.auth.CustomOAuth2UserService;
-import CafeFinder.cafe.auth.OAuth2AuthenticationSuccessHandler;
-import CafeFinder.cafe.auth.email.CompositeEmailExtractor;
-import CafeFinder.cafe.jwt.JwtAccessDeniedHandler;
-import CafeFinder.cafe.jwt.JwtAuthenticationEntryPoint;
-import CafeFinder.cafe.jwt.TokenProvider;
+import CafeFinder.cafe.infrastructure.auth.CustomOAuth2MemberService;
+import CafeFinder.cafe.infrastructure.auth.OAuth2AuthenticationSuccessHandler;
+import CafeFinder.cafe.infrastructure.auth.email.CompositeEmailExtractor;
+import CafeFinder.cafe.infrastructure.jwt.JwtAccessDeniedHandler;
+import CafeFinder.cafe.infrastructure.jwt.JwtAuthenticationEntryPoint;
+import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
 import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.redis.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final @Lazy CustomOAuth2UserService customOAuth2UserService;
+    private final @Lazy CustomOAuth2MemberService customOAuth2UserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {

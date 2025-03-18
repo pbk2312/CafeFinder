@@ -1,11 +1,11 @@
-package CafeFinder.cafe.auth.provider;
+package CafeFinder.cafe.infrastructure.auth.AuthProvider;
 
 
-import CafeFinder.cafe.auth.OAuth2UserInfo;
-import CafeFinder.cafe.domain.Provider;
+import CafeFinder.cafe.domain.AuthProvider;
+import CafeFinder.cafe.infrastructure.auth.OAuth2Member;
 import java.util.Map;
 
-public class NaverOAuth2UserInfoProvider implements OAuth2UserInfoProvider {
+public class NaverOAuth2MemberProvider implements OAuth2MemberProvider {
 
     @Override
     public String getProviderName() {
@@ -13,11 +13,11 @@ public class NaverOAuth2UserInfoProvider implements OAuth2UserInfoProvider {
     }
 
     @Override
-    public OAuth2UserInfo getUserInfo(Map<String, Object> attributes) {
+    public OAuth2Member getUserInfo(Map<String, Object> attributes) {
         Map<String, Object> response = getResponse(attributes);
 
-        return OAuth2UserInfo.builder()
-                .provider(Provider.NAVER)
+        return OAuth2Member.builder()
+                .provider(AuthProvider.NAVER)
                 .id("naver_" + (String) response.get("id"))
                 .password((String) response.get("id"))
                 .nickname((String) response.get("name") + "_naver")
@@ -29,5 +29,5 @@ public class NaverOAuth2UserInfoProvider implements OAuth2UserInfoProvider {
     private static Map<String, Object> getResponse(Map<String, Object> attributes) {
         return (Map<String, Object>) attributes.get("response");
     }
-    
+
 }

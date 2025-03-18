@@ -1,4 +1,4 @@
-package CafeFinder.cafe.jwt;
+package CafeFinder.cafe.infrastructure.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,11 +1,11 @@
-package CafeFinder.cafe.jwt;
+package CafeFinder.cafe.infrastructure.jwt;
 
 import CafeFinder.cafe.exception.InvalidTokenException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
-import static CafeFinder.cafe.jwt.JwtErrorMessage.EXPIRED_JWT;
-import static CafeFinder.cafe.jwt.JwtErrorMessage.ILLEGAL_JWT;
-import static CafeFinder.cafe.jwt.JwtErrorMessage.INVALID_JWT;
-import static CafeFinder.cafe.jwt.JwtErrorMessage.UNSUPPORTED_JWT;
+import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.EXPIRED_JWT;
+import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.ILLEGAL_JWT;
+import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.INVALID_JWT;
+import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.UNSUPPORTED_JWT;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

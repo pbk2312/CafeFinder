@@ -1,7 +1,6 @@
-package CafeFinder.cafe.jwt;
+package CafeFinder.cafe.infrastructure.jwt;
 
 import static CafeFinder.cafe.util.ErrorMessage.LEVEL_MESSAGE;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;

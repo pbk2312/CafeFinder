@@ -1,6 +1,6 @@
 package CafeFinder.cafe.dto;
 
-import CafeFinder.cafe.jwt.AccesTokenDto;
+import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
 import lombok.Builder;
 import lombok.Getter;
 

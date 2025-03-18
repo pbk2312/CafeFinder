@@ -1,7 +1,7 @@
 package CafeFinder.cafe.service.impl;
 
-import CafeFinder.cafe.jwt.TokenDto;
-import CafeFinder.cafe.jwt.TokenProvider;
+import CafeFinder.cafe.infrastructure.jwt.TokenDto;
+import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
 import CafeFinder.cafe.service.interfaces.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -17,6 +17,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public TokenDto generateToken(Authentication authentication) {
+        log.info("토큰 생성...");
         return tokenProvider.generateTokenDto(authentication);
     }
 
