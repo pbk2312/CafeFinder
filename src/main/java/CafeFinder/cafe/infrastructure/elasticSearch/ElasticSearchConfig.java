@@ -1,4 +1,4 @@
-package CafeFinder.cafe.config;
+package CafeFinder.cafe.infrastructure.elasticSearch;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
