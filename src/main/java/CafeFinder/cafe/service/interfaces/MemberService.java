@@ -2,12 +2,12 @@ package CafeFinder.cafe.service.interfaces;
 
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
+import CafeFinder.cafe.dto.MemberProfileDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.dto.MemberUpdateDto;
 import CafeFinder.cafe.dto.ProfileDto;
 import CafeFinder.cafe.dto.TokenResultDto;
-import CafeFinder.cafe.dto.UserInfoDto;
-import CafeFinder.cafe.dto.UserUpdateDto;
-import CafeFinder.cafe.jwt.AccesTokenDto;
+import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
 
 public interface MemberService {
 
@@ -27,10 +27,10 @@ public interface MemberService {
     Member getMemberByEmail(String email);
 
     // 회원 정보 가져오기
-    UserInfoDto getUserInfoByToken(String accessToken);
+    MemberProfileDto getUserInfoByToken(String accessToken);
 
     // 회원 정보 수정
-    void update(UserUpdateDto userUpdateDto, String accessToken);
+    void update(MemberUpdateDto userUpdateDto, String accessToken);
 
     // 회원 정보 보기
     ProfileDto getProfileByToken(String accessToken);

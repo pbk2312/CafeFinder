@@ -2,23 +2,23 @@ package CafeFinder.cafe.service.impl;
 
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
+import CafeFinder.cafe.dto.MemberProfileDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.dto.MemberUpdateDto;
 import CafeFinder.cafe.dto.ProfileDto;
 import CafeFinder.cafe.dto.TokenResultDto;
-import CafeFinder.cafe.dto.UserInfoDto;
-import CafeFinder.cafe.dto.UserUpdateDto;
 import CafeFinder.cafe.exception.IncorrectPasswordException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
 import CafeFinder.cafe.exception.YetVerifyEmailException;
-import CafeFinder.cafe.jwt.AccesTokenDto;
-import CafeFinder.cafe.jwt.TokenDto;
+import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
+import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
+import CafeFinder.cafe.infrastructure.jwt.TokenDto;
 import CafeFinder.cafe.repository.MemberRepository;
+import CafeFinder.cafe.service.interfaces.FileService;
 import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.interfaces.TokenService;
-import CafeFinder.cafe.service.member.FileService;
 import CafeFinder.cafe.service.redis.RedisEmailVerifyService;
 import CafeFinder.cafe.service.redis.RefreshTokenService;
-import static CafeFinder.cafe.util.ViewMessage.GENERATE_ACCESSTOKEN;
 import CafeFinder.cafe.validator.MemberValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,10 +47,10 @@ public class MemberServiceImpl implements MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
     private final RefreshTokenService refreshTokenService;
-    private final FileService fileService;
     private final RedisEmailVerifyService redisEmailVerifyService;
+    private final FileService fileService;
 
-    
+
     @Value("${cafe.profile.image.base-path:/Users/park/}")
     private String profileImageBasePath;
 
@@ -71,11 +71,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public UserInfoDto getUserInfoByToken(String accessToken) {
+    public MemberProfileDto getUserInfoByToken(String accessToken) {
         Member member = getMemberByToken(accessToken);
         log.info("토큰 멤버 조회: {}", member.getEmail());
         String relativePath = convertToRelativePath(member.getProfileImagePath());
-        return UserInfoDto.builder()
+        return MemberProfileDto.builder()
                 .nickName(member.getNickName())
                 .profileImagePath(relativePath)
                 .build();
@@ -136,7 +136,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void update(UserUpdateDto updateDto, String accessToken) {
+    public void update(MemberUpdateDto updateDto, String accessToken) {
         log.info("멤버 정보 수정: {}", updateDto.getNickName());
         Member member = getMemberByToken(accessToken);
         updateMemberProfile(member, updateDto);
@@ -170,8 +170,6 @@ public class MemberServiceImpl implements MemberService {
                     return new MemberNotFoundException();
                 });
     }
-
-    /* ------------------------- 내부 헬퍼 메소드 ------------------------- */
 
     private void verifyEmailAuthentication(MemberSignUpDto signUpDto) {
         String isVerified = redisTemplate.opsForValue().get("verified:" + signUpDto.getEmail());
@@ -209,7 +207,6 @@ public class MemberServiceImpl implements MemberService {
                 .build();
     }
 
-    // 외부 설정된 base 경로를 기준으로 상대 경로를 생성하도록 수정
     private String convertToRelativePath(String path) {
         if (path != null && path.startsWith(profileImageBasePath)) {
             return profileImageRelativePath + path.substring(path.lastIndexOf("/") + 1);
@@ -227,7 +224,7 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    private void updateMemberProfile(Member member, UserUpdateDto updateDto) {
+    private void updateMemberProfile(Member member, MemberUpdateDto updateDto) {
         if (updateDto.getNewProfileImage() != null && !updateDto.getNewProfileImage().isEmpty()) {
             fileService.deleteProfileImage(member.getProfileImagePath());
             String newImagePath = fileService.saveProfileImage(updateDto.getNewProfileImage());
