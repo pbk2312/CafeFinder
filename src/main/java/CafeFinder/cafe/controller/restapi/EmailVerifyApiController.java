@@ -26,19 +26,15 @@ public class EmailVerifyApiController {
     private final EmailService emailService;
 
     @PostMapping("/sendCode")
-    public ResponseEntity<ResponseDto<String>> sendVerifyEmail(
-            @Valid @RequestBody EmailDto emailDto
-    ) {
+    public ResponseEntity<ResponseDto<String>> sendVerifyEmail(@Valid @RequestBody EmailDto emailDto) {
         emailService.sendVerificationCode(emailDto);
-        return ResponseUtil.buildResponse(HttpStatus.OK, EMAIL_SEND_SUCCESS.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.ACCEPTED, EMAIL_SEND_SUCCESS.getMessage(), null, true);
     }
 
     @PostMapping("/verifyCode")
     public ResponseEntity<ResponseDto<String>> verifyEmail(@Valid @RequestBody EmailVerifyDto emailVerifyDto) {
-        log.info(emailVerifyDto.getEmail());
         emailService.verifyCode(emailVerifyDto);
         return ResponseUtil.buildResponse(HttpStatus.OK, EMAIL_VERIFY_SUCCESS.getMessage(), null, true);
     }
 
 }
-
