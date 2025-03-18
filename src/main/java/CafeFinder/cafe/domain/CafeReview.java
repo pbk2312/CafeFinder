@@ -25,18 +25,18 @@ public class CafeReview {
 
     @ManyToOne
     @JoinColumn(name = "cafe_id", nullable = false)
-    private CafeInfo cafe;  // CafeInfo 엔티티와 연결 (FK)
+    private Cafe cafe;
 
     private double rating;  // 별점
 
     @Column(columnDefinition = "LONGTEXT") // 긴 텍스트 저장 가능
-    private String review;  // 리뷰 내용
+    private String content;  // 리뷰 내용
 
-    public static CafeReview create(CafeInfo cafe, double rating, String review) {
+    public static CafeReview create(Cafe cafe, double rating, String content) {
         return CafeReview.builder()
                 .cafe(cafe)
                 .rating(rating)
-                .review(review)
+                .content(content)
                 .build();
     }
 

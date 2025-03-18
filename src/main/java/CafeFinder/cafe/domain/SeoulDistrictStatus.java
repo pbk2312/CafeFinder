@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GuReviewStats {
+public class SeoulDistrictStatus {
 
     @Id
     @Column(name = "gu_code", length = 10, nullable = false)
@@ -25,8 +25,8 @@ public class GuReviewStats {
     @Column(name = "total_reviews", nullable = false)
     private int totalReviews;  // 총 리뷰 수
 
-    public static GuReviewStats create(String guCode, double averageRating, int totalReviews) {
-        return GuReviewStats.builder()
+    public static SeoulDistrictStatus create(String guCode, double averageRating, int totalReviews) {
+        return SeoulDistrictStatus.builder()
                 .guCode(guCode)
                 .averageRating(averageRating)
                 .totalReviews(totalReviews)

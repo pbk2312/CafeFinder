@@ -1,6 +1,6 @@
 package CafeFinder.cafe.importer;
 
-import CafeFinder.cafe.repository.CafeInfoRepository;
+import CafeFinder.cafe.repository.CafeRepository;
 import CafeFinder.cafe.repository.CafeReviewRepository;
 import CafeFinder.cafe.util.CsvParserUtil;
 import java.io.BufferedReader;
@@ -19,7 +19,7 @@ public class CafeReviewImporter {
 
     private final CafeReviewRepository cafeReviewRepository;
 
-    private final CafeInfoRepository cafeInfoRepository;  // Cafe 엔티티도 필요
+    private final CafeRepository cafeInfoRepository;  // Cafe 엔티티도 필요
 
 
     @Value("${file.cafe_reviews.path}")

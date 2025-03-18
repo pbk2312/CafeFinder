@@ -1,7 +1,6 @@
 package CafeFinder.cafe.importer;
 
-import CafeFinder.cafe.domain.GuReviewStats;
-import CafeFinder.cafe.service.interfaces.GuReviewStatsService;
+import CafeFinder.cafe.service.interfaces.SeoulDistrictStatusService;
 import CafeFinder.cafe.util.CsvParserUtil;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,12 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Log4j2
-public class GuReviewStatsCsvImporter {
+public class SeoulDistrictStatusImporter {
 
-    private final GuReviewStatsService guReviewStatsService;
+    private final SeoulDistrictStatusService guReviewStatsService;
 
     public void importCsv(String filePath) {
-        List<GuReviewStats> statsList = new ArrayList<>();
+        List<CafeFinder.cafe.domain.SeoulDistrictStatus> statsList = new ArrayList<>();
         int skippedRows = 0;
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath, StandardCharsets.UTF_8))) {
@@ -32,7 +31,7 @@ public class GuReviewStatsCsvImporter {
                     continue;
                 }
 
-                GuReviewStats stats = CsvParserUtil.parse(line);
+                CafeFinder.cafe.domain.SeoulDistrictStatus stats = CsvParserUtil.parseSeoulDistrictStatus(line);
                 if (stats != null) {
                     statsList.add(stats);
                 } else {

@@ -1,12 +1,12 @@
 package CafeFinder.cafe.config;
 
+import CafeFinder.cafe.infrastructure.jwt.JwtFilter;
+import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import CafeFinder.cafe.jwt.JwtFilter;
-import CafeFinder.cafe.jwt.TokenProvider;
 
 @RequiredArgsConstructor
 public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {

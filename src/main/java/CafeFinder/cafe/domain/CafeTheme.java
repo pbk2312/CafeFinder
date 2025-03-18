@@ -14,3 +14,4 @@ public enum CafeTheme {
     NONE("기타");
     private final String description;
 }
+

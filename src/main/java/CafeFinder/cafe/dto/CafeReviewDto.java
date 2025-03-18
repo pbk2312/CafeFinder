@@ -19,7 +19,7 @@ public class CafeReviewDto {
 
     public static CafeReviewDto fromEntity(CafeReview entity) {
         return CafeReviewDto.builder()
-                .review(entity.getReview())
+                .review(entity.getContent())
                 .rating(entity.getRating())
                 .build();
     }

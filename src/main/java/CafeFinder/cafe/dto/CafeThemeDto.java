@@ -8,15 +8,15 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class ThemeDto {
+public class CafeThemeDto {
     private String name;
     private String description;
 
-    public static ThemeDto fromEntity(CafeTheme cafeTheme) {
-        return ThemeDto.builder()
+    public static CafeThemeDto fromEntity(CafeTheme cafeTheme) {
+        return CafeThemeDto.builder()
                 .name(cafeTheme.name())
                 .description(cafeTheme.getDescription())
                 .build();
     }
-    
+
 }
