@@ -2,9 +2,9 @@ package CafeFinder.cafe.exception;
 
 import static CafeFinder.cafe.util.ErrorMessage.CAFE_INFO_NOT_FOUND;
 
-public class CafeInfoNotFoundException extends RuntimeException {
+public class CafeNotFoundException extends RuntimeException {
 
-    public CafeInfoNotFoundException(String cadeCode) {
+    public CafeNotFoundException(String cadeCode) {
         super(CAFE_INFO_NOT_FOUND.getMessage() + " " + cadeCode);
     }
 
