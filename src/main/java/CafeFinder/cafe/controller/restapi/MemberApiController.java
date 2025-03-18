@@ -1,26 +1,31 @@
 package CafeFinder.cafe.controller.restapi;
 
+import CafeFinder.cafe.dto.CafeDto;
 import CafeFinder.cafe.dto.MemberLoginDto;
+import CafeFinder.cafe.dto.MemberProfileDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.dto.MemberUpdateDto;
 import CafeFinder.cafe.dto.ProfileDto;
 import CafeFinder.cafe.dto.ResponseDto;
 import CafeFinder.cafe.dto.TokenResultDto;
-import CafeFinder.cafe.dto.UserInfoDto;
-import CafeFinder.cafe.dto.UserUpdateDto;
-import CafeFinder.cafe.jwt.AccesTokenDto;
+import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
 import CafeFinder.cafe.service.interfaces.MemberService;
+import CafeFinder.cafe.service.interfaces.RecommendationService;
 import CafeFinder.cafe.util.CookieUtils;
+import CafeFinder.cafe.util.ResponseMessage;
+import static CafeFinder.cafe.util.ResponseMessage.LOGIN_SUCCESS;
+import static CafeFinder.cafe.util.ResponseMessage.LOGOUT_SUCCESS;
+import static CafeFinder.cafe.util.ResponseMessage.NOT_LOGIN;
+import static CafeFinder.cafe.util.ResponseMessage.PROFILE_INFO;
+import static CafeFinder.cafe.util.ResponseMessage.SIGN_UP_SUCCESS;
+import static CafeFinder.cafe.util.ResponseMessage.UPDATE_PROFILE;
 import CafeFinder.cafe.util.ResponseUtil;
-import static CafeFinder.cafe.util.ViewMessage.LOGIN_SUCCESS;
-import static CafeFinder.cafe.util.ViewMessage.LOGOUT_SUCCESS;
-import static CafeFinder.cafe.util.ViewMessage.NOT_LOGIN;
-import static CafeFinder.cafe.util.ViewMessage.PROFILE_INFO;
-import static CafeFinder.cafe.util.ViewMessage.SIGN_UP_SUCCESS;
-import static CafeFinder.cafe.util.ViewMessage.UPDATE_PROFILE;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -32,19 +37,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
 public class MemberApiController {
 
     private final MemberService memberService;
+    private final RecommendationService recommendationService;
 
     @PostMapping("/signUp")
     public ResponseEntity<ResponseDto<String>> signUp(
             @Valid @ModelAttribute MemberSignUpDto memberSignUpDto
     ) {
         memberService.save(memberSignUpDto);
-        return ResponseUtil.buildResponse(HttpStatus.OK, SIGN_UP_SUCCESS.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.CREATED, SIGN_UP_SUCCESS.getMessage(), null, true);
     }
 
     @PostMapping("/login")
@@ -67,7 +74,7 @@ public class MemberApiController {
 
     @PatchMapping("/update")
     public ResponseEntity<ResponseDto<String>> update(
-            @Valid UserUpdateDto userUpdateDto,
+            @Valid MemberUpdateDto userUpdateDto,
             @CookieValue(value = "accessToken", required = false) String accessToken
     ) {
         memberService.update(userUpdateDto, accessToken);
@@ -82,12 +89,12 @@ public class MemberApiController {
     }
 
     @GetMapping("/validateToken")
-    public ResponseEntity<ResponseDto<UserInfoDto>> validateToken(
+    public ResponseEntity<ResponseDto<MemberProfileDto>> validateToken(
             @CookieValue(value = "accessToken", required = false) String accessToken,
             HttpServletResponse response
     ) {
         if (accessToken == null || accessToken.isEmpty()) {
-            return ResponseUtil.buildResponse(HttpStatus.OK, NOT_LOGIN.getMessage(), null, false);
+            return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, NOT_LOGIN.getMessage(), null, false);
         }
 
         TokenResultDto result = memberService.validateToken(accessToken);
@@ -98,12 +105,23 @@ public class MemberApiController {
                 CookieUtils.addCookie(response, "accessToken", accessToken,
                         result.getNewAccessToken().getAccessTokenExpiresIn());
             } else {
-                return ResponseUtil.buildResponse(HttpStatus.OK, result.getMessage(), null, false);
+                return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, result.getMessage(), null, false);
             }
         }
 
-        UserInfoDto userInfo = memberService.getUserInfoByToken(accessToken);
+        MemberProfileDto userInfo = memberService.getUserInfoByToken(accessToken);
         return ResponseUtil.buildResponse(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), userInfo, true);
+    }
+
+    @GetMapping("/getRecommandCafes")
+    public ResponseEntity<ResponseDto<List<CafeDto>>> getRecommandCafes(
+            @CookieValue(value = "accessToken") String accessToken
+    ) {
+        List<CafeDto> recommandCafes = recommendationService.getRecommendationCafes(accessToken);
+        log.info("recommandCafes Size = {} ", recommandCafes.size());
+        return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.GET_RECOMMAND_CAFES.getMessage(),
+                recommandCafes,
+                true);
     }
 
     private String getRedirectUrlFromSession(HttpServletRequest request) {
