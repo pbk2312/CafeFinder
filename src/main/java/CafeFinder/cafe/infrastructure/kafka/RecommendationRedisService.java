@@ -17,7 +17,7 @@ public class RecommendationRedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void updateRecommendation(String key, Long clickCount) {
+    public void updateMemberClickEvent(String key, Long clickCount) {
         log.info("클릭 ... Redis에 업데이트 시작...");
         Long newCount = redisTemplate.opsForValue().increment(key, clickCount);
         log.info("Redis key = {} , new click count = {}", key, newCount);
@@ -26,26 +26,25 @@ public class RecommendationRedisService {
         String themeDistrict = extractThemeAndDistrict(key);
         if (themeDistrict != null) {
             String[] parts = themeDistrict.split(":");
-            updateGlobalRecommendation(parts[0], parts[1], clickCount);
+            updateGlobalClickCount(parts[0], parts[1], clickCount);
         }
     }
 
     // 사용자 클릭 기록에서 가장 많이 클릭한 테마와 지역을 가져오는 메서드
-    public String getMostClickedThemeDistrict(String memberId) {
+    public String getMemberTopThemeDistrict(String memberId) {
         Set<String> keys = getMemberClickKeys(memberId);
         String maxKey = findMaxClickKey(keys);
         return extractThemeAndDistrict(maxKey);
     }
 
     // Cold Start 대응: 테마와 지역구별 전역 클릭수 업데이트
-    public void updateGlobalRecommendation(String theme, String district, Long clickIncrement) {
+    public void updateGlobalClickCount(String theme, String district, Long clickIncrement) {
         String key = redisKeyPrefix + "global:" + theme + ":" + district;
         Long newCount = redisTemplate.opsForValue().increment(key, clickIncrement);
         log.info("Global key = {} updated with new count = {}", key, newCount);
     }
 
-    // 전역 클릭수 중 가장 많이 클릭된 테마와 지역 구하기
-    public String getMostGlobalClickedThemeDistrict() {
+    public String getMostClickedGlobalClickedCafes() {
         String keyPattern = redisKeyPrefix + "global:*";
         Set<String> keys = redisTemplate.keys(keyPattern);
         String maxKey = findMaxClickKey(keys);
@@ -96,8 +95,7 @@ public class RecommendationRedisService {
         }
 
         String[] parts = redisKey.split(":");
-        // recommendation:{memberId}:<theme>:<district>
-        // recommendation:global:<theme>:<district>
+
         if (parts.length == 4) {
             return parts[2] + ":" + parts[3];
         }
