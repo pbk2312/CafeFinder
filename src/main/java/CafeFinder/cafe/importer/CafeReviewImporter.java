@@ -19,7 +19,7 @@ public class CafeReviewImporter {
 
     private final CafeReviewRepository cafeReviewRepository;
 
-    private final CafeRepository cafeInfoRepository;  // Cafe 엔티티도 필요
+    private final CafeRepository cafeInfoRepository;
 
 
     @Value("${file.cafe_reviews.path}")
