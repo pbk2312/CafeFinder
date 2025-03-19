@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/cafe")
-public class CafeInfoController {
+public class CafeController {
 
     @Value("${google.map.key}")
     private String googleKey;
