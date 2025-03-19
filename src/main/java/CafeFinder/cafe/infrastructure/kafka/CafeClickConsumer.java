@@ -68,7 +68,7 @@ public class CafeClickConsumer {
     private void updateRedisCounts(KTable<String, Long> counts) {
         counts.toStream().foreach((compositeKey, count) -> {
             String redisKey = redisKeyPrefix + compositeKey;
-            redisService.updateRecommendation(redisKey, count);
+            redisService.updateMemberClickEvent(redisKey, count);
             log.info("Redis 업데이트 - 키: {}, 클릭 수: {}", redisKey, count);
         });
     }
