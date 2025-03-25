@@ -8,7 +8,7 @@ import CafeFinder.cafe.dto.MemberUpdateDto;
 import CafeFinder.cafe.dto.ProfileDto;
 import CafeFinder.cafe.dto.ResponseDto;
 import CafeFinder.cafe.dto.TokenResultDto;
-import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
+import CafeFinder.cafe.infrastructure.jwt.TokenDto;
 import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.interfaces.RecommendationService;
 import CafeFinder.cafe.util.CookieUtils;
@@ -58,19 +58,28 @@ public class MemberApiController {
     public ResponseEntity<ResponseDto<String>> login(
             @Valid @RequestBody MemberLoginDto loginDto,
             HttpServletResponse response, HttpServletRequest request) {
-        AccesTokenDto accesTokenDto = memberService.login(loginDto);
-        CookieUtils.addCookie(response, "accessToken", accesTokenDto.getAccessToken(),
-                accesTokenDto.getAccessTokenExpiresIn());
+        TokenDto tokenDto = memberService.login(loginDto);
+        CookieUtils.addCookie(response, "accessToken", tokenDto.getAccessToken(),
+                tokenDto.getAccessTokenExpiresIn());
+        CookieUtils.addCookie(response, "refreshToken", tokenDto.getRefreshToken(),
+                tokenDto.getRefreshTokenExpiresIn());
         String redirectUrl = getRedirectUrlFromSession(request);
         return ResponseUtil.buildResponse(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), redirectUrl, true);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ResponseDto<String>> logout(HttpServletResponse response) {
+    public ResponseEntity<ResponseDto<String>> logout(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response) {
+
         CookieUtils.removeCookie(response, "accessToken");
-        memberService.logout();
+        CookieUtils.removeCookie(response, "refreshToken");
+
+        memberService.logout(refreshToken);
+
         return ResponseUtil.buildResponse(HttpStatus.OK, LOGOUT_SUCCESS.getMessage(), null, true);
     }
+
 
     @PatchMapping("/update")
     public ResponseEntity<ResponseDto<String>> update(
@@ -91,13 +100,14 @@ public class MemberApiController {
     @GetMapping("/validateToken")
     public ResponseEntity<ResponseDto<MemberProfileDto>> validateToken(
             @CookieValue(value = "accessToken", required = false) String accessToken,
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response
     ) {
-        if (accessToken == null || accessToken.isEmpty()) {
+        if ((accessToken == null || accessToken.isEmpty()) && (refreshToken == null || refreshToken.isEmpty())) {
             return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, NOT_LOGIN.getMessage(), null, false);
         }
 
-        TokenResultDto result = memberService.validateToken(accessToken);
+        TokenResultDto result = memberService.validateToken(accessToken, refreshToken);
 
         if (!result.isAccessTokenValid()) {
             if (result.isRefreshTokenValid()) {
@@ -118,7 +128,6 @@ public class MemberApiController {
             @CookieValue(value = "accessToken") String accessToken
     ) {
         List<CafeDto> recommandCafes = recommendationService.getRecommendationCafes(accessToken);
-        log.info("recommandCafes Size = {} ", recommandCafes.size());
         return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.GET_RECOMMAND_CAFES.getMessage(),
                 recommandCafes,
                 true);
