@@ -18,9 +18,7 @@ public class RecommendationRedisService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     public void updateMemberClickEvent(String key, Long clickCount) {
-        log.info("클릭 ... Redis에 업데이트 시작...");
-        Long newCount = redisTemplate.opsForValue().increment(key, clickCount);
-        log.info("Redis key = {} , new click count = {}", key, newCount);
+        redisTemplate.opsForValue().increment(key, clickCount);
 
         // 전역 클릭 수도 함께 업데이트
         String themeDistrict = extractThemeAndDistrict(key);
@@ -40,8 +38,7 @@ public class RecommendationRedisService {
     // Cold Start 대응: 테마와 지역구별 전역 클릭수 업데이트
     public void updateGlobalClickCount(String theme, String district, Long clickIncrement) {
         String key = redisKeyPrefix + "global:" + theme + ":" + district;
-        Long newCount = redisTemplate.opsForValue().increment(key, clickIncrement);
-        log.info("Global key = {} updated with new count = {}", key, newCount);
+        redisTemplate.opsForValue().increment(key, clickIncrement);
     }
 
     public String getMostClickedGlobalClickedCafes() {
@@ -77,8 +74,6 @@ public class RecommendationRedisService {
                 } else if (value != null) {
                     log.warn("예상치 못한 타입입니다. 키 {}의 타입: {}", key, value.getClass());
                 }
-
-                log.info("키: {} -> 클릭 수: {}", key, count);
 
                 if (count != null && count > maxCount) {
                     maxCount = count;
