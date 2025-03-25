@@ -7,35 +7,26 @@ import CafeFinder.cafe.dto.MemberSignUpDto;
 import CafeFinder.cafe.dto.MemberUpdateDto;
 import CafeFinder.cafe.dto.ProfileDto;
 import CafeFinder.cafe.dto.TokenResultDto;
-import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
+import CafeFinder.cafe.infrastructure.jwt.TokenDto;
 
 public interface MemberService {
 
-    // 회원가입
     void save(MemberSignUpDto memberSignUpDto);
 
-    // 로그인
-    AccesTokenDto login(MemberLoginDto memberLoginDto);
+    TokenDto login(MemberLoginDto memberLoginDto);
 
-    // 로그아웃
-    void logout();
+    void logout(String refreshToken);
 
-    // 토큰 검증
-    TokenResultDto validateToken(String accessToken);
+    TokenResultDto validateToken(String accessToken, String refreshToken);
 
-    // 이메일로 회원 찾기
     Member getMemberByEmail(String email);
 
-    // 회원 정보 가져오기
     MemberProfileDto getUserInfoByToken(String accessToken);
 
-    // 회원 정보 수정
     void update(MemberUpdateDto userUpdateDto, String accessToken);
 
-    // 회원 정보 보기
     ProfileDto getProfileByToken(String accessToken);
 
-    // 토큰으로 멤버 찾기
     Member getMemberByToken(String accessToken);
 
 }
