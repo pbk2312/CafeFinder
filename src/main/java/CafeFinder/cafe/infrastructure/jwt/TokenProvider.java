@@ -96,17 +96,25 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, accessToken, authorities);
     }
 
-    private UserDetails getUserDetailsFromClaims(Claims claims) {
-        if (claims == null || claims.getSubject() == null) {
-            throw new InvalidTokenException(INVALID_JWT.getMessage());
-        }
 
+    public UserDetails getUserDetailsFromRefreshToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+        return getUserDetailsFromClaims(claims);
+    }
+
+    private UserDetails getUserDetailsFromClaims(Claims claims) {
+        validateClaims(claims);
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(claims.getSubject());
         if (userDetails == null) {
             throw new MemberNotFoundException();
         }
-
         return userDetails;
+    }
+
+    private static void validateClaims(Claims claims) {
+        if (claims == null || claims.getSubject() == null) {
+            throw new InvalidTokenException(INVALID_JWT.getMessage());
+        }
     }
 
     private Collection<? extends GrantedAuthority> extractAuthoritiesFromClaims(Claims claims) {
