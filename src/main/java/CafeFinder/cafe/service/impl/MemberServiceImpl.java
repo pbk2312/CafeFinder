@@ -13,6 +13,7 @@ import CafeFinder.cafe.exception.YetVerifyEmailException;
 import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
 import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
 import CafeFinder.cafe.infrastructure.jwt.TokenDto;
+import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
 import CafeFinder.cafe.repository.MemberRepository;
 import CafeFinder.cafe.service.interfaces.FileService;
 import CafeFinder.cafe.service.interfaces.MemberService;
@@ -49,12 +50,13 @@ public class MemberServiceImpl implements MemberService {
     private final RefreshTokenService refreshTokenService;
     private final RedisEmailVerifyService redisEmailVerifyService;
     private final FileService fileService;
+    private final TokenProvider tokenProvider;
 
 
     @Value("${cafe.profile.image.base-path:/Users/park/}")
     private String profileImageBasePath;
 
-    @Value("${cafe.profile.image.relative-path:/img/profile/}")
+    @Value("${cafe.profile.image.relative-path:/img/}")
     private String profileImageRelativePath;
 
     @Override
@@ -73,7 +75,6 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberProfileDto getUserInfoByToken(String accessToken) {
         Member member = getMemberByToken(accessToken);
-        log.info("토큰 멤버 조회: {}", member.getEmail());
         String relativePath = convertToRelativePath(member.getProfileImagePath());
         return MemberProfileDto.builder()
                 .nickName(member.getNickName())
@@ -83,56 +84,22 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public AccesTokenDto login(MemberLoginDto loginDto) {
+    public TokenDto login(MemberLoginDto loginDto) {
         log.info("로그인 시작: 이메일={}", loginDto.getEmail());
-        Member member = getMemberByEmail(loginDto.getEmail());
         Authentication authentication = authenticateUser(loginDto);
-        TokenDto tokenDto = tokenService.generateToken(authentication);
-        refreshTokenService.saveRefreshToken(member.getId(), tokenDto.getRefreshToken(),
-                tokenDto.getRefreshTokenExpiresIn());
         log.info("로그인 성공: 이메일={}", loginDto.getEmail());
-        return generateAccessToken(authentication);
+        return tokenService.generateToken(authentication);
     }
 
     @Override
     @Transactional
-    public void logout() {
+    public void logout(String refreshToken) {
         log.info("로그아웃 시도");
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        Member member = getMemberByEmail(email);
+        refreshTokenService.addTokenToBlacklist(refreshToken);
         SecurityContextHolder.clearContext();
-        refreshTokenService.deleteRefreshToken(member.getId());
         log.info("로그아웃 완료: 인증 정보 삭제");
     }
 
-    @Override
-    public TokenResultDto validateToken(String accessToken) {
-        Authentication authentication = tokenService.getAuthentication(accessToken);
-        if (tokenService.validateToken(accessToken)) {
-            return TokenResultDto.builder()
-                    .isAccessTokenValid(true)
-                    .isRefreshTokenValid(false)
-                    .message("유효한 AccessToken")
-                    .newAccessToken(null)
-                    .build();
-        }
-
-        Member member = getMemberFromAuthentication(authentication);
-        String refreshToken = refreshTokenService.getRefreshToken(member.getId());
-        if (refreshToken == null || !tokenService.validateToken(refreshToken)) {
-            return buildInvalidTokenResult();
-        }
-
-        log.info("액세스 토큰 만료됨, 리프레시 토큰이 유효: 새로운 액세스 토큰 발급");
-        AccesTokenDto newAccessToken = generateAccessToken(authentication);
-        return TokenResultDto.builder()
-                .isAccessTokenValid(false)
-                .isRefreshTokenValid(true)
-                .message(GENERATE_ACCESSTOKEN.getMessage())
-                .newAccessToken(newAccessToken)
-                .build();
-    }
 
     @Override
     @Transactional
@@ -169,6 +136,71 @@ public class MemberServiceImpl implements MemberService {
                     log.error("회원 조회 실패: 이메일={}", email);
                     return new MemberNotFoundException();
                 });
+    }
+
+    @Override
+    public TokenResultDto validateToken(String accessToken, String refreshToken) {
+        if (isAccessTokenValid(accessToken)) {
+            return buildAccessTokenValidResult();
+        }
+
+        if (isRefreshTokenInvalid(refreshToken)) {
+            return buildInvalidTokenResult();
+        }
+
+        if (isRefreshTokenBlacklisted(refreshToken)) {
+            log.warn("리프레시 토큰이 블랙리스트에 존재합니다: {}", refreshToken);
+            return buildInvalidTokenResult();
+        }
+
+        var userDetails = getUserDetailsFromRefreshToken(refreshToken);
+        if (userDetails == null) {
+            return buildInvalidTokenResult();
+        }
+
+        return generateNewAccessToken(userDetails);
+    }
+
+    private boolean isAccessTokenValid(String accessToken) {
+        return accessToken != null
+                && !accessToken.isEmpty()
+                && tokenService.validateToken(accessToken);
+    }
+
+    private boolean isRefreshTokenInvalid(String refreshToken) {
+        return refreshToken == null
+                || refreshToken.isEmpty()
+                || !tokenService.validateToken(refreshToken);
+    }
+
+    private boolean isRefreshTokenBlacklisted(String refreshToken) {
+        return refreshTokenService.isTokenBlacklisted(refreshToken);
+    }
+
+    private UserDetails getUserDetailsFromRefreshToken(String refreshToken) {
+        return tokenProvider.getUserDetailsFromRefreshToken(refreshToken);
+    }
+
+    private TokenResultDto generateNewAccessToken(UserDetails userDetails) {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+        log.info("액세스 토큰이 없거나 만료됨, 리프레시 토큰이 유효: 새로운 액세스 토큰 발급");
+        AccesTokenDto newAccessToken = generateAccessToken(authentication);
+        return TokenResultDto.builder()
+                .isAccessTokenValid(false)
+                .isRefreshTokenValid(true)
+                .message(GENERATE_ACCESSTOKEN.getMessage())
+                .newAccessToken(newAccessToken)
+                .build();
+    }
+
+    private TokenResultDto buildAccessTokenValidResult() {
+        return TokenResultDto.builder()
+                .isAccessTokenValid(true)
+                .isRefreshTokenValid(false)
+                .message("유효한 AccessToken")
+                .newAccessToken(null)
+                .build();
     }
 
     private void verifyEmailAuthentication(MemberSignUpDto signUpDto) {
