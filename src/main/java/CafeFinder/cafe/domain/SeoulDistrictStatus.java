@@ -16,18 +16,17 @@ import lombok.NoArgsConstructor;
 public class SeoulDistrictStatus {
 
     @Id
-    @Column(name = "gu_code", length = 10, nullable = false)
-    private String guCode;  // 구 코드
+    @Column(name = "gu_code")
+    private String code;
 
-    @Column(name = "average_rating", nullable = false)
-    private double averageRating;  // 평균 평점
+    @Column(name = "average_rating")
+    private double averageRating;
 
-    @Column(name = "total_reviews", nullable = false)
-    private int totalReviews;  // 총 리뷰 수
+    private int totalReviews;
 
     public static SeoulDistrictStatus create(String guCode, double averageRating, int totalReviews) {
         return SeoulDistrictStatus.builder()
-                .guCode(guCode)
+                .code(guCode)
                 .averageRating(averageRating)
                 .totalReviews(totalReviews)
                 .build();
