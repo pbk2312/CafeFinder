@@ -1,5 +1,12 @@
 package CafeFinder.cafe.controller.restapi;
 
+import static CafeFinder.cafe.util.ResponseMessage.CLICK_EVENT_SUCCESS;
+import static CafeFinder.cafe.util.ResponseMessage.DISTRCT_THEME_GET_SUCCESS;
+import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_INFO;
+import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_INFO_LIST_BY_NAME;
+import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_THEME;
+import static CafeFinder.cafe.util.ResponseMessage.GUREVIEW_STATS_SUCCESS;
+
 import CafeFinder.cafe.dto.CafeDto;
 import CafeFinder.cafe.dto.CafeThemeDto;
 import CafeFinder.cafe.dto.ResponseDto;
@@ -7,13 +14,9 @@ import CafeFinder.cafe.dto.SeoulDistrictStatusDto;
 import CafeFinder.cafe.infrastructure.kafka.CafeClickProducer;
 import CafeFinder.cafe.service.interfaces.CafeService;
 import CafeFinder.cafe.service.interfaces.CafeThemeService;
+import CafeFinder.cafe.service.interfaces.RecommendationService;
 import CafeFinder.cafe.service.interfaces.SeoulDistrictStatusService;
-import static CafeFinder.cafe.util.ResponseMessage.CLICK_EVENT_SUCCESS;
-import static CafeFinder.cafe.util.ResponseMessage.DISTRCT_THEME_GET_SUCCESS;
-import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_INFO;
-import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_INFO_LIST_BY_NAME;
-import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_THEME;
-import static CafeFinder.cafe.util.ResponseMessage.GUREVIEW_STATS_SUCCESS;
+import CafeFinder.cafe.util.ResponseMessage;
 import CafeFinder.cafe.util.ResponseUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -37,14 +40,15 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 public class CafeApiController {
 
-    private final SeoulDistrictStatusService guReviewStatsService;
-    private final CafeService cafeInfoService;
+    private final SeoulDistrictStatusService seoulDistrictStatusService;
+    private final CafeService cafeService;
     private final CafeThemeService cafeThemeService;
     private final CafeClickProducer cafeClickProducer;
+    private final RecommendationService recommendationService;
 
     @GetMapping("/guReviewStats")
     public ResponseEntity<ResponseDto<List<SeoulDistrictStatusDto>>> getSeoulDistrictStatus() {
-        List<SeoulDistrictStatusDto> guReviews = guReviewStatsService.getAllStats();
+        List<SeoulDistrictStatusDto> guReviews = seoulDistrictStatusService.getAllStats();
         return ResponseUtil.buildResponse(HttpStatus.OK, GUREVIEW_STATS_SUCCESS.getMessage(), guReviews, true);
     }
 
@@ -60,13 +64,13 @@ public class CafeApiController {
             @PathVariable String theme,
             @PageableDefault(size = 9) Pageable pageable) {
 
-        Page<CafeDto> cafes = cafeInfoService.getCafesByDistrictAndTheme(district, theme, pageable);
+        Page<CafeDto> cafes = cafeService.getCafesByDistrictAndTheme(district, theme, pageable);
         return ResponseUtil.buildResponse(HttpStatus.OK, DISTRCT_THEME_GET_SUCCESS.getMessage(), cafes, true);
     }
 
     @GetMapping("/{cafeCode}")
     public ResponseEntity<ResponseDto<CafeDto>> getCafeInfo(@PathVariable String cafeCode) {
-        CafeDto cafeInfoDto = cafeInfoService.getCafe(cafeCode);
+        CafeDto cafeInfoDto = cafeService.getCafe(cafeCode);
         return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_INFO.getMessage(), cafeInfoDto, true);
     }
 
@@ -75,7 +79,7 @@ public class CafeApiController {
             @RequestParam("keyword") String keyword,
             @PageableDefault(size = 9) Pageable pageable) {
 
-        Page<CafeDto> result = cafeInfoService.searchCafesByNameOrAddress(keyword, pageable);
+        Page<CafeDto> result = cafeService.searchCafesByNameOrAddress(keyword, pageable);
         return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_INFO_LIST_BY_NAME.getMessage(), result,
                 true);
     }
@@ -87,6 +91,13 @@ public class CafeApiController {
 
         cafeClickProducer.sendCafeClickEvent(accessToken, cafeCode);
         return ResponseUtil.buildResponse(HttpStatus.ACCEPTED, CLICK_EVENT_SUCCESS.getMessage(), null, true);
+    }
+
+    @GetMapping("/mostClicked")
+    public ResponseEntity<ResponseDto<List<CafeDto>>> getMostClicked() {
+        List<CafeDto> cafeDtos = recommendationService.getGlobalRecommendationCafes();
+        return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.MOST_CLICKED_CAFES.getMessage(), cafeDtos,
+                true);
     }
 
 }
