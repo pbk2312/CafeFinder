@@ -29,7 +29,6 @@ public class SeoulDistrictStatusSerciceImpl implements SeoulDistrictStatusServic
     @Cacheable(value = "seoulDistrictStatus")
     @Transactional(readOnly = true)
     public List<SeoulDistrictStatusDto> getAllStats() {
-        log.info("구별 통계 조회");
         return seoulDistrictRepository.findSortedByRatingAndReviewCount()
                 .stream()
                 .map(SeoulDistrictStatusDto::fromEntity)
