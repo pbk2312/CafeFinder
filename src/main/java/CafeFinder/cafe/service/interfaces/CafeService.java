@@ -20,4 +20,6 @@ public interface CafeService {
 
     List<CafeDto> getTopCafesByDistrictAndTheme(String district, String theme);
 
+    List<CafeDto> getMostClickedCafes(String district, String theme);
+
 }

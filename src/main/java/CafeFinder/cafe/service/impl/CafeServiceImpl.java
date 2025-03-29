@@ -13,6 +13,7 @@ import CafeFinder.cafe.service.interfaces.CafeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,26 +33,22 @@ public class CafeServiceImpl implements CafeService {
     @Override
     public void saveCafes(List<Cafe> cafes) {
         cafeRepository.saveAll(cafes);
-        log.info("카페 {}개 저장 완료", cafes.size());
     }
 
     @Transactional(readOnly = true)
     @Override
     public long countCafes() {
-        long count = cafeRepository.count();
-        log.info("총 카페 수: {}", count);
-        return count;
+        return cafeRepository.count();
     }
 
     @Transactional(readOnly = true)
+    @Cacheable("cafesByDistrictAndTheme")
     @Override
     public Page<CafeDto> getCafesByDistrictAndTheme(String district, String theme, Pageable pageable) {
-        log.info("행정구: {} 및 테마: {}에 해당하는 카페 조회 시작", district, theme);
         try {
             Page<IndexedCafe> searchResults = findCafesByDistrictAndTheme(district, theme, pageable);
             return searchResults.map(CafeDto::fromDocumentForList);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 행정구나 테마 입력: {} / {}", district, theme);
             throw new WrongDistrictAndTheme();
         }
     }
@@ -59,12 +56,10 @@ public class CafeServiceImpl implements CafeService {
     @Transactional(readOnly = true)
     @Override
     public Page<CafeDto> searchCafesByNameOrAddress(String keyword, Pageable pageable) {
-        log.info("검색어(카페명/주소): {}를 이용하여 카페 검색 시작", keyword);
         try {
             Page<IndexedCafe> searchResults = findCafesByNameOrAddress(keyword, pageable);
             return searchResults.map(CafeDto::fromDocumentForList);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 검색어 입력: {}", keyword);
             throw new WrongSearchException();
         }
     }
@@ -72,26 +67,29 @@ public class CafeServiceImpl implements CafeService {
     @Transactional(readOnly = true)
     @Override
     public CafeDto getCafe(String cafeCode) {
-        log.info("카페 상세 정보 조회 시작: {}", cafeCode);
         Cafe cafe = findCafeByCafeCode(cafeCode);
-        log.info("카페 정보 조회 성공: {}", cafeCode);
         List<CafeReviewDto> reviewDtos = convertReviewsToDto(cafe);
-        log.info("리뷰 수: {}", reviewDtos.size());
         return CafeDto.fromEntityWithReviews(cafe, reviewDtos);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<CafeDto> getTopCafesByDistrictAndTheme(String district, String theme) {
-        log.info("상위 카페 조회 시작: 행정구={}, 테마={}", district, theme);
+        return getRecommandationCafes(district, theme);
+    }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<CafeDto> getMostClickedCafes(String district, String theme) {
+        return getRecommandationCafes(district, theme);
+    }
+
+    private List<CafeDto> getRecommandationCafes(String district, String theme) {
         Page<IndexedCafe> page = findCafesByDistrictAndTheme(district, theme, PageRequest.of(0, 6));
-
         return page.getContent().stream()
                 .map(CafeDto::fromDocumentForList)
                 .toList();
     }
-
 
     private Page<IndexedCafe> findCafesByNameOrAddress(String keyword, Pageable pageable) {
         return cafeSearchRepository.findByNameContainingOrAddressContaining(keyword, keyword, pageable);
