@@ -1,0 +1,85 @@
+:root {
+    --primary-color: #6f4e37;
+    --secondary-color: #a68a64;
+    --card-bg: #ffffff;
+    --text-muted: #555;
+    --hover-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 카드 스타일 */
+.cafe-card {
+    background: var(--card-bg);
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.5s ease;
+    margin-bottom: 1.5rem;
+}
+
+.cafe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hover-shadow);
+}
+
+.card-img-top {
+    height: 160px;
+    object-fit: cover;
+    transition: transform 0.3s, filter 0.3s;
+}
+
+.card-body {
+    padding: 1rem;
+    text-align: center;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.rating-section {
+    display: inline-flex;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+}
+
+.star-rating {
+    font-size: 1.2rem;
+    color: gold;
+}
+
+.rating-value {
+    font-size: 1rem;
+    color: var(--secondary-color);
+    margin-left: 8px;
+    font-weight: 600;
+}
+
+.reviews-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}

@@ -1,0 +1,115 @@
+@import url("layout.css");
+
+:root {
+    --primary-color: #6F4E37;
+    --secondary-color: #A68A64;
+    --card-bg: #fff;
+    --text-dark: #333;
+    --text-muted: #555;
+    --star-color: #FFC107;
+    --bg-light: #f8f9fa;
+}
+
+/* Global Styles */
+body {
+    background: var(--bg-light);
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-dark);
+}
+
+/* Fade In Animation */
+.fadeInUp {
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+/* Cafe Image */
+.cafe-img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.cafe-img:hover {
+    transform: scale(1.03);
+}
+
+/* Theme Badges */
+.badge-theme {
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    padding: 0.5em 0.75em;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+/* Map Container */
+#map {
+    height: 220px;
+    width: 100%;
+    margin-top: 15px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Cafe Info Titles */
+#cafe-name {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+#cafe-address i {
+    color: var(--secondary-color);
+}
+
+/* Info Paragraphs */
+#cafe-hours, #cafe-phone, #cafe-review {
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+/* Reviews Section */
+#reviews {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.review-card {
+    border: none;
+    border-left: 5px solid var(--secondary-color);
+    padding: 1.2rem;
+    background-color: var(--card-bg);
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.review-rating {
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    color: var(--star-color);
+}
+
+.rating-text {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.review-text {
+    font-size: 1rem;
+    color: var(--text-dark);
+    line-height: 1.5;
+}

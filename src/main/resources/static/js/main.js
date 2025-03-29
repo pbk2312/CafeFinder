@@ -1,14 +1,11 @@
 import {checkLoginStatus, logout} from "./auth.js";
-import {getStarRating, searchCafes, themeDescriptions, themeStyles} from "./cafe.js";
+import {getStarRating, searchCafes} from "./cafe.js";
 
-// 로그아웃 함수를 인라인 이벤트 핸들러(예: onclick)에서 사용할 수 있도록 전역에 등록
 window.logout = logout;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 로그인 여부와 상관없이 인기 카페는 항상 호출
     fetchPopularCafes();
 
-    // 인기 카페 컨테이너 클릭 이벤트 위임 추가
     const popularContainer = document.getElementById("popular-cafe-container");
     if (popularContainer) {
         popularContainer.addEventListener("click", (event) => {
@@ -27,8 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 로그인 상태 확인 후, 로그인 되어 있으면 추천 카페 데이터를 불러오고,
-    // 비로그인 상태이면 추천 섹션을 숨김 처리
     checkLoginStatus().then((isLoggedIn) => {
         if (isLoggedIn) {
             fetchRecommendedCafes();
@@ -40,10 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 구 리뷰 통계 불러오기
     fetchGuReviewStats();
 
-    // 검색 폼 이벤트 리스너 설정 (cafe.js의 searchCafes() 함수 사용)
     const searchForm = document.getElementById("cafe-search-form");
     if (searchForm) {
         searchForm.addEventListener("submit", (event) => {
@@ -59,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 이벤트 위임: 구 리뷰 컨테이너 내 카드 클릭 시 상세 페이지로 이동
     const guContainer = document.getElementById("gu-review-container");
     if (guContainer) {
         guContainer.addEventListener("click", (event) => {
@@ -78,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 이벤트 위임: 추천 카페 컨테이너 내 카드 클릭 시 상세 페이지로 이동
     const recommendedContainer = document.getElementById("recommended-cafe-container");
     if (recommendedContainer) {
         recommendedContainer.addEventListener("click", (event) => {
@@ -97,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 이벤트 위임: 검색 결과 컨테이너 내 카드 클릭 시 상세 페이지로 이동
     const searchResultsContainer = document.getElementById("search-results-container");
     if (searchResultsContainer) {
         searchResultsContainer.addEventListener("click", (event) => {
@@ -215,7 +205,7 @@ function displayGuReviewStats(statsList) {
               <span class="rating-value">${stat.averageRating.toFixed(1)}</span>
             </div>
             <p class="card-text reviews-text">📝 후기 <strong>${stat.totalReviews}</strong></p>
-            <a href="/cafe/${stat.guCode}" class="btn btn-primary">탐험 하기</a>
+            <a href="/cafe/${stat.guCode}" class="btn btn-primary" onclick="event.stopPropagation()">탐험 하기</a>
           </div>
         </div>
       </div>

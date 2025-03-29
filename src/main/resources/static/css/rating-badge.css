@@ -1,0 +1,14 @@
+/* 별 평점 */
+.star-rating i {
+    margin: 0 1px;
+}
+
+/* 커스텀 테마 배지 */
+.theme-badge {
+    font-size: 0.8rem;
+    padding: 0.4em 0.7em;
+    border-radius: 12px;
+    margin: 0.2em;
+    display: inline-block;
+    font-weight: 500;
+}

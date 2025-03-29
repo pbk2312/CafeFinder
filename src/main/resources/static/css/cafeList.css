@@ -1,0 +1,49 @@
+@import url("layout.css");
+@import url("card.css");
+@import url("rating-badge.css");
+
+/* 전체 배경 */
+body {
+    background: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(45deg, rgba(111, 78, 55, 0.75), rgba(166, 138, 100, 0.75)),
+    url('../img/cafeHome.jpg') no-repeat center center;
+    background-size: cover;
+    color: #fff;
+    padding: 5rem 1rem;
+    text-align: center;
+    position: relative;
+}
+
+.hero-section h1 {
+    font-weight: 700;
+}
+
+.hero-section .lead {
+    font-size: 1.2rem;
+}
+
+/* 검색바 */
+.search-bar {
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+
+/* 버튼 스타일 */
+.btn-primary {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    transition: background 0.3s;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+}

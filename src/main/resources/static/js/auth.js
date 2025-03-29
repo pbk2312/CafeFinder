@@ -5,7 +5,9 @@ export function checkLoginStatus() {
     })
         .then(response => response.json())
         .then(data => {
+            console.log("validateToken 응답:", data); // 여기서 전체 응답 데이터 확인
             if (data.success && data.data) {
+                console.log("프로필 이미지 경로:", data.data.profileImagePath); // 프로필 이미지 경로 출력
                 updateNavbarForLoggedInUser(data.data.nickName, data.data.profileImagePath);
                 return true;
             } else {
@@ -18,6 +20,7 @@ export function checkLoginStatus() {
         });
 }
 
+
 export function updateNavbarForLoggedInUser(nickName, profileImagePath) {
     const navbar = document.getElementById("navbarNav");
     const loginLink = document.getElementById("login-link");
@@ -25,7 +28,7 @@ export function updateNavbarForLoggedInUser(nickName, profileImagePath) {
 
     const profileImageTag = profileImagePath
         ? `<img src="${profileImagePath}" class="rounded-circle" width="40" height="40" alt="프로필 이미지">`
-        : `<img src="/default-profile.png" class="rounded-circle" width="40" height="40" alt="기본 프로필">`;
+        : `<img src="/cafeHome.jpg" class="rounded-circle" width="40" height="40" alt="기본 프로필">`;
 
     navbar.innerHTML += `
     <li class="nav-item d-flex align-items-center me-3">
