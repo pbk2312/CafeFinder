@@ -51,7 +51,7 @@ public class CafeDto {
     // 상세 조회용 변환 메서드 (리뷰 포함)
     public static CafeDto fromEntityWithReviews(Cafe cafeInfo, List<CafeReviewDto> reviewDtos) {
         return CafeDto.builder()
-                .cafeCode(cafeInfo.getCafeCode())
+                .cafeCode(cafeInfo.getCode())
                 .name(cafeInfo.getName())
                 .address(cafeInfo.getAddress())
                 .district(cafeInfo.getDistrict())
