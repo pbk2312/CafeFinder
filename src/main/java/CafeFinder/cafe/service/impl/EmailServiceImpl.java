@@ -5,8 +5,8 @@ import CafeFinder.cafe.dto.EmailVerifyDto;
 import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
 import CafeFinder.cafe.infrastructure.email.EmailSender;
 import CafeFinder.cafe.infrastructure.email.EmailTemplate;
+import CafeFinder.cafe.infrastructure.redis.RedisEmailVerifyService;
 import CafeFinder.cafe.service.interfaces.EmailService;
-import CafeFinder.cafe.service.redis.RedisEmailVerifyService;
 import CafeFinder.cafe.util.VeritificationCodeGenerator;
 import CafeFinder.cafe.validator.MemberValidator;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +33,7 @@ public class EmailServiceImpl implements EmailService {
         dispatchVerificationEmail(email, verificationCode);
 
         log.info("이메일 발송 성공: {}", email);
+
     }
 
     @Override
