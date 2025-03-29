@@ -19,7 +19,7 @@ public class SeoulDistrictStatusDto {
     // 엔티티 -> DTO
     public static SeoulDistrictStatusDto fromEntity(SeoulDistrictStatus entity) {
         return SeoulDistrictStatusDto.builder()
-                .guCode(entity.getGuCode())
+                .guCode(entity.getCode())
                 .averageRating(entity.getAverageRating())
                 .totalReviews(entity.getTotalReviews())
                 .build();
