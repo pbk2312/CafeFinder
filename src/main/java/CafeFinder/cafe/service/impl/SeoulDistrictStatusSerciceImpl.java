@@ -7,14 +7,14 @@ import CafeFinder.cafe.repository.SeoulDistrictRepository;
 import CafeFinder.cafe.service.interfaces.SeoulDistrictStatusService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class SeoulDistrictStatusSerciceImpl implements SeoulDistrictStatusService {
 
     private final SeoulDistrictRepository seoulDistrictRepository;

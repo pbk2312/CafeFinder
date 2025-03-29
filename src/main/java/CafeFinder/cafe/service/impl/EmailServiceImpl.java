@@ -10,12 +10,12 @@ import CafeFinder.cafe.service.interfaces.EmailService;
 import CafeFinder.cafe.util.VeritificationCodeGenerator;
 import CafeFinder.cafe.validator.MemberValidator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class EmailServiceImpl implements EmailService {
 
     private final EmailSender emailSender;

@@ -4,13 +4,13 @@ import CafeFinder.cafe.infrastructure.jwt.TokenDto;
 import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
 import CafeFinder.cafe.service.interfaces.TokenService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class TokenServiceImpl implements TokenService {
 
     private final TokenProvider tokenProvider;

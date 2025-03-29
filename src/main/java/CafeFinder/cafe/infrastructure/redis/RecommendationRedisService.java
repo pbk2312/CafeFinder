@@ -2,14 +2,14 @@ package CafeFinder.cafe.infrastructure.redis;
 
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class RecommendationRedisService {
 
     @Value("${redis.key.prefix.recommendation}")

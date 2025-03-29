@@ -8,11 +8,11 @@ import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.interfaces.RecommendationService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 @Service
 public class RecommendationServiceImpl implements RecommendationService {
 

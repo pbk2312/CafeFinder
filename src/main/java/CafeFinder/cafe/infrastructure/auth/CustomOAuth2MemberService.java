@@ -4,7 +4,7 @@ import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.infrastructure.auth.AuthProvider.OAuth2MemberFactory;
 import CafeFinder.cafe.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class CustomOAuth2MemberService extends DefaultOAuth2UserService {
 
 

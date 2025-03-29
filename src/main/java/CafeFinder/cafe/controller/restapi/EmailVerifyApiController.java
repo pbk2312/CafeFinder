@@ -4,12 +4,14 @@ import CafeFinder.cafe.dto.EmailDto;
 import CafeFinder.cafe.dto.EmailVerifyDto;
 import CafeFinder.cafe.dto.ResponseDto;
 import CafeFinder.cafe.service.interfaces.EmailService;
+
 import static CafeFinder.cafe.util.ResponseMessage.EMAIL_SEND_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.EMAIL_VERIFY_SUCCESS;
+
 import CafeFinder.cafe.util.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/email")
-@Log4j2
+@Slf4j
 public class EmailVerifyApiController {
 
     private final EmailService emailService;

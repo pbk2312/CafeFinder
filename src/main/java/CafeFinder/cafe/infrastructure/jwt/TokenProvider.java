@@ -2,10 +2,12 @@ package CafeFinder.cafe.infrastructure.jwt;
 
 import CafeFinder.cafe.exception.InvalidTokenException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
+
 import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.EXPIRED_JWT;
 import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.ILLEGAL_JWT;
 import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.INVALID_JWT;
 import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.UNSUPPORTED_JWT;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -19,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,7 +30,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-@Log4j2
+@Slf4j
 @Component
 public class TokenProvider {
 

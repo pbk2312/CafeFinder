@@ -7,7 +7,6 @@ import CafeFinder.cafe.infrastructure.jwt.JwtAccessDeniedHandler;
 import CafeFinder.cafe.infrastructure.jwt.JwtAuthenticationEntryPoint;
 import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
 import CafeFinder.cafe.service.interfaces.MemberService;
-import CafeFinder.cafe.service.redis.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -76,10 +75,9 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(MemberService memberService,
                                                                                  TokenProvider tokenProvider,
-                                                                                 RefreshTokenService refreshTokenService,
                                                                                  CompositeEmailExtractor compositeEmailExtractor
     ) {
-        return new OAuth2AuthenticationSuccessHandler(memberService, tokenProvider, refreshTokenService,
+        return new OAuth2AuthenticationSuccessHandler(memberService, tokenProvider,
                 compositeEmailExtractor);
     }
 

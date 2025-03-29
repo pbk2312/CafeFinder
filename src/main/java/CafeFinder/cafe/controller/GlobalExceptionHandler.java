@@ -9,6 +9,7 @@ import CafeFinder.cafe.exception.PasswordConfirmationMisMatch;
 import CafeFinder.cafe.exception.UnsupportedProviderException;
 import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
 import CafeFinder.cafe.exception.YetVerifyEmailException;
+
 import static CafeFinder.cafe.util.ErrorMessage.CAFE_INFO_NOT_FOUND;
 import static CafeFinder.cafe.util.ErrorMessage.MEMBER_NOT_FOUND;
 import static CafeFinder.cafe.util.ErrorMessage.Member_AlreadyExists;
@@ -19,9 +20,10 @@ import static CafeFinder.cafe.util.ErrorMessage.SERVER_ERROR;
 import static CafeFinder.cafe.util.ErrorMessage.UNSUPPORTEDPROVIDER;
 import static CafeFinder.cafe.util.ErrorMessage.VALIDATION_FAILED;
 import static CafeFinder.cafe.util.ErrorMessage.VERIFY_CODE_MIS_MATCH;
+
 import CafeFinder.cafe.util.ResponseUtil;
 import java.util.stream.Collectors;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,7 +31,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-@Log4j2
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MemberNotFoundException.class)
