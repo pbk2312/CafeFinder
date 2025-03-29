@@ -26,48 +26,45 @@ import lombok.NoArgsConstructor;
 public class Cafe {
 
     @Id
-    @Column(nullable = false, unique = true, length = 20)
-    private String cafeCode;  // 카페 ID (MP1, MP2 등)
+    @Column(nullable = false, unique = true, length = 10)
+    private String code;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 30)
     private String name;  // 카페명
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10)
     private String address;  // 주소
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private SeoulDistrict district;  // 행정구 (ex: MP -> 마포구)
 
+    @Column(name = "opening_hours", length = 20)
     private String openingHours;  // 영업시간
 
-    @Column(length = 20)
+    @Column(name = "phone_number", length = 30)
     private String phoneNumber;  // 전화번호
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;  // 대표사진 URL
 
-    @Column(length = 20)
+    @Column(name = "average_rating")
     private Double averageRating;  // 평균 평점
 
-    @ElementCollection(fetch = FetchType.EAGER) // Elasticsearch 저장 시 JSON에 포함되도록
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "cafe_themes", joinColumns = @JoinColumn(name = "cafe_code"))
+    @Column(name = "theme")
     @Enumerated(EnumType.STRING)
     private Set<CafeTheme> themes; // 여러 개의 테마
 
     @OneToMany(mappedBy = "cafe")
     private List<CafeReview> reviews = new ArrayList<>();
 
-
-    public void updateReview(Double review) {
-        this.averageRating = review;
-    }
-
     public static Cafe create(String cafeCode, String name, String address, SeoulDistrict district,
                               String openingHours, String phoneNumber, String imageUrl, Double averageRating,
                               Set<CafeTheme> themes) {
         return Cafe.builder()
-                .cafeCode(cafeCode)
+                .code(cafeCode)
                 .name(name)
                 .address(address)
                 .district(district)
