@@ -7,4 +7,6 @@ public interface RecommendationService {
 
     List<CafeDto> getRecommendationCafes(String accessToken);
 
+    List<CafeDto> getGlobalRecommendationCafes();
+
 }

@@ -1,4 +1,4 @@
-package CafeFinder.cafe.infrastructure.kafka;
+package CafeFinder.cafe.infrastructure.redis;
 
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
