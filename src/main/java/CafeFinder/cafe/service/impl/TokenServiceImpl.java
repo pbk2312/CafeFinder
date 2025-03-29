@@ -17,7 +17,6 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public TokenDto generateToken(Authentication authentication) {
-        log.info("토큰 생성...");
         return tokenProvider.generateTokenDto(authentication);
     }
 
