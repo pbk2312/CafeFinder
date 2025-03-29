@@ -16,7 +16,6 @@ public class CafeThemeServiceImpl implements CafeThemeService {
     @Override
     @Cacheable(value = "cafeThemes")
     public List<CafeThemeDto> getCafeThemes() {
-        log.info("테마들 조회");
         return Arrays.stream(CafeTheme.values())
                 .map(CafeThemeDto::fromEntity)
                 .toList();
