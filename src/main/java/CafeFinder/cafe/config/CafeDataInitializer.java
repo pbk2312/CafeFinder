@@ -1,6 +1,6 @@
 package CafeFinder.cafe.config;
 
-import CafeFinder.cafe.importer.CafeInfoCsvImporter;
+import CafeFinder.cafe.importer.CafeCsvImporter;
 import CafeFinder.cafe.importer.CafeReviewImporter;
 import CafeFinder.cafe.importer.SeoulDistrictStatusImporter;
 import CafeFinder.cafe.repository.CafeReviewRepository;
@@ -22,7 +22,7 @@ public class CafeDataInitializer {
 
     private final CafeService cafeInfoService;
     private final SeoulDistrictStatusService seoulDistrictStatusService;
-    private final CafeInfoCsvImporter cafeInfoCsvImporter;
+    private final CafeCsvImporter cafeInfoCsvImporter;
     private final SeoulDistrictStatusImporter seoulDistrictStatusImporter;
     private final CafeReviewImporter cafeReviewImporter;
     private final CafeReviewRepository cafeReviewRepository;
@@ -77,7 +77,6 @@ public class CafeDataInitializer {
     }
 
     private void cafeInfoImport() {
-        // 카페 정보 CSV import
         if (cafeInfoService.countCafes() == 0) { // DB에 데이터가 없을 때만 실행
             if (Files.exists(Paths.get(cafeInfoPath))) {
                 cafeInfoCsvImporter.importCsv(cafeInfoPath);
