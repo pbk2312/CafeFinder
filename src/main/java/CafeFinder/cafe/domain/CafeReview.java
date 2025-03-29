@@ -21,16 +21,17 @@ public class CafeReview {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // 리뷰 고유 ID
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "cafe_id", nullable = false)
+    @JoinColumn(name = "cafe_code", nullable = false)
     private Cafe cafe;
 
-    private double rating;  // 별점
+    @Column(nullable = false)
+    private double rating;
 
-    @Column(columnDefinition = "LONGTEXT") // 긴 텍스트 저장 가능
-    private String content;  // 리뷰 내용
+    @Column(columnDefinition = "LONGTEXT")
+    private String content;
 
     public static CafeReview create(Cafe cafe, double rating, String content) {
         return CafeReview.builder()
