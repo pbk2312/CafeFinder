@@ -1,6 +1,5 @@
 package CafeFinder.cafe.domain;
 
-
 import CafeFinder.cafe.dto.MemberSignUpDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,23 +24,25 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "nick_name", nullable = false, unique = true, length = 20)
     private String nickName;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true, length = 50)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private AuthProvider provider; // 구글, 카카오 , 네이버, 일반
+    private AuthProvider provider; // 구글, 카카오, 네이버, 일반
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "member_role", length = 20)
     private MemberRole memberRole;
 
-    private String profileImagePath; // 프로필 이미지 파일 경로
+    @Column(name = "profile_image_path", length = 255)
+    private String profileImagePath;
 
     public static Member create(MemberSignUpDto signUpDto, String encodedPassword, String profileImagePath) {
         return Member.builder()
