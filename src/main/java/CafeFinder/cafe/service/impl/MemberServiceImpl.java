@@ -1,5 +1,7 @@
 package CafeFinder.cafe.service.impl;
 
+import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
+
 import CafeFinder.cafe.domain.Member;
 import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberProfileDto;
@@ -11,15 +13,14 @@ import CafeFinder.cafe.exception.IncorrectPasswordException;
 import CafeFinder.cafe.exception.MemberNotFoundException;
 import CafeFinder.cafe.exception.YetVerifyEmailException;
 import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
-import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
 import CafeFinder.cafe.infrastructure.jwt.TokenDto;
 import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
+import CafeFinder.cafe.infrastructure.redis.RedisEmailVerifyService;
+import CafeFinder.cafe.infrastructure.redis.RefreshTokenService;
 import CafeFinder.cafe.repository.MemberRepository;
 import CafeFinder.cafe.service.interfaces.FileService;
 import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.interfaces.TokenService;
-import CafeFinder.cafe.service.redis.RedisEmailVerifyService;
-import CafeFinder.cafe.service.redis.RefreshTokenService;
 import CafeFinder.cafe.validator.MemberValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,7 +86,6 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public TokenDto login(MemberLoginDto loginDto) {
-        log.info("로그인 시작: 이메일={}", loginDto.getEmail());
         Authentication authentication = authenticateUser(loginDto);
         log.info("로그인 성공: 이메일={}", loginDto.getEmail());
         return tokenService.generateToken(authentication);
@@ -104,9 +104,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void update(MemberUpdateDto updateDto, String accessToken) {
-        log.info("멤버 정보 수정: {}", updateDto.getNickName());
         Member member = getMemberByToken(accessToken);
         updateMemberProfile(member, updateDto);
+        log.info("멤버 정보 수정 성공: {}", updateDto.getNickName());
     }
 
     @Override
