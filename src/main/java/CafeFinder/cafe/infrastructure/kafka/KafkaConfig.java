@@ -30,8 +30,7 @@ public class KafkaConfig {
 
     @Value("${kafka.topic.cafe-click}")
     private String cafeClickTopicName;
-    
-    // Producer 설정 (JSON 직렬화 사용)
+
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -46,7 +45,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 
-    // Consumer 설정 (JSON 역직렬화 사용)
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         JsonDeserializer<Object> deserializer = new JsonDeserializer<>();
@@ -67,7 +65,6 @@ public class KafkaConfig {
         return factory;
     }
 
-    // 클릭 이벤트용 Kafka 토픽 생성
     @Bean
     public NewTopic cafeClickTopic() {
         return new NewTopic(cafeClickTopicName, 1, (short) 1);

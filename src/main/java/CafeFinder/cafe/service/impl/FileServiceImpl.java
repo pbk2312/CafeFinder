@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-import lombok.extern.slf4j.Slf4j;g4j2
+@Slf4j
 public class FileServiceImpl implements FileService {
 
     @Value("${file.upload-dir}")

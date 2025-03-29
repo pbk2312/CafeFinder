@@ -1,25 +1,24 @@
 package cafeFinder.recipeshare.service.member;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import CafeFinder.cafe.service.member.MemberServiceImpl;
+import CafeFinder.cafe.domain.Member;
+import CafeFinder.cafe.domain.MemberRole;
+import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.exception.PasswordConfirmationMisMatch;
+import CafeFinder.cafe.repository.MemberRepository;
+import CafeFinder.cafe.service.impl.MemberServiceImpl;
 import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import CafeFinder.cafe.domain.Member;
-import CafeFinder.cafe.domain.MemberRole;
-import CafeFinder.cafe.dto.MemberSignUpDto;
-import CafeFinder.cafe.exception.PasswordMismatchException;
-import CafeFinder.cafe.repository.MemberRepository;
 
 class MemberServiceImplTest {
 
@@ -82,7 +81,7 @@ class MemberServiceImplTest {
         memberSignUpDto.setCheckPassword("password123!");
 
         // when, then
-        org.junit.jupiter.api.Assertions.assertThrows(PasswordMismatchException.class, () -> {
+        org.junit.jupiter.api.Assertions.assertThrows(PasswordConfirmationMisMatch.class, () -> {
             memberService.save(memberSignUpDto);
         });
     }
