@@ -1,4 +1,4 @@
-package CafeFinder.cafe.service.redis;
+package CafeFinder.cafe.infrastructure.redis;
 
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class RedisEmailVerifyService {
 
     private final RedisTemplate<String, String> redisTemplate;
-    
+
     private static final String VERIFIED_PREFIX = "verified:";
     private static final long VERIFICATION_CODE_EXPIRATION_MINUTES = 5;
     private static final long VERIFIED_STATUS_EXPIRATION_MINUTES = 30;
