@@ -1,6 +1,7 @@
 package CafeFinder.cafe.infrastructure.kafka;
 
 import CafeFinder.cafe.dto.CafeClickEventDto;
+import CafeFinder.cafe.infrastructure.redis.RecommendationRedisService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -31,7 +32,6 @@ public class CafeClickConsumer {
     @Value("${kafka.topic.cafe-click}")
     private String cafeClickTopicName;
 
-    // application.properties에서 관리하는 redis 키 접두어
     @Value("${redis.key.prefix.recommendation}")
     private String redisKeyPrefix;
 
