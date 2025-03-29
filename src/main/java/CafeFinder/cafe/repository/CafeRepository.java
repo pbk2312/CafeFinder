@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 public interface CafeRepository extends JpaRepository<Cafe, String> {
 
     // N+1 문제 방지
-    @Query("select distinct c from Cafe c left join fetch c.reviews where c.cafeCode = :cafeCode")
+    @Query("select distinct c from Cafe c left join fetch c.reviews where c.code = :cafeCode")
     Optional<Cafe> findByCafeCodeWithReviews(@Param("cafeCode") String cafeCode);
 
 }
