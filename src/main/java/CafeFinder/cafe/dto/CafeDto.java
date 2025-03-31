@@ -6,10 +6,12 @@ import CafeFinder.cafe.domain.SeoulDistrict;
 import CafeFinder.cafe.infrastructure.elasticSearch.IndexedCafe;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.geo.Point;
 
 @Getter
 @AllArgsConstructor
@@ -17,20 +19,20 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CafeDto {
 
-    private String cafeCode;  // 카페 ID (MP1, MP2 등)
-    private String name;  // 카페명
-    private String address;  // 주소
-    private SeoulDistrict district; // 행정구 (ex: MP -> 마포구)
-    private String openingHours;  // 영업시간
-    private String phoneNumber;  // 전화번호
-    private String imageUrl;  // 대표사진 URL
-    private Double averageRating;  // 평균 평점
+    private String cafeCode;
+    private String name;
+    private String address;
+    private SeoulDistrict district;
+    private String openingHours;
+    private String phoneNumber;
+    private String imageUrl;
+    private Double averageRating;
     private Set<CafeTheme> themes;
-
-    private List<CafeReviewDto> reviews; // 리뷰 목록
+    private List<CafeReviewDto> reviews;
     private int reviewCount;
 
-    // Elasticsearch Document -> DTO 변환 메서드 (목록용)
+    private String location;
+
     public static CafeDto fromDocumentForList(IndexedCafe document) {
         return CafeDto.builder()
                 .cafeCode(document.getCafeCode())
@@ -41,14 +43,14 @@ public class CafeDto {
                 .phoneNumber(document.getPhoneNumber())
                 .imageUrl(document.getImageUrl())
                 .averageRating(document.getAverageRating())
-                .themes(Set.of(document.getThemes().stream()
+                .themes(document.getThemes().stream()
                         .map(theme -> CafeTheme.valueOf(theme.toUpperCase()))
-                        .toArray(CafeTheme[]::new)))
+                        .collect(Collectors.toSet()))
                 .reviewCount(document.getReviewCount() != null ? document.getReviewCount() : 0)
+                .location(geoPointToString(document.getLocation()))
                 .build();
     }
 
-    // 상세 조회용 변환 메서드 (리뷰 포함)
     public static CafeDto fromEntityWithReviews(Cafe cafeInfo, List<CafeReviewDto> reviewDtos) {
         return CafeDto.builder()
                 .cafeCode(cafeInfo.getCode())
@@ -63,6 +65,13 @@ public class CafeDto {
                 .reviews(reviewDtos)
                 .reviewCount(reviewDtos.size())
                 .build();
+    }
+
+    private static String geoPointToString(Point point) {
+        if (point == null) {
+            return null;
+        }
+        return point.getY() + "," + point.getX();
     }
 
 }
