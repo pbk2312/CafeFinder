@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.GeoPointField;
+import org.springframework.data.geo.Point;
 
 @Document(indexName = "cafe") // Elasticsearch 인덱스 이름
 @Getter
@@ -47,5 +49,8 @@ public class IndexedCafe {
 
     @Field(name = "image_url", type = FieldType.Text)
     private String imageUrl;
+
+    @GeoPointField
+    private Point location;
 
 }
