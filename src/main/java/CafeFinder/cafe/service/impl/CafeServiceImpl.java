@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class CafeServiceImpl implements CafeService {
+
+    private static final String DISTANCE_RADIUS = "1km";
+    private static final Sort DEFAULT_SORT = Sort.by(
+            Sort.Order.desc("averageRating"),
+            Sort.Order.desc("reviewCount")
+    );
+    private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 6, DEFAULT_SORT);
 
     private final CafeRepository cafeRepository;
     private final CafeSearchRepository cafeSearchRepository;
@@ -75,17 +83,31 @@ public class CafeServiceImpl implements CafeService {
     @Transactional(readOnly = true)
     @Override
     public List<CafeDto> getTopCafesByDistrictAndTheme(String district, String theme) {
-        return getRecommandationCafes(district, theme);
+        return getRecommendationCafes(district, theme);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<CafeDto> getMostClickedCafes(String district, String theme) {
-        return getRecommandationCafes(district, theme);
+        return getRecommendationCafes(district, theme);
     }
 
-    private List<CafeDto> getRecommandationCafes(String district, String theme) {
-        Page<IndexedCafe> page = findCafesByDistrictAndTheme(district, theme, PageRequest.of(0, 6));
+    @Override
+    public List<CafeDto> findCafesByDistance(double latitude, double longitude) {
+        GeoPoint userLocation = new GeoPoint(latitude, longitude);
+        log.info("사용자 위치: {}", userLocation);
+
+        List<IndexedCafe> distanceCafes = cafeSearchRepository.findCafesNearLocation(latitude, DISTANCE_RADIUS,
+                longitude);
+        log.info("사용자 위치 근처 카페 수: {}", distanceCafes.size());
+
+        return distanceCafes.stream()
+                .map(CafeDto::fromDocumentForList)
+                .toList();
+    }
+
+    private List<CafeDto> getRecommendationCafes(String district, String theme) {
+        Page<IndexedCafe> page = findCafesByDistrictAndTheme(district, theme, DEFAULT_PAGEABLE);
         return page.getContent().stream()
                 .map(CafeDto::fromDocumentForList)
                 .toList();
@@ -96,15 +118,7 @@ public class CafeServiceImpl implements CafeService {
     }
 
     private Page<IndexedCafe> findCafesByDistrictAndTheme(String district, String theme, Pageable pageable) {
-
-        Sort sort = Sort.by(
-                Sort.Order.desc("averageRating"),
-                Sort.Order.desc("reviewCount")
-        );
-
-        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-
-        return cafeSearchRepository.findByDistrictAndThemesContaining(district, theme, sortedPageable);
+        return cafeSearchRepository.findByDistrictAndThemesContaining(district, theme, pageable);
     }
 
     private static List<CafeReviewDto> convertReviewsToDto(Cafe cafe) {
