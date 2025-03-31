@@ -22,4 +22,6 @@ public interface CafeService {
 
     List<CafeDto> getMostClickedCafes(String district, String theme);
 
+    List<CafeDto> findCafesByDistance(double latitude, double longitude);
+
 }
