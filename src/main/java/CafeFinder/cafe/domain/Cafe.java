@@ -30,32 +30,37 @@ public class Cafe {
     private String code;
 
     @Column(nullable = false, length = 30)
-    private String name;  // 카페명
+    private String name;
 
-    @Column(nullable = false, length = 10)
-    private String address;  // 주소
+    @Column(nullable = false, length = 100)
+    private String address;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private SeoulDistrict district;  // 행정구 (ex: MP -> 마포구)
+    private SeoulDistrict district;
+
+    @Column(name = "latitude", columnDefinition = "DECIMAL(10,6)")
+    private Double latitude;
+
+    @Column(name = "longitude", columnDefinition = "DECIMAL(10,6)")
+    private Double longitude;
 
     @Column(name = "opening_hours", length = 20)
-    private String openingHours;  // 영업시간
+    private String openingHours;
 
     @Column(name = "phone_number", length = 30)
-    private String phoneNumber;  // 전화번호
-
+    private String phoneNumber;
     @Column(name = "image_url", columnDefinition = "TEXT")
-    private String imageUrl;  // 대표사진 URL
+    private String imageUrl;
 
     @Column(name = "average_rating")
-    private Double averageRating;  // 평균 평점
+    private Double averageRating;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "cafe_themes", joinColumns = @JoinColumn(name = "cafe_code"))
     @Column(name = "theme")
     @Enumerated(EnumType.STRING)
-    private Set<CafeTheme> themes; // 여러 개의 테마
+    private Set<CafeTheme> themes;
 
     @OneToMany(mappedBy = "cafe")
     private List<CafeReview> reviews = new ArrayList<>();
@@ -73,6 +78,8 @@ public class Cafe {
                 .imageUrl(imageUrl)
                 .averageRating(averageRating)
                 .themes(themes)
+                .latitude(null)
+                .longitude(null)
                 .build();
     }
 
