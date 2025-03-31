@@ -5,8 +5,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-application.yml
-logstash.conf
+src/main/resources/application.yml
+/logstash/cafe_to_es.conf
+els.yml
 
 ### STS ###
 .apt_generated
