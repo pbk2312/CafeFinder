@@ -100,4 +100,13 @@ public class CafeApiController {
                 true);
     }
 
+    @PostMapping("/by-distance")
+    public ResponseEntity<ResponseDto<List<CafeDto>>> getCafesSortedByDistance(
+            @RequestParam double latitude,
+            @RequestParam double longitude) {
+        List<CafeDto> cafeDtos = cafeService.findCafesByDistance(latitude, longitude);
+        return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.GET_CAFES_BY_DISTANCE.getMessage(), cafeDtos,
+                true);
+    }
+
 }
