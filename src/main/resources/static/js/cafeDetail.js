@@ -1,5 +1,5 @@
 // auth.js에 정의된 로그인 관련 함수와 로그아웃 함수를 가져옵니다.
-import {checkLoginStatus, logout} from '/js/auth.js';
+import {checkLoginStatus, logout} from './auth.js';
 
 // DOMContentLoaded 시 초기화
 document.addEventListener("DOMContentLoaded", () => {
