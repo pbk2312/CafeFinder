@@ -35,7 +35,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private AuthProvider provider; // 구글, 카카오, 네이버, 일반
+    private AuthProvider provider;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "member_role", length = 20)
