@@ -1,24 +1,30 @@
 package CafeFinder.cafe.controller.restapi;
 
-import CafeFinder.cafe.dto.CafeDto;
-import CafeFinder.cafe.dto.MemberLoginDto;
-import CafeFinder.cafe.dto.MemberProfileDto;
-import CafeFinder.cafe.dto.MemberSignUpDto;
-import CafeFinder.cafe.dto.MemberUpdateDto;
-import CafeFinder.cafe.dto.ProfileDto;
-import CafeFinder.cafe.dto.ResponseDto;
-import CafeFinder.cafe.dto.TokenResultDto;
-import CafeFinder.cafe.infrastructure.jwt.TokenDto;
-import CafeFinder.cafe.service.interfaces.MemberService;
-import CafeFinder.cafe.service.interfaces.RecommendationService;
-import CafeFinder.cafe.util.CookieUtils;
-import CafeFinder.cafe.util.ResponseMessage;
 import static CafeFinder.cafe.util.ResponseMessage.LOGIN_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.LOGOUT_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.NOT_LOGIN;
 import static CafeFinder.cafe.util.ResponseMessage.PROFILE_INFO;
 import static CafeFinder.cafe.util.ResponseMessage.SIGN_UP_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.UPDATE_PROFILE;
+
+import CafeFinder.cafe.dto.AccessTokenDto;
+import CafeFinder.cafe.dto.CafeDto;
+import CafeFinder.cafe.dto.MemberLoginDto;
+import CafeFinder.cafe.dto.MemberProfileDto;
+import CafeFinder.cafe.dto.MemberSignUpDto;
+import CafeFinder.cafe.dto.MemberUpdateDto;
+import CafeFinder.cafe.dto.ProfileDto;
+import CafeFinder.cafe.dto.RefreshTokenDto;
+import CafeFinder.cafe.dto.ResponseDto;
+import CafeFinder.cafe.dto.TokenRequestDto;
+import CafeFinder.cafe.dto.TokenResultDto;
+import CafeFinder.cafe.infrastructure.jwt.TokenDto;
+import CafeFinder.cafe.service.interfaces.AuthenticationService;
+import CafeFinder.cafe.service.interfaces.MemberService;
+import CafeFinder.cafe.service.interfaces.ProfileService;
+import CafeFinder.cafe.service.interfaces.RecommendationService;
+import CafeFinder.cafe.util.CookieUtils;
+import CafeFinder.cafe.util.ResponseMessage;
 import CafeFinder.cafe.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,7 +50,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberApiController {
 
     private final MemberService memberService;
+    private final AuthenticationService authenticationService;
     private final RecommendationService recommendationService;
+    private final ProfileService profileService;
 
     @PostMapping("/signUp")
     public ResponseEntity<ResponseDto<String>> signUp(
@@ -58,7 +66,7 @@ public class MemberApiController {
     public ResponseEntity<ResponseDto<String>> login(
             @Valid @RequestBody MemberLoginDto loginDto,
             HttpServletResponse response, HttpServletRequest request) {
-        TokenDto tokenDto = memberService.login(loginDto);
+        TokenDto tokenDto = authenticationService.login(loginDto);
         CookieUtils.addCookie(response, "accessToken", tokenDto.getAccessToken(),
                 tokenDto.getAccessTokenExpiresIn());
         CookieUtils.addCookie(response, "refreshToken", tokenDto.getRefreshToken(),
@@ -72,28 +80,31 @@ public class MemberApiController {
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response) {
 
+        RefreshTokenDto refreshTokenDto = createRefreshTokenDto(refreshToken);
+
         CookieUtils.removeCookie(response, "accessToken");
         CookieUtils.removeCookie(response, "refreshToken");
 
-        memberService.logout(refreshToken);
+        authenticationService.logout(refreshTokenDto);
 
         return ResponseUtil.buildResponse(HttpStatus.OK, LOGOUT_SUCCESS.getMessage(), null, true);
     }
-
 
     @PatchMapping("/update")
     public ResponseEntity<ResponseDto<String>> update(
             @Valid MemberUpdateDto userUpdateDto,
             @CookieValue(value = "accessToken", required = false) String accessToken
     ) {
-        memberService.update(userUpdateDto, accessToken);
+        AccessTokenDto accessTokenDto = createAccessTokenDto(accessToken);
+        profileService.update(userUpdateDto, accessTokenDto);
         return ResponseUtil.buildResponse(HttpStatus.OK, UPDATE_PROFILE.getMessage(), null, true);
     }
 
     @GetMapping("/profile")
     public ResponseEntity<ResponseDto<ProfileDto>> getProfile(
-            @CookieValue(value = "accessToken", required = true) String accessToen) {
-        ProfileDto profileDto = memberService.getProfileByToken(accessToen);
+            @CookieValue(value = "accessToken", required = true) String accessToken) {
+        AccessTokenDto accessTokenDto = createAccessTokenDto(accessToken);
+        ProfileDto profileDto = profileService.getProfileByToken(accessTokenDto);
         return ResponseUtil.buildResponse(HttpStatus.OK, PROFILE_INFO.getMessage(), profileDto, true);
     }
 
@@ -107,7 +118,9 @@ public class MemberApiController {
             return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, NOT_LOGIN.getMessage(), null, false);
         }
 
-        TokenResultDto result = memberService.validateToken(accessToken, refreshToken);
+        TokenRequestDto tokenRequestDto = createTokenRequestDto(accessToken, refreshToken);
+
+        TokenResultDto result = authenticationService.validateToken(tokenRequestDto);
 
         if (!result.isAccessTokenValid()) {
             if (result.isRefreshTokenValid()) {
@@ -119,7 +132,8 @@ public class MemberApiController {
             }
         }
 
-        MemberProfileDto userInfo = memberService.getUserInfoByToken(accessToken);
+        AccessTokenDto accessTokenDto = createAccessTokenDto(accessToken);
+        MemberProfileDto userInfo = profileService.getUserInfoByToken(accessTokenDto);
         return ResponseUtil.buildResponse(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), userInfo, true);
     }
 
@@ -127,10 +141,10 @@ public class MemberApiController {
     public ResponseEntity<ResponseDto<List<CafeDto>>> getRecommandCafes(
             @CookieValue(value = "accessToken") String accessToken
     ) {
-        List<CafeDto> recommandCafes = recommendationService.getRecommendationCafes(accessToken);
+        AccessTokenDto accessTokenDto = createAccessTokenDto(accessToken);
+        List<CafeDto> recommandCafes = recommendationService.getRecommendationCafes(accessTokenDto);
         return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.GET_RECOMMAND_CAFES.getMessage(),
-                recommandCafes,
-                true);
+                recommandCafes, true);
     }
 
     private String getRedirectUrlFromSession(HttpServletRequest request) {
@@ -140,6 +154,25 @@ public class MemberApiController {
             redirectUrl = "/";
         }
         return redirectUrl;
+    }
+
+    private AccessTokenDto createAccessTokenDto(String accessToken) {
+        return AccessTokenDto.builder()
+                .accessToken(accessToken)
+                .build();
+    }
+
+    private RefreshTokenDto createRefreshTokenDto(String refreshToken) {
+        return RefreshTokenDto.builder()
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    private TokenRequestDto createTokenRequestDto(String accessToken, String refreshToken) {
+        return TokenRequestDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
 }
