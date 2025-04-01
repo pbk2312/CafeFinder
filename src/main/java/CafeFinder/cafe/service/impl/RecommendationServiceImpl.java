@@ -1,6 +1,7 @@
 package CafeFinder.cafe.service.impl;
 
 import CafeFinder.cafe.domain.Member;
+import CafeFinder.cafe.dto.AccessTokenDto;
 import CafeFinder.cafe.dto.CafeDto;
 import CafeFinder.cafe.infrastructure.redis.RecommendationRedisService;
 import CafeFinder.cafe.service.interfaces.CafeService;
@@ -21,10 +22,10 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final MemberService memberService;
 
     @Override
-    public List<CafeDto> getRecommendationCafes(String accessToken) {
+    public List<CafeDto> getRecommendationCafes(AccessTokenDto accessTokenDto) {
         log.info("사용자 추천 카페 로직 시작...");
 
-        Member member = memberService.getMemberByToken(accessToken);
+        Member member = memberService.getMemberByToken(accessTokenDto.getAccessToken());
         String themeDistrict = recommendationRedisService.getMemberTopThemeDistrict(String.valueOf(member.getId()));
 
         return getCafesByThemeDistrict(themeDistrict, true);

@@ -3,9 +3,11 @@ package CafeFinder.cafe.service.impl;
 import static CafeFinder.cafe.infrastructure.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
 
 import CafeFinder.cafe.dto.MemberLoginDto;
+import CafeFinder.cafe.dto.RefreshTokenDto;
+import CafeFinder.cafe.dto.TokenRequestDto;
 import CafeFinder.cafe.dto.TokenResultDto;
 import CafeFinder.cafe.exception.IncorrectPasswordException;
-import CafeFinder.cafe.infrastructure.jwt.AccesTokenDto;
+import CafeFinder.cafe.infrastructure.jwt.AccesTokenInfoDto;
 import CafeFinder.cafe.infrastructure.jwt.TokenDto;
 import CafeFinder.cafe.infrastructure.jwt.TokenProvider;
 import CafeFinder.cafe.infrastructure.redis.RefreshTokenService;
@@ -45,29 +47,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     @Transactional
-    public void logout(String refreshToken) {
+    public void logout(RefreshTokenDto refreshTokenDto) {
         log.info("로그아웃 시도");
-        refreshTokenService.addTokenToBlacklist(refreshToken);
+        refreshTokenService.addTokenToBlacklist(refreshTokenDto.getRefreshToken());
         SecurityContextHolder.clearContext();
         log.info("로그아웃 완료: 인증 정보 삭제");
     }
 
     @Override
-    public TokenResultDto validateToken(String accessToken, String refreshToken) {
-        if (isAccessTokenValid(accessToken)) {
+    public TokenResultDto validateToken(TokenRequestDto tokenRequestDto) {
+        if (isAccessTokenValid(tokenRequestDto.getAccessToken())) {
             return buildAccessTokenValidResult();
         }
 
-        if (isRefreshTokenInvalid(refreshToken)) {
+        if (isRefreshTokenInvalid(tokenRequestDto.getRefreshToken())) {
             return buildInvalidTokenResult();
         }
 
-        if (isRefreshTokenBlacklisted(refreshToken)) {
-            log.warn("리프레시 토큰이 블랙리스트에 존재합니다: {}", refreshToken);
+        if (isRefreshTokenBlacklisted(tokenRequestDto.getRefreshToken())) {
+            log.warn("리프레시 토큰이 블랙리스트에 존재합니다: {}", tokenRequestDto.getRefreshToken());
             return buildInvalidTokenResult();
         }
 
-        var userDetails = getUserDetailsFromRefreshToken(refreshToken);
+        var userDetails = getUserDetailsFromRefreshToken(tokenRequestDto.getRefreshToken());
         if (userDetails == null) {
             return buildInvalidTokenResult();
         }
@@ -128,7 +130,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userDetails, null, userDetails.getAuthorities());
         log.info("액세스 토큰이 없거나 만료됨, 리프레시 토큰이 유효: 새로운 액세스 토큰 발급");
-        AccesTokenDto newAccessToken = generateAccessToken(authentication);
+        AccesTokenInfoDto newAccessToken = generateAccessToken(authentication);
         return TokenResultDto.builder()
                 .isAccessTokenValid(false)
                 .isRefreshTokenValid(true)
@@ -137,9 +139,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    private AccesTokenDto generateAccessToken(Authentication authentication) {
+    private AccesTokenInfoDto generateAccessToken(Authentication authentication) {
         TokenDto tokenDto = tokenService.generateToken(authentication);
-        return AccesTokenDto.builder()
+        return AccesTokenInfoDto.builder()
                 .grantType(tokenDto.getGrantType())
                 .accessToken(tokenDto.getAccessToken())
                 .accessTokenExpiresIn(tokenDto.getAccessTokenExpiresIn())

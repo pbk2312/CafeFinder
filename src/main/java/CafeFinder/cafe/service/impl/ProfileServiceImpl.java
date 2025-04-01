@@ -1,6 +1,7 @@
 package CafeFinder.cafe.service.impl;
 
 import CafeFinder.cafe.domain.Member;
+import CafeFinder.cafe.dto.AccessTokenDto;
 import CafeFinder.cafe.dto.MemberProfileDto;
 import CafeFinder.cafe.dto.MemberUpdateDto;
 import CafeFinder.cafe.dto.ProfileDto;
@@ -31,16 +32,16 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     @Transactional
-    public void update(MemberUpdateDto updateDto, String accessToken) {
-        Member member = memberService.getMemberByToken(accessToken);
+    public void update(MemberUpdateDto updateDto, AccessTokenDto accessTokenDto) {
+        Member member = memberService.getMemberByToken(accessTokenDto.getAccessToken());
         updateMemberProfile(member, updateDto);
         log.info("멤버 정보 수정 성공: {}", updateDto.getNickName());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ProfileDto getProfileByToken(String accessToken) {
-        Member member = memberService.getMemberByToken(accessToken);
+    public ProfileDto getProfileByToken(AccessTokenDto accessTokenDto) {
+        Member member = memberService.getMemberByToken(accessTokenDto.getAccessToken());
         String relativePath = convertToRelativePath(member.getProfileImagePath());
         return ProfileDto.builder()
                 .email(member.getEmail())
@@ -52,8 +53,8 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public MemberProfileDto getUserInfoByToken(String accessToken) {
-        Member member = memberService.getMemberByToken(accessToken);
+    public MemberProfileDto getUserInfoByToken(AccessTokenDto accessTokenDto) {
+        Member member = memberService.getMemberByToken(accessTokenDto.getAccessToken());
         String relativePath = convertToRelativePath(member.getProfileImagePath());
         return MemberProfileDto.builder()
                 .nickName(member.getNickName())
