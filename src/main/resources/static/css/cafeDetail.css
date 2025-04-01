@@ -1,4 +1,6 @@
+@import url("navbar.css");
 @import url("layout.css");
+@import url("footer.css");
 
 :root {
     --primary-color: #6F4E37;
@@ -17,10 +19,6 @@ body {
     color: var(--text-dark);
 }
 
-/* Fade In Animation */
-.fadeInUp {
-    animation: fadeInUp 0.8s ease forwards;
-}
 
 /* Cafe Image */
 .cafe-img {

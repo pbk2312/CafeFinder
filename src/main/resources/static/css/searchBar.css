@@ -1,0 +1,21 @@
+/* Search Bar */
+.search-bar {
+    max-width: 600px;
+    margin: 3rem auto;
+}
+
+/* 버튼 스타일 */
+.btn-primary {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    transition: background 0.3s, transform 0.3s;
+    font-size: 0.9rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+}

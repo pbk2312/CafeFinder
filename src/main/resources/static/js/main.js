@@ -1,5 +1,5 @@
 import {checkLoginStatus, logout} from "./auth.js";
-import {getStarRating, searchCafes} from "./cafe.js";
+import {getStarRating, searchCafes} from "./cafeSearch.js";
 
 window.logout = logout;
 

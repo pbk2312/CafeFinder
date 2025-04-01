@@ -19,7 +19,7 @@ export function searchCafes(keyword, page) {
 }
 
 export function displaySearchResults(pageData) {
-    // 구 리뷰 영역 숨기기
+    // 기존 구역 숨김
     const guContainer = document.getElementById("gu-review-container");
     if (guContainer) {
         guContainer.style.display = "none";
@@ -36,38 +36,39 @@ export function displaySearchResults(pageData) {
     const container = document.getElementById("search-results-container");
     container.style.display = "flex";
     container.innerHTML = "";
+
     pageData.content.forEach(cafe => {
         const col = document.createElement("div");
         col.className = "col-md-4 mb-4 cafe-item";
         col.setAttribute("data-cafe-code", cafe.cafeCode);
         col.innerHTML = `
-      <div class="card h-100 cafe-card">
-        <img src="${cafe.imageUrl ? cafe.imageUrl : '/default-cafe.png'}" class="card-img-top" alt="${cafe.name}">
-        <div class="card-body">
-          <h5 class="card-title">${cafe.name}</h5>
-          <p class="card-text">${cafe.address}</p>
-          ${cafe.openingHours ? `<p class="card-text"><small class="text-muted">${cafe.openingHours}</small></p>` : ''}
-          ${cafe.phoneNumber ? `<p class="card-text"><small class="text-muted">전화번호: ${cafe.phoneNumber}</small></p>` : ''}
-          <p class="card-text">
-            <small class="text-muted">
-              평점: <span class="star-rating">${getStarRating(cafe.averageRating)}</span>
-            </small>
-          </p>
-          <p class="card-text">
-            <span class="badge bg-info text-dark">
-              <i class="fa-solid fa-comment me-1"></i>${cafe.reviewCount}
-            </span>
-          </p>
-          <p class="card-text">
-            ${
+            <div class="card h-100 cafe-card">
+                <img src="${cafe.imageUrl ? cafe.imageUrl : '/default-cafe.png'}" class="card-img-top" alt="${cafe.name}">
+                <div class="card-body">
+                    <h5 class="card-title">${cafe.name}</h5>
+                    <p class="card-text">${cafe.address}</p>
+                    ${cafe.openingHours ? `<p class="card-text"><small class="text-muted">${cafe.openingHours}</small></p>` : ''}
+                    ${cafe.phoneNumber ? `<p class="card-text"><small class="text-muted">전화번호: ${cafe.phoneNumber}</small></p>` : ''}
+                    <p class="card-text">
+                        <small class="text-muted">
+                            평점: <span class="star-rating">${getStarRating(cafe.averageRating)}</span>
+                        </small>
+                    </p>
+                    <p class="card-text">
+                        <span class="badge bg-info text-dark">
+                            <i class="fa-solid fa-comment me-1"></i>${cafe.reviewCount}
+                        </span>
+                    </p>
+                    <p class="card-text">
+                        ${
             cafe.themes && Array.isArray(cafe.themes)
                 ? cafe.themes.map(t => `<span class="badge theme-badge" style="${themeStyles[t] || 'background-color: #ccc; color: #fff;'}">${themeDescriptions[t] || t}</span>`).join('')
                 : '<span class="badge theme-badge" style="background-color: #ccc; color: #fff;">기타</span>'
         }
-          </p>
-        </div>
-      </div>
-    `;
+                    </p>
+                </div>
+            </div>
+        `;
         container.appendChild(col);
     });
 }
@@ -111,11 +112,10 @@ export function renderPagination(totalPages, currentPage, mode = "district") {
     const paginationContainer = document.getElementById("pagination-container");
     paginationContainer.innerHTML = "";
 
-    // UL 요소 생성 (Bootstrap 페이지네이션 클래스 적용)
     const ul = document.createElement("ul");
     ul.className = "pagination justify-content-center";
 
-    // 이전 버튼
+    // 이전 페이지 버튼
     const prevItem = document.createElement("li");
     prevItem.className = "page-item" + (currentPage <= 0 ? " disabled" : "");
     const prevLink = document.createElement("a");
@@ -135,7 +135,7 @@ export function renderPagination(totalPages, currentPage, mode = "district") {
     prevItem.appendChild(prevLink);
     ul.appendChild(prevItem);
 
-    // 페이지 번호 버튼 (10페이지씩 묶어서)
+    // 페이지 번호 버튼
     const startPage = Math.floor(currentPage / 10) * 10;
     let endPage = startPage + 9;
     if (endPage >= totalPages) {
@@ -160,7 +160,7 @@ export function renderPagination(totalPages, currentPage, mode = "district") {
         ul.appendChild(pageItem);
     }
 
-    // 다음 버튼
+    // 다음 페이지 버튼
     const nextItem = document.createElement("li");
     nextItem.className = "page-item" + (currentPage >= totalPages - 1 ? " disabled" : "");
     const nextLink = document.createElement("a");
@@ -180,7 +180,5 @@ export function renderPagination(totalPages, currentPage, mode = "district") {
     nextItem.appendChild(nextLink);
     ul.appendChild(nextItem);
 
-    // UL 요소를 페이지네이션 컨테이너에 추가
     paginationContainer.appendChild(ul);
 }
-

@@ -1,11 +1,10 @@
-// 전역 변수: 현재 검색어 저장
 let currentSearchValue = "";
 
 document.addEventListener("DOMContentLoaded", function () {
     checkLoginStatus();
     loadCafes(); // URL에 district/테마가 있을 경우 로드
 
-    // 검색폼 제출 이벤트 리스너 추가
+
     document.getElementById("cafe-search-form").addEventListener("submit", function (event) {
         event.preventDefault();
         const searchValue = document.getElementById("cafe-search-input").value.trim();
@@ -186,12 +185,12 @@ const themeDescriptions = {
     NONE: '기타'
 };
 
-// 페이지네이션 렌더링 함수 (mode: "search"일 경우 검색 결과에 맞게 처리)
+
 function renderPagination(totalPages, currentPage, mode = "district") {
     const paginationContainer = document.getElementById("pagination-container");
     paginationContainer.innerHTML = "";
 
-    // 이전 버튼
+
     const prevItem = document.createElement("li");
     prevItem.className = "page-item" + (currentPage <= 0 ? " disabled" : "");
     const prevLink = document.createElement("a");
@@ -211,7 +210,7 @@ function renderPagination(totalPages, currentPage, mode = "district") {
     prevItem.appendChild(prevLink);
     paginationContainer.appendChild(prevItem);
 
-    // 10페이지씩 묶어서 페이지 번호 버튼 생성
+
     const startPage = Math.floor(currentPage / 10) * 10;
     let endPage = startPage + 9;
     if (endPage >= totalPages) {

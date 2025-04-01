@@ -1,37 +1,12 @@
-@import url("layout.css");
+@import url("navbar.css");
 
-/* 새로운 전역 스타일 (기존 레이아웃 위에 추가) */
 body {
     font-family: 'Poppins', sans-serif;
-    /* layout.css의 배경 대신 Unsplash 이미지를 배경으로 사용 */
     background: url('https://source.unsplash.com/1600x900/?cafe,coffee') no-repeat center center/cover;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin: 0;
-}
-
-/* 네비게이션 스타일 (layout.css와 동일한 내용으로 유지) */
-.navbar {
-    background: linear-gradient(
-            90deg,
-            rgba(111, 78, 55, 1) 0%,
-            rgba(166, 138, 100, 1) 100%
-    );
-}
-
-.navbar-brand {
-    font-size: 1.8rem;
-    color: #fff !important;
-}
-
-.navbar-nav .nav-link {
-    color: #fff !important;
-    transition: color 0.3s ease;
-}
-
-.navbar-nav .nav-link:hover {
-    color: #FFD700 !important;
 }
 
 /* 로그인/회원가입 컨테이너 스타일 */

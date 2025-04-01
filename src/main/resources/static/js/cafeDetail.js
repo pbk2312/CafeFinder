@@ -1,22 +1,21 @@
-// auth.js에 정의된 로그인 관련 함수와 로그아웃 함수를 가져옵니다.
 import {checkLoginStatus, logout} from './auth.js';
 
-// DOMContentLoaded 시 초기화
+
 document.addEventListener("DOMContentLoaded", () => {
-    // logout 함수를 전역(window)에 등록 (인라인 이벤트 사용 시 필요)
+
     window.logout = logout;
 
     checkLoginStatus();
     loadCafeDetails();
 });
 
-// URL의 마지막 부분에서 카페 코드를 추출하는 함수
+
 function getCafeCodeFromUrl() {
     const pathParts = window.location.pathname.split('/');
     return pathParts[pathParts.length - 1] || null;
 }
 
-// 평점 표시를 위한 함수 (Bootstrap Icons 사용)
+
 function generateStarRating(rating) {
     const fullStars = Math.floor(rating);
     const halfStar = (rating - fullStars) >= 0.5 ? 1 : 0;
@@ -34,7 +33,7 @@ function generateStarRating(rating) {
     return starsHTML;
 }
 
-// Google Maps API를 이용해 주소 기반으로 지도와 마커 표시
+
 function showMapForAddress(address) {
     const mapEl = document.getElementById('map');
     const map = new google.maps.Map(mapEl, {
@@ -56,7 +55,7 @@ function showMapForAddress(address) {
     });
 }
 
-// 카페 상세 정보를 서버에서 불러옵니다.
+
 function loadCafeDetails() {
     const cafeCode = getCafeCodeFromUrl();
     if (!cafeCode) {
@@ -75,7 +74,7 @@ function loadCafeDetails() {
         .catch(error => console.error("카페 정보 요청 오류:", error));
 }
 
-// 서버에서 받아온 데이터로 카페 상세 정보를 채웁니다.
+
 function populateCafeDetails(data) {
     // 카페 이름
     const nameEl = document.getElementById("cafe-name");
@@ -86,7 +85,7 @@ function populateCafeDetails(data) {
         nameEl.style.display = "none";
     }
 
-    // 카페 주소
+
     const addressEl = document.getElementById("cafe-address");
     if (data.address) {
         addressEl.innerHTML = `<i class="bi bi-geo-alt-fill me-2"></i>${data.address}`;
@@ -95,7 +94,7 @@ function populateCafeDetails(data) {
         addressEl.style.display = "none";
     }
 
-    // 영업시간 (openingHours)
+
     const hoursEl = document.getElementById("cafe-hours");
     if (data.openingHours) {
         hoursEl.innerHTML = `<strong>영업시간:</strong> ${data.openingHours}`;
@@ -104,7 +103,7 @@ function populateCafeDetails(data) {
         hoursEl.style.display = "none";
     }
 
-    // 전화번호 (phoneNumber)
+
     const phoneEl = document.getElementById("cafe-phone");
     if (data.phoneNumber) {
         phoneEl.innerHTML = `<strong>전화번호:</strong> ${data.phoneNumber}`;
@@ -113,7 +112,7 @@ function populateCafeDetails(data) {
         phoneEl.style.display = "none";
     }
 
-    // 평균 평점 (averageRating)
+
     const reviewEl = document.getElementById("cafe-review");
     if (data.averageRating !== null && data.averageRating !== undefined) {
         reviewEl.innerHTML = `<strong>평균 평점:</strong> ${generateStarRating(data.averageRating)}<span class="rating-text">${data.averageRating}</span>`;
@@ -122,7 +121,7 @@ function populateCafeDetails(data) {
         reviewEl.style.display = "none";
     }
 
-    // 카페 이미지
+
     const imageEl = document.getElementById("cafe-image");
     if (data.imageUrl) {
         imageEl.src = data.imageUrl;
@@ -131,7 +130,7 @@ function populateCafeDetails(data) {
         imageEl.style.display = "none";
     }
 
-    // 테마 처리
+
     const themesContainer = document.getElementById("cafe-themes");
     themesContainer.innerHTML = "";
     if (data.themes && data.themes.length > 0) {
@@ -164,11 +163,11 @@ function populateCafeDetails(data) {
         themesContainer.style.display = "none";
     }
 
-    // 리뷰 수 표시
+
     const reviewCountSpan = document.getElementById("review-count");
     reviewCountSpan.innerText = (data.reviewCount !== undefined && data.reviewCount !== null) ? data.reviewCount : 0;
 
-    // 리뷰 표시
+
     const reviewsContainer = document.getElementById("reviews");
     reviewsContainer.innerHTML = "";
     if (data.reviews && data.reviews.length > 0) {
@@ -187,6 +186,6 @@ function populateCafeDetails(data) {
         reviewsContainer.innerHTML = "<p>등록된 리뷰가 없습니다.</p>";
     }
 
-    // 지도에 카페 위치 표시
+
     showMapForAddress(data.address);
 }

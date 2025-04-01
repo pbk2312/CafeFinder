@@ -1,4 +1,16 @@
-@import url("layout.css");
+@import url("navbar.css");
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 :root {
     --primary-color: #6F4E37;
@@ -17,17 +29,6 @@ body {
     color: white;
     padding: 4rem 0;
     margin-bottom: 3rem;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .cafe-card {
@@ -87,33 +88,10 @@ body {
     background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
 }
 
-/* 선택된 테마 카드 스타일 */
 .theme-card.selected {
     border: 3px solid var(--primary-color);
 }
 
-/* Navbar 그라데이션 배경 */
-.navbar {
-    background: linear-gradient(90deg, rgba(111, 78, 55, 1) 0%, rgba(166, 138, 100, 1) 100%);
-}
-
-/* 브랜드 텍스트 크기 및 색상 */
-.navbar-brand {
-    font-size: 1.8rem;
-    color: #fff !important;
-}
-
-/* 네비게이션 링크 색상과 호버 효과 */
-.navbar-nav .nav-link {
-    color: #fff !important;
-    transition: color 0.3s ease;
-}
-
-.navbar-nav .nav-link:hover {
-    color: #FFD700 !important;
-}
-
-/* Footer 스타일 (카페 느낌) */
 footer {
     background-color: #f1e8dd;
     color: var(--primary-color);
@@ -179,7 +157,6 @@ footer .newsletter button:hover {
     }
 }
 
-/* 새로운 헤더 스타일 (.cafe-header) */
 @keyframes textFadeIn {
     from {
         opacity: 0;

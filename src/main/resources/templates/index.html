@@ -31,9 +31,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="/">홈</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">지도 보기</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">테마별</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">커뮤니티</a></li>
+                <li class="nav-item"><a class="nav-link" href="/">저장한 카페 보기</a></li>
                 <li class="nav-item">
                     <a class="nav-link" href="/member/signupAndLogin" id="login-link">로그인</a>
                 </li>
@@ -42,13 +40,11 @@
     </div>
 </nav>
 
-<!-- Hero Section -->
 <div class="hero-section">
     <h1 class="display-4 mb-3">당신 근처의 특별한 카페</h1>
     <p class="lead">숨겨진 보석 같은 카페를 발견하고 경험을 공유해보세요</p>
 </div>
 
-<!-- Search Bar -->
 <div class="container search-bar">
     <form class="d-flex" id="cafe-search-form">
         <input
@@ -63,7 +59,6 @@
 
 <div class="container-fluid my-5">
     <div class="row">
-        <!-- 🗺️ 왼쪽: 지도 -->
         <div class="col-lg-6 mb-4">
             <section id="nearby-cafes-section" class="section-container">
                 <h2 class="section-header">🚶‍♂️ 걸어서 만나는 카페 지도</h2>
@@ -71,7 +66,6 @@
                 <div class="row mt-3" id="nearby-cafe-container"></div>
             </section>
 
-            <!-- 📍 인기 카페 -->
             <section id="popular-section" class="section-container mt-4">
                 <h2 class="section-header">
                     <i class="fa-solid fa-fire"></i> 요즘 인기있는 카페
@@ -79,14 +73,12 @@
                 <div class="row" id="popular-cafe-container"></div>
             </section>
 
-            <!-- ☕ 추천 카페 -->
             <section id="recommended-section" class="section-container mt-4">
                 <h2 class="section-header">☕ 당신을 위한 추천 카페</h2>
                 <div class="row" id="recommended-cafe-container"></div>
             </section>
         </div>
 
-        <!-- 📝 오른쪽: 리뷰 & 검색 -->
         <div class="col-lg-6 mb-4">
             <section id="review-section" class="section-container">
                 <h2 id="review-header" class="section-header">🗺️ 서울, 동네마다 숨은 카페 찾기</h2>
@@ -103,7 +95,6 @@
     </div>
 </div>
 
-<!-- Footer -->
 <footer>
     <div class="container">
         <p class="mb-1 fw-bold">☕ Cafe Finder</p>
