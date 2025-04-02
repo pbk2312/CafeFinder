@@ -54,11 +54,11 @@ export function displaySearchResults(pageData) {
                             평점: <span class="star-rating">${getStarRating(cafe.averageRating)}</span>
                         </small>
                     </p>
-                    <p class="card-text">
-                        <span class="badge bg-info text-dark">
-                            <i class="fa-solid fa-comment me-1"></i>${cafe.reviewCount}
-                        </span>
-                    </p>
+                   <p class="card-text mb-0 me-2 review-count">
+  <span class="badge">
+    <i class="fa-solid fa-comment me-1"></i>${cafe.reviewCount}
+  </span>
+</p>
                     <p class="card-text">
                         ${
             cafe.themes && Array.isArray(cafe.themes)

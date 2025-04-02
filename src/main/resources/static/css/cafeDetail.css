@@ -12,7 +12,6 @@
     --bg-light: #f8f9fa;
 }
 
-/* Global Styles */
 body {
     background: var(--bg-light);
     font-family: 'Montserrat', sans-serif;
@@ -20,7 +19,7 @@ body {
 }
 
 
-/* Cafe Image */
+
 .cafe-img {
     width: 100%;
     max-height: 400px;
@@ -34,7 +33,7 @@ body {
     transform: scale(1.03);
 }
 
-/* Theme Badges */
+
 .badge-theme {
     font-size: 0.9rem;
     margin-right: 0.5rem;
@@ -43,7 +42,7 @@ body {
     display: inline-block;
 }
 
-/* Map Container */
+
 #map {
     height: 220px;
     width: 100%;
@@ -52,7 +51,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Cafe Info Titles */
+
 #cafe-name {
     font-size: 2.5rem;
     font-weight: bold;
@@ -64,13 +63,13 @@ body {
     color: var(--secondary-color);
 }
 
-/* Info Paragraphs */
+
 #cafe-hours, #cafe-phone, #cafe-review {
     font-size: 1.1rem;
     margin-top: 0.5rem;
 }
 
-/* Reviews Section */
+
 #reviews {
     max-height: 400px;
     overflow-y: auto;

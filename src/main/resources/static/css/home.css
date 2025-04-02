@@ -5,6 +5,7 @@
 @import url("footer.css");
 @import url("heroSection.css");
 @import url("rating-badge.css");
+@import url("reviewBadge.css");
 
 /* 불꽃 애니메이션 */
 @keyframes flame {
