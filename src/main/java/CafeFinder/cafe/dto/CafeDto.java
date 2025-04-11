@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.geo.Point;
 
 @Getter
 @AllArgsConstructor
@@ -87,14 +86,6 @@ public class CafeDto {
                 this.latitude,
                 this.longitude
         );
-    }
-
-
-    private static String geoPointToString(Point point) {
-        if (point == null) {
-            return null;
-        }
-        return point.getY() + "," + point.getX();
     }
 
 }
