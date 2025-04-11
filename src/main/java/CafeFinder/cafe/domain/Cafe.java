@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
 @Getter
@@ -64,6 +65,7 @@ public class Cafe {
     private Set<CafeTheme> themes;
 
     @OneToMany(mappedBy = "cafe", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<CafeReview> reviews = new ArrayList<>();
 
     public static Cafe create(String cafeCode, String name, String address, SeoulDistrict district,
