@@ -88,6 +88,10 @@
     justify-content: center;
 }
 
+.gm-ui-hover-effect {
+    display: none !important;
+}
+
 
 .cafe-info-card {
     display: flex;
