@@ -1,14 +1,17 @@
 package CafeFinder.cafe.controller.restapi;
 
+import static CafeFinder.cafe.util.ResponseMessage.GET_RECOMMAND_CAFES;
 import static CafeFinder.cafe.util.ResponseMessage.LOGIN_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.LOGOUT_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.NOT_LOGIN;
+import static CafeFinder.cafe.util.ResponseMessage.POST_SCRAP_OK;
 import static CafeFinder.cafe.util.ResponseMessage.PROFILE_INFO;
 import static CafeFinder.cafe.util.ResponseMessage.SIGN_UP_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.UPDATE_PROFILE;
 
 import CafeFinder.cafe.dto.AccessTokenDto;
 import CafeFinder.cafe.dto.CafeDto;
+import CafeFinder.cafe.dto.CafeScrapDto;
 import CafeFinder.cafe.dto.MemberLoginDto;
 import CafeFinder.cafe.dto.MemberProfileDto;
 import CafeFinder.cafe.dto.MemberSignUpDto;
@@ -16,10 +19,12 @@ import CafeFinder.cafe.dto.MemberUpdateDto;
 import CafeFinder.cafe.dto.ProfileDto;
 import CafeFinder.cafe.dto.RefreshTokenDto;
 import CafeFinder.cafe.dto.ResponseDto;
+import CafeFinder.cafe.dto.ScrapCafeCodeDto;
 import CafeFinder.cafe.dto.TokenRequestDto;
 import CafeFinder.cafe.dto.TokenResultDto;
 import CafeFinder.cafe.infrastructure.jwt.TokenDto;
 import CafeFinder.cafe.service.interfaces.AuthenticationService;
+import CafeFinder.cafe.service.interfaces.CafeScrapService;
 import CafeFinder.cafe.service.interfaces.MemberService;
 import CafeFinder.cafe.service.interfaces.ProfileService;
 import CafeFinder.cafe.service.interfaces.RecommendationService;
@@ -38,6 +43,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +59,7 @@ public class MemberApiController {
     private final AuthenticationService authenticationService;
     private final RecommendationService recommendationService;
     private final ProfileService profileService;
+    private final CafeScrapService cafeScrapService;
 
     @PostMapping("/signUp")
     public ResponseEntity<ResponseDto<String>> signUp(
@@ -143,8 +150,30 @@ public class MemberApiController {
     ) {
         AccessTokenDto accessTokenDto = createAccessTokenDto(accessToken);
         List<CafeDto> recommandCafes = recommendationService.getRecommendationCafes(accessTokenDto);
-        return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.GET_RECOMMAND_CAFES.getMessage(),
+        return ResponseUtil.buildResponse(HttpStatus.OK, GET_RECOMMAND_CAFES.getMessage(),
                 recommandCafes, true);
+    }
+
+    @PostMapping("/{cafeCode}/scrap")
+    public ResponseEntity<ResponseDto<Boolean>> toggleCafeScrap(
+            @PathVariable String cafeCode,
+            @CookieValue(value = "accessToken", required = false) String accessToken
+    ) {
+        CafeScrapDto cafeScrapDto = CafeScrapDto.builder()
+                .cafeCode(cafeCode)
+                .accessToken(accessToken)
+                .build();
+        boolean isToggled = cafeScrapService.cafeScraps(cafeScrapDto);
+        return ResponseUtil.buildResponse(HttpStatus.OK, POST_SCRAP_OK.getMessage(), isToggled, true);
+    }
+
+    @GetMapping("/scrapCafes")
+    public ResponseEntity<ResponseDto<List<ScrapCafeCodeDto>>> getScrapCafes(
+            @CookieValue(value = "accessToken", required = false) String accessToken) {
+        AccessTokenDto accessTokenDto = createAccessTokenDto(accessToken);
+        List<ScrapCafeCodeDto> scrapCafeCodeDtos = cafeScrapService.getCafeScrapCodes(accessTokenDto);
+        return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.CAFESLIST_SCRAPS_OK.getMessage(),
+                scrapCafeCodeDtos, true);
     }
 
     private String getRedirectUrlFromSession(HttpServletRequest request) {
