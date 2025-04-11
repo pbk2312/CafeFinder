@@ -30,8 +30,8 @@ public class CafeDto {
     private Set<CafeTheme> themes;
     private List<CafeReviewDto> reviews;
     private int reviewCount;
-
-    private String location;
+    private Double latitude;
+    private Double longitude;
 
     public static CafeDto fromDocumentForList(IndexedCafe document) {
         return CafeDto.builder()
@@ -43,29 +43,52 @@ public class CafeDto {
                 .phoneNumber(document.getPhoneNumber())
                 .imageUrl(document.getImageUrl())
                 .averageRating(document.getAverageRating())
-                .themes(document.getThemes().stream()
-                        .map(theme -> CafeTheme.valueOf(theme.toUpperCase()))
-                        .collect(Collectors.toSet()))
+                .themes(
+                        document.getThemes() == null
+                                ? null
+                                : document.getThemes().stream()
+                                        .map(theme -> CafeTheme.valueOf(theme.toUpperCase()))
+                                        .collect(Collectors.toSet())
+                )
                 .reviewCount(document.getReviewCount() != null ? document.getReviewCount() : 0)
-                .location(geoPointToString(document.getLocation()))
+                .latitude(document.getLocation().getX())
+                .longitude(document.getLocation().getY())
                 .build();
     }
 
-    public static CafeDto fromEntityWithReviews(Cafe cafeInfo, List<CafeReviewDto> reviewDtos) {
+    public static CafeDto fromEntity(Cafe cafe) {
         return CafeDto.builder()
-                .cafeCode(cafeInfo.getCode())
-                .name(cafeInfo.getName())
-                .address(cafeInfo.getAddress())
-                .district(cafeInfo.getDistrict())
-                .openingHours(cafeInfo.getOpeningHours())
-                .phoneNumber(cafeInfo.getPhoneNumber())
-                .imageUrl(cafeInfo.getImageUrl())
-                .averageRating(cafeInfo.getAverageRating())
-                .themes(cafeInfo.getThemes())
-                .reviews(reviewDtos)
-                .reviewCount(reviewDtos.size())
+                .cafeCode(cafe.getCode())
+                .name(cafe.getName())
+                .address(cafe.getAddress())
+                .district(cafe.getDistrict())
+                .openingHours(cafe.getOpeningHours())
+                .phoneNumber(cafe.getPhoneNumber())
+                .imageUrl(cafe.getImageUrl())
+                .averageRating(cafe.getAverageRating())
+                .themes(cafe.getThemes())
+                .latitude(cafe.getLatitude())
+                .longitude(cafe.getLongitude())
                 .build();
     }
+
+
+    public Cafe toEntity() {
+        return Cafe.create(
+                this.cafeCode,
+                this.name,
+                this.address,
+                this.district,
+                this.openingHours,
+                this.phoneNumber,
+                this.imageUrl,
+                this.averageRating,
+                this.themes,
+                this.latitude,
+                this.longitude
+        );
+    }
+
 
     private static String geoPointToString(Point point) {
         if (point == null) {
