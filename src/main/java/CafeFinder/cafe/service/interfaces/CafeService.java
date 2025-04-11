@@ -2,11 +2,14 @@ package CafeFinder.cafe.service.interfaces;
 
 import CafeFinder.cafe.domain.Cafe;
 import CafeFinder.cafe.dto.CafeDto;
+import CafeFinder.cafe.dto.CafeReviewDto;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CafeService {
+
+    List<CafeReviewDto> getCafeReviews(String cafeCode);
 
     void saveCafes(List<Cafe> cafes);
 

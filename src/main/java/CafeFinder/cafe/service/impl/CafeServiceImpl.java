@@ -13,7 +13,7 @@ import CafeFinder.cafe.service.interfaces.CafeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,19 +23,42 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Profile("elasticsearch")
 @RequiredArgsConstructor
 @Slf4j
 public class CafeServiceImpl implements CafeService {
 
-    private static final String DISTANCE_RADIUS = "1km";
     private static final Sort DEFAULT_SORT = Sort.by(
             Sort.Order.desc("averageRating"),
             Sort.Order.desc("reviewCount")
     );
+
     private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 6, DEFAULT_SORT);
+    private static final String DISTANCE_RADIUS = "1km";
 
     private final CafeRepository cafeRepository;
+
     private final CafeSearchRepository cafeSearchRepository;
+
+
+    @Transactional(readOnly = true)
+    @Override
+    public CafeDto getCafe(String cafeCode) {
+        Cafe cafe = findCafeByCafeCode(cafeCode);
+        return CafeDto.fromEntity(cafe);
+    }
+
+    private Cafe findCafeByCafeCode(String cafeCode) {
+        return cafeRepository.findCafeByCode(cafeCode)
+                .orElseThrow(() -> new CafeNotFoundException(cafeCode));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<CafeReviewDto> getCafeReviews(String cafeCode) {
+        Cafe cafe = findCafeByCafeCode(cafeCode);
+        return convertReviewsToDto(cafe);
+    }
 
     @Transactional
     @Override
@@ -50,7 +73,6 @@ public class CafeServiceImpl implements CafeService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable("cafesByDistrictAndTheme")
     @Override
     public Page<CafeDto> getCafesByDistrictAndTheme(String district, String theme, Pageable pageable) {
         try {
@@ -70,14 +92,6 @@ public class CafeServiceImpl implements CafeService {
         } catch (IllegalArgumentException e) {
             throw new WrongSearchException();
         }
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CafeDto getCafe(String cafeCode) {
-        Cafe cafe = findCafeByCafeCode(cafeCode);
-        List<CafeReviewDto> reviewDtos = convertReviewsToDto(cafe);
-        return CafeDto.fromEntityWithReviews(cafe, reviewDtos);
     }
 
     @Transactional(readOnly = true)
@@ -125,11 +139,6 @@ public class CafeServiceImpl implements CafeService {
         return cafe.getReviews().stream()
                 .map(CafeReviewDto::fromEntity)
                 .toList();
-    }
-
-    private Cafe findCafeByCafeCode(String cafeCode) {
-        return cafeRepository.findByCafeCodeWithReviews(cafeCode)
-                .orElseThrow(() -> new CafeNotFoundException(cafeCode));
     }
 
 }
