@@ -26,7 +26,7 @@ const guMapping = {
     JL: "중랑구",
 };
 
-export function displayGuReviewStats(statsList) {
+export function seoulDistrictStatus(statsList) {
     const container = document.getElementById("gu-review-container");
     if (!container) return;
     container.innerHTML = "";
