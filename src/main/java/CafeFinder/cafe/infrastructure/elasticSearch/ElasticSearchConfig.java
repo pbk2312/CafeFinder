@@ -21,7 +21,6 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
         return ClientConfiguration.builder()
                 .connectedTo(host)
                 .build();
-
     }
 
 }
