@@ -22,20 +22,27 @@ public final class CsvParserUtil {
     private static final String DELIMITER = "\\|";
 
     public static Optional<Cafe> parseCafe(String line) {
+        if (line.startsWith("카페ID|")) {
+            log.debug("헤더 행 스킵: {}", line);
+            return Optional.empty();
+        }
+
         String[] data = line.split(DELIMITER, -1);
         if (!hasRequiredCafeInfoData(data)) {
             log.debug("필수 데이터가 없는 행 스킵: {}", line);
             return Optional.empty();
         }
 
-        String cafeCode = data[0].trim();
-        String name = data[1].trim();
-        String address = data[2].trim();
-        String openingHours = getValueOrNull(data, 3);
-        String phoneNumber = getValueOrNull(data, 4);
-        String imageUrl = getValueOrNull(data, 5);
+        String cafeCode = nullIfBlank(data[0]);
+        String name = nullIfBlank(data[1]);
+        String address = nullIfBlank(data[2]);
+        String openingHours = nullIfBlank(data[3]);
+        String phoneNumber = nullIfBlank(data[4]);
+        String imageUrl = nullIfBlank(data[5]);
         Double averageRating = parseAverageRating(data, cafeCode);
         Set<CafeTheme> themes = parseThemes(data, cafeCode);
+        Double latitude = parseDoubleOrNull(nullIfBlank(data[8]));
+        Double longitude = parseDoubleOrNull(nullIfBlank(data[9]));
 
         SeoulDistrict district = resolveDistrictFromCafeCode(cafeCode);
         if (district == null) {
@@ -45,7 +52,8 @@ public final class CsvParserUtil {
 
         return Optional.of(
                 Cafe.create(cafeCode, name, address, district, openingHours, phoneNumber, imageUrl, averageRating,
-                        themes));
+                        themes, latitude, longitude)
+        );
     }
 
     public static SeoulDistrictStatus parseSeoulDistrictStatus(String line) {
@@ -96,10 +104,14 @@ public final class CsvParserUtil {
         return data.length >= 3 && !data[0].trim().isEmpty() && !data[1].trim().isEmpty() && !data[2].trim().isEmpty();
     }
 
-    private static String getValueOrNull(String[] data, int index) {
-        return (data.length > index && !data[index].trim().isEmpty()) ? data[index].trim() : null;
+    private static String nullIfBlank(String value) {
+        if (value == null || value.trim().isEmpty() || value.trim().equalsIgnoreCase("NULL") || value.trim()
+                .equalsIgnoreCase("NONE")) {
+            return null;
+        }
+        return value.trim();
     }
-
+    
     private static Double parseAverageRating(String[] data, String cafeCode) {
         if (data.length > 6 && !data[6].trim().isEmpty()) {
             try {
@@ -111,9 +123,19 @@ public final class CsvParserUtil {
         return 0.0;
     }
 
+    private static Double parseDoubleOrNull(String value) {
+        try {
+            return (value != null) ? Double.parseDouble(value) : null;
+        } catch (NumberFormatException e) {
+            log.debug("숫자 변환 실패: {}", value);
+            return null;
+        }
+    }
+
     private static Set<CafeTheme> parseThemes(String[] data, String cafeCode) {
         Set<CafeTheme> themes = new HashSet<>();
-        if (data.length > 7 && !data[7].trim().isEmpty()) {
+        if (data.length > 7 && !data[7].trim().isEmpty() && !data[7].trim().equalsIgnoreCase("NULL") && !data[7].trim()
+                .equalsIgnoreCase("NONE")) {
             for (String themeStr : data[7].split(",")) {
                 try {
                     themes.add(CafeTheme.valueOf(themeStr.trim()));
