@@ -1,7 +1,7 @@
 import {checkLoginStatus, logout} from "./auth.js";
 import {searchCafes} from "./cafeSearch.js"
 import {displayPopularCafes} from "./popularCafes.js";
-import {displayGuReviewStats} from "./districtDisplay.js";
+import {seoulDistrictStatus} from "./districtDisplay.js";
 import {displayRecommendedCafes} from "./recommandCafesDisplay.js";
 import {displayCafeInfo} from "./googleMap.js";
 
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    fetchGuReviewStats();
+    fetchSeoulDistrictStatus();
 
 
     const guContainer = document.getElementById("gu-review-container");
@@ -129,12 +129,12 @@ function fetchPopularCafes() {
 }
 
 // ── 구 리뷰 통계 관련 함수 ──
-function fetchGuReviewStats() {
-    fetch("/api/cafes/guReviewStats")
+function fetchSeoulDistrictStatus() {
+    fetch("/api/seoulDistrictStatus")
         .then((response) => response.json())
         .then((data) => {
             if (data.success) {
-                displayGuReviewStats(data.data);
+                seoulDistrictStatus(data.data);
                 updateStarRatings();
             }
         })
@@ -174,30 +174,42 @@ let cafeMarkers = []; // 주변 카페 마커들을 저장할 배열
 
 // DOMContentLoaded 이벤트에서 위치 감시 시작
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOMContentLoaded 이벤트 발생");
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
             (position) => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
+                console.log("📍 위치 수신됨:", userLat, userLng);
 
                 // 최초 로드시 지도 생성, 이후에는 업데이트
                 if (!map) {
+                    console.log("지도 초기화 진행");
                     initMap(userLat, userLng);
                 } else {
+                    console.log("사용자 마커 업데이트 진행");
                     updateUserMarker(userLat, userLng);
                 }
                 // 주변 카페 정보 업데이트
+                console.log("주변 카페 정보 요청");
                 fetchNearbyCafes(userLat, userLng);
             },
             (error) => {
-                console.error("위치 정보를 가져오지 못했습니다:", error);
-                alert("현재 위치를 확인할 수 없습니다. 위치 정보 제공을 허용해주세요.");
+                console.error("위치 정보를 가져오지 못했습니다:", error.code, error.message);
+                if (error.code === error.PERMISSION_DENIED) {
+                    alert("위치 정보 사용이 거부되었습니다.");
+                } else if (error.code === error.POSITION_UNAVAILABLE) {
+                    alert("현재 위치를 확인할 수 없습니다. 위치 서비스가 활성화되어 있는지 확인해 주세요.");
+                } else if (error.code === error.TIMEOUT) {
+                    alert("위치 정보를 가져오는 데 시간이 너무 오래 걸립니다. 다시 시도해 주세요.");
+                }
             }
         );
     } else {
         alert("이 브라우저는 위치 정보 기능을 지원하지 않습니다.");
     }
 });
+
 
 // 구글 맵 초기화 함수
 function initMap(userLat, userLng) {
@@ -254,11 +266,15 @@ function fetchNearbyCafes(latitude, longitude) {
         });
 }
 
-const cafeIcon = {
+const defaultCafeIcon = {
     url: "https://img.icons8.com/ios-filled/50/coffee-to-go.png",
     scaledSize: new google.maps.Size(35, 35),
 };
 
+const selectedCafeIcon = {
+    url: "https://img.icons8.com/ios-filled/50/000000/coffee-to-go.png", // 색상이나 이미지 변경
+    scaledSize: new google.maps.Size(45, 45),
+};
 
 function addCafeMarkers(cafes) {
     const container = document.getElementById("nearby-cafe-container");
@@ -273,7 +289,7 @@ function addCafeMarkers(cafes) {
             position: {lat, lng},
             map: map,
             title: cafe.name,
-            icon: cafeIcon,
+            icon: defaultCafeIcon,
         });
 
         // 툴팁 (구름 모양) 생성
@@ -291,6 +307,14 @@ function addCafeMarkers(cafes) {
         marker.addListener("mouseout", () => infoWindow.close());
 
         marker.addListener("click", () => {
+            // 클릭 시 애니메이션 적용 (바운스)
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(() => marker.setAnimation(null), 700);
+
+            // 클릭한 마커의 아이콘 변경
+            marker.setIcon(selectedCafeIcon);
+
+            // 상세 정보 표시 (페이지 이동 등)
             displayCafeInfo(cafe);
         });
 
