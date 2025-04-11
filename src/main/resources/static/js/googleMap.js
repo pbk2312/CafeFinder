@@ -16,5 +16,10 @@ export function displayCafeInfo(cafe) {
         </div>
     `;
 
+    // 카드 클릭 시 상세 페이지로 이동
+    card.addEventListener("click", () => {
+        window.location.href = `/cafe/detail/${cafe.cafeCode}`;
+    });
+
     container.appendChild(card);
 }
