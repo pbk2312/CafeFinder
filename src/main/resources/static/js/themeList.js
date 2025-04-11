@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     checkLoginStatus();
 
-    fetch("/api/cafes/theme")
+    fetch("/api/cafes/themes")
         .then(response => response.json())
         .then(result => {
 
