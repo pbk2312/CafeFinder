@@ -1,4 +1,4 @@
-import {toggleScrap} from './toggleScrap.js';
+import {initScrapButtons, toggleScrap} from './toggleScrap.js';
 import {checkLoginStatus, logout} from "./auth.js";
 import {renderPagination} from "./renderPagination.js";
 import {createCafeCard} from "./displaySeacrhCards.js";
@@ -6,9 +6,11 @@ import {createCafeCard} from "./displaySeacrhCards.js";
 window.logout = logout;
 let currentSearchValue = "";
 
+
 document.addEventListener("DOMContentLoaded", function () {
 
     loadCafes(); // 카페들 가져오기
+
 
     checkLoginStatus().then(isLoggedIn => {
         console.log("현재 로그인 상태:", isLoggedIn);
@@ -40,7 +42,7 @@ function loadCafes() {
 
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page') ? parseInt(params.get('page')) : 0;
-    const url = `/api/cafes/district/${encodeURIComponent(district)}/${encodeURIComponent(theme)}?page=${page}`;
+    const url = `/api/cafes/${encodeURIComponent(district)}/${encodeURIComponent(theme)}?page=${page}`;
 
     fetch(url)
         .then(response => {
@@ -84,6 +86,8 @@ function displaySearchResults(pageData) {
         container.appendChild(cafeCard);
     });
 
+    initScrapButtons();
+
     // 스크랩 버튼 이벤트 핸들러 등록
     document.querySelectorAll('.btn-scrap').forEach(button => {
         button.addEventListener('click', (e) => {
@@ -95,13 +99,23 @@ function displaySearchResults(pageData) {
 }
 
 
-// 카페 카드 클릭 시 상세 페이지로 이동
-document.getElementById("gu-review-container").addEventListener("click", (event) => {
+document.getElementById("gu-review-container").addEventListener("click", async (event) => {
     const card = event.target.closest(".cafe-item");
     if (card) {
         const cafeCode = card.getAttribute("data-cafe-code");
         if (cafeCode) {
-            window.location.href = `/cafe/detail/${cafeCode}`;
+            try {
+                // 클릭 이벤트 POST 요청
+                await fetch(`/api/cafes/click/${cafeCode}`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                window.location.href = `/cafe/detail/${cafeCode}`;
+            } catch (error) {
+                console.error('클릭 이벤트 전송 실패:', error);
+                window.location.href = `/cafe/detail/${cafeCode}`;
+            }
         }
     }
 });
