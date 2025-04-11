@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-
     private static final String UNAUTHORIZED_MESSAGE = "인증되지 않은 사용자";
 
     private final TokenService tokenService;
