@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CafeTheme {
+
     COZY("분위기 좋은"),
     QUIET("조용한"),
     STUDY_FRIENDLY("공부하기 좋은"),
@@ -13,5 +14,6 @@ public enum CafeTheme {
     SPECIALTY_COFFEE("커피 맛집"),
     NONE("기타");
     private final String description;
+
 }
 
