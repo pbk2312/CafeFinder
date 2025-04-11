@@ -1,21 +1,21 @@
 package CafeFinder.cafe.controller.restapi;
 
+import static CafeFinder.cafe.util.ResponseMessage.CAFE_REVIEWS_OK;
 import static CafeFinder.cafe.util.ResponseMessage.CLICK_EVENT_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.DISTRCT_THEME_GET_SUCCESS;
 import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_INFO;
 import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_INFO_LIST_BY_NAME;
 import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_THEME;
-import static CafeFinder.cafe.util.ResponseMessage.GUREVIEW_STATS_SUCCESS;
 
 import CafeFinder.cafe.dto.CafeDto;
+import CafeFinder.cafe.dto.CafeReviewDto;
+import CafeFinder.cafe.dto.CafeReviewsResponseDto;
 import CafeFinder.cafe.dto.CafeThemeDto;
 import CafeFinder.cafe.dto.ResponseDto;
-import CafeFinder.cafe.dto.SeoulDistrictStatusDto;
 import CafeFinder.cafe.infrastructure.kafka.CafeClickProducer;
 import CafeFinder.cafe.service.interfaces.CafeService;
 import CafeFinder.cafe.service.interfaces.CafeThemeService;
 import CafeFinder.cafe.service.interfaces.RecommendationService;
-import CafeFinder.cafe.service.interfaces.SeoulDistrictStatusService;
 import CafeFinder.cafe.util.ResponseMessage;
 import CafeFinder.cafe.util.ResponseUtil;
 import java.util.List;
@@ -40,25 +40,33 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class CafeApiController {
 
-    private final SeoulDistrictStatusService seoulDistrictStatusService;
+
     private final CafeService cafeService;
     private final CafeThemeService cafeThemeService;
     private final CafeClickProducer cafeClickProducer;
     private final RecommendationService recommendationService;
 
-    @GetMapping("/guReviewStats")
-    public ResponseEntity<ResponseDto<List<SeoulDistrictStatusDto>>> getSeoulDistrictStatus() {
-        List<SeoulDistrictStatusDto> guReviews = seoulDistrictStatusService.getAllStats();
-        return ResponseUtil.buildResponse(HttpStatus.OK, GUREVIEW_STATS_SUCCESS.getMessage(), guReviews, true);
+    @GetMapping("/{cafeCode}")
+    public ResponseEntity<ResponseDto<CafeDto>> getCafe(@PathVariable String cafeCode) {
+        CafeDto cafeInfoDto = cafeService.getCafe(cafeCode);
+        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_INFO.getMessage(), cafeInfoDto, true);
     }
 
-    @GetMapping("/theme")
+    @GetMapping("/reviews/{cafeCode}")
+    public ResponseEntity<ResponseDto<CafeReviewsResponseDto>> getCafeReviews(@PathVariable String cafeCode) {
+        List<CafeReviewDto> cafeReviews = cafeService.getCafeReviews(cafeCode);
+        CafeReviewsResponseDto response = new CafeReviewsResponseDto(cafeReviews, cafeReviews.size());
+
+        return ResponseUtil.buildResponse(HttpStatus.OK, CAFE_REVIEWS_OK.getMessage(), response, true);
+    }
+
+    @GetMapping("/themes")
     public ResponseEntity<ResponseDto<List<CafeThemeDto>>> getCafeThemes() {
         List<CafeThemeDto> themeList = cafeThemeService.getCafeThemes();
         return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_THEME.getMessage(), themeList, true);
     }
 
-    @GetMapping("/district/{district}/{theme}")
+    @GetMapping("/{district}/{theme}")
     public ResponseEntity<ResponseDto<Page<CafeDto>>> getCafesByDistrictAndTheme(
             @PathVariable String district,
             @PathVariable String theme,
@@ -68,11 +76,6 @@ public class CafeApiController {
         return ResponseUtil.buildResponse(HttpStatus.OK, DISTRCT_THEME_GET_SUCCESS.getMessage(), cafes, true);
     }
 
-    @GetMapping("/{cafeCode}")
-    public ResponseEntity<ResponseDto<CafeDto>> getCafeInfo(@PathVariable String cafeCode) {
-        CafeDto cafeInfoDto = cafeService.getCafe(cafeCode);
-        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_INFO.getMessage(), cafeInfoDto, true);
-    }
 
     @GetMapping("/search")
     public ResponseEntity<ResponseDto<Page<CafeDto>>> searchCafes(
