@@ -1,15 +1,5 @@
 package CafeFinder.cafe.controller;
 
-import CafeFinder.cafe.dto.ResponseDto;
-import CafeFinder.cafe.exception.CafeNotFoundException;
-import CafeFinder.cafe.exception.IncorrectPasswordException;
-import CafeFinder.cafe.exception.MemberAlreadyExistsException;
-import CafeFinder.cafe.exception.MemberNotFoundException;
-import CafeFinder.cafe.exception.PasswordConfirmationMisMatch;
-import CafeFinder.cafe.exception.UnsupportedProviderException;
-import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
-import CafeFinder.cafe.exception.YetVerifyEmailException;
-
 import static CafeFinder.cafe.util.ErrorMessage.CAFE_INFO_NOT_FOUND;
 import static CafeFinder.cafe.util.ErrorMessage.MEMBER_NOT_FOUND;
 import static CafeFinder.cafe.util.ErrorMessage.Member_AlreadyExists;
@@ -17,10 +7,21 @@ import static CafeFinder.cafe.util.ErrorMessage.NOT_VERIFY_CODE;
 import static CafeFinder.cafe.util.ErrorMessage.PASSWORD_CONFIRMATION_MISMATCH;
 import static CafeFinder.cafe.util.ErrorMessage.PASSWORD_INCORRECT;
 import static CafeFinder.cafe.util.ErrorMessage.SERVER_ERROR;
+import static CafeFinder.cafe.util.ErrorMessage.UNAUTHORIZED;
 import static CafeFinder.cafe.util.ErrorMessage.UNSUPPORTEDPROVIDER;
 import static CafeFinder.cafe.util.ErrorMessage.VALIDATION_FAILED;
 import static CafeFinder.cafe.util.ErrorMessage.VERIFY_CODE_MIS_MATCH;
 
+import CafeFinder.cafe.dto.ResponseDto;
+import CafeFinder.cafe.exception.CafeNotFoundException;
+import CafeFinder.cafe.exception.IncorrectPasswordException;
+import CafeFinder.cafe.exception.MemberAlreadyExistsException;
+import CafeFinder.cafe.exception.MemberNotFoundException;
+import CafeFinder.cafe.exception.PasswordConfirmationMisMatch;
+import CafeFinder.cafe.exception.UnauthorizedException;
+import CafeFinder.cafe.exception.UnsupportedProviderException;
+import CafeFinder.cafe.exception.VerifyCodeMisMatchException;
+import CafeFinder.cafe.exception.YetVerifyEmailException;
 import CafeFinder.cafe.util.ResponseUtil;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,13 @@ public class GlobalExceptionHandler {
         log.error("MemberNotFoundException: {}", e.getMessage(), e);
         return ResponseUtil.buildResponse(HttpStatus.NOT_FOUND, MEMBER_NOT_FOUND.getMessage(), null, false);
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ResponseDto<String>> handleUnauthorizedException(UnauthorizedException e) {
+        log.error("UnauthorizedException: {}", e.getMessage(), e);
+        return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, UNAUTHORIZED.getMessage(), null, false);
+    }
+
 
     @ExceptionHandler(MemberAlreadyExistsException.class)
     public ResponseEntity<ResponseDto<String>> handleMemberAlreadyExistsException(MemberAlreadyExistsException e) {
