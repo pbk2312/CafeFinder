@@ -28,6 +28,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -75,13 +76,22 @@ dependencies {
     // ElasticSearch
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     implementation 'co.elastic.clients:elasticsearch-java:8.13.4'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0' // JSON 매핑 라이브러리
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+
+    // 캐시
     implementation("org.ehcache:ehcache:3.9.5")
 
     // kafka
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.apache.kafka:kafka-streams'
 
+    // prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // 스프링 배치
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 
 }
 
