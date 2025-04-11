@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CafeReviewDto {
 
-    private double rating;  // 별점
+    private double rating;
 
-    private String review;  // 리뷰 내용
-
+    private String review;
+    
     public static CafeReviewDto fromEntity(CafeReview entity) {
         return CafeReviewDto.builder()
                 .review(entity.getContent())
