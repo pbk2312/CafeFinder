@@ -19,7 +19,10 @@ public enum ErrorMessage {
     PROFILESAVEEXCEPTION("프로필 이미지 저장 중 오류 발생"),
     WRONG_DISTRCIT_THEME("잘못된 district 또는 theme 값입니다."),
     CAFE_INFO_NOT_FOUND("해당 카페 코드가 존재하지 않습니다 : {} "),
-    WRONG_SEARCH("잘못된 검색어 입니다.");
+    WRONG_SEARCH("잘못된 검색어 입니다."),
+    UNAUTHORIZED("인증되지않은 사용자입니다."),
+    INVALID_LOCATION_FORMAT("잘못된 위도, 경도 형식입니다."),
+    REDIS_ERROR("Redis 작업 중 오류가 발생했습니다. (memberId=%s, cafeCode=%s)");
 
     private final String message;
 
