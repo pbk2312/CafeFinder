@@ -2,14 +2,15 @@ package CafeFinder.cafe.service.interfaces;
 
 import CafeFinder.cafe.domain.Cafe;
 import CafeFinder.cafe.dto.CafeDto;
-import CafeFinder.cafe.dto.CafeReviewDto;
+import CafeFinder.cafe.dto.CafeReviewsResponseDto;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CafeService {
 
-    List<CafeReviewDto> getCafeReviews(String cafeCode);
+    CompletableFuture<CafeReviewsResponseDto> getCafeReviewsAsync(String cafeCode, int page);
 
     void saveCafes(List<Cafe> cafes);
 

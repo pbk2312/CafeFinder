@@ -1,16 +1,20 @@
 package CafeFinder.cafe.service.impl;
 
 import CafeFinder.cafe.domain.Cafe;
+import CafeFinder.cafe.domain.CafeReview;
 import CafeFinder.cafe.dto.CafeDto;
 import CafeFinder.cafe.dto.CafeReviewDto;
+import CafeFinder.cafe.dto.CafeReviewsResponseDto;
 import CafeFinder.cafe.exception.CafeNotFoundException;
 import CafeFinder.cafe.exception.WrongDistrictAndTheme;
 import CafeFinder.cafe.exception.WrongSearchException;
 import CafeFinder.cafe.infrastructure.elasticSearch.CafeSearchRepository;
 import CafeFinder.cafe.infrastructure.elasticSearch.IndexedCafe;
 import CafeFinder.cafe.repository.CafeRepository;
+import CafeFinder.cafe.repository.CafeReviewRepository;
 import CafeFinder.cafe.service.interfaces.CafeService;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -19,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +44,7 @@ public class CafeServiceImpl implements CafeService {
     private final CafeRepository cafeRepository;
 
     private final CafeSearchRepository cafeSearchRepository;
+    private final CafeReviewRepository cafeReviewRepository;
 
 
     @Transactional(readOnly = true)
@@ -53,12 +59,25 @@ public class CafeServiceImpl implements CafeService {
                 .orElseThrow(() -> new CafeNotFoundException(cafeCode));
     }
 
+
+    @Async
     @Transactional(readOnly = true)
     @Override
-    public List<CafeReviewDto> getCafeReviews(String cafeCode) {
-        Cafe cafe = findCafeByCafeCode(cafeCode);
-        return convertReviewsToDto(cafe);
+    public CompletableFuture<CafeReviewsResponseDto> getCafeReviewsAsync(String cafeCode, int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "id")); // 최신순
+        Page<CafeReview> pageResult = cafeReviewRepository.findByCafe_Code(cafeCode, pageable);
+
+        List<CafeReviewDto> dtos = pageResult.stream()
+                .map(CafeReviewDto::fromEntity)
+                .toList();
+
+        // 전체 리뷰 개수를 가져옴 (현재 페이지에 표시되는 수와는 별개)
+        int totalReviewCount = (int) pageResult.getTotalElements();
+
+        CafeReviewsResponseDto responseDto = new CafeReviewsResponseDto(dtos, totalReviewCount);
+        return CompletableFuture.completedFuture(responseDto);
     }
+
 
     @Transactional
     @Override
