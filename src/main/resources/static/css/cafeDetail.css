@@ -9,7 +9,7 @@
     --text-dark: #333;
     --text-muted: #555;
     --star-color: #FFC107;
-    --bg-light: #f8f9fa;
+    --bg-light: #f3e9dd;
 }
 
 body {
@@ -17,7 +17,6 @@ body {
     font-family: 'Montserrat', sans-serif;
     color: var(--text-dark);
 }
-
 
 
 .cafe-img {
