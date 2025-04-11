@@ -8,7 +8,6 @@ import CafeFinder.cafe.service.interfaces.SeoulDistrictStatusService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,6 @@ public class SeoulDistrictStatusSerciceImpl implements SeoulDistrictStatusServic
     }
 
     @Override
-    @Cacheable(value = "seoulDistrictStatus")
     @Transactional(readOnly = true)
     public List<SeoulDistrictStatusDto> getAllStats() {
         return seoulDistrictRepository.findSortedByRatingAndReviewCount()
