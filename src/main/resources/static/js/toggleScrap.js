@@ -1,3 +1,28 @@
+let scrappedCodes = [];
+
+export function initScrapButtons() {
+    fetch('/api/member/scrapCafes', {credentials: 'include'})
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("스크랩된 카페 정보를 가져오는데 실패했습니다.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            const scrappedCodes = data.data.map(item => item.cafeCode);
+            const buttons = document.querySelectorAll('.btn-scrap');
+            buttons.forEach(button => {
+                const cafeCode = button.getAttribute("data-cafe-code");
+                if (scrappedCodes.includes(cafeCode)) {
+                    button.innerHTML = `<i class="fa-solid fa-heart" style="color: red;"></i> 스크랩`;
+                }
+            });
+        })
+        .catch(error => {
+            console.error("스크랩 정보 초기화 오류:", error);
+        });
+}
+
 export function toggleScrap(cafeCode, button) {
     fetch(`/api/member/${encodeURIComponent(cafeCode)}/scrap`, {
         method: "POST",
