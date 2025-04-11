@@ -13,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,8 +21,8 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class Cafe {
 
@@ -62,12 +63,12 @@ public class Cafe {
     @Enumerated(EnumType.STRING)
     private Set<CafeTheme> themes;
 
-    @OneToMany(mappedBy = "cafe")
+    @OneToMany(mappedBy = "cafe", fetch = FetchType.LAZY)
     private List<CafeReview> reviews = new ArrayList<>();
 
     public static Cafe create(String cafeCode, String name, String address, SeoulDistrict district,
                               String openingHours, String phoneNumber, String imageUrl, Double averageRating,
-                              Set<CafeTheme> themes) {
+                              Set<CafeTheme> themes, Double latitude, Double longitude) {
         return Cafe.builder()
                 .code(cafeCode)
                 .name(name)
@@ -78,8 +79,8 @@ public class Cafe {
                 .imageUrl(imageUrl)
                 .averageRating(averageRating)
                 .themes(themes)
-                .latitude(null)
-                .longitude(null)
+                .latitude(latitude)
+                .longitude(longitude)
                 .build();
     }
 
