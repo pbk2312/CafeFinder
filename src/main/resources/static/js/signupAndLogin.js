@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
             formTitle.textContent = '로그인';
             formSwitch.innerHTML = '계정이 없으신가요? <a id="toggleForm" href="#">회원가입</a>';
         } else {
-
             loginFormElement.classList.add('hidden');
             signupFormElement.classList.remove('hidden');
             formTitle.textContent = '회원가입';
