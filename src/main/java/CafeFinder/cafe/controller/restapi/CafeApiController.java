@@ -8,7 +8,6 @@ import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_INFO_LIST_BY_NAME;
 import static CafeFinder.cafe.util.ResponseMessage.GET_CAFE_THEME;
 
 import CafeFinder.cafe.dto.CafeDto;
-import CafeFinder.cafe.dto.CafeReviewDto;
 import CafeFinder.cafe.dto.CafeReviewsResponseDto;
 import CafeFinder.cafe.dto.CafeThemeDto;
 import CafeFinder.cafe.dto.ResponseDto;
@@ -19,6 +18,7 @@ import CafeFinder.cafe.service.interfaces.RecommendationService;
 import CafeFinder.cafe.util.ResponseMessage;
 import CafeFinder.cafe.util.ResponseUtil;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -53,12 +53,16 @@ public class CafeApiController {
     }
 
     @GetMapping("/reviews/{cafeCode}")
-    public ResponseEntity<ResponseDto<CafeReviewsResponseDto>> getCafeReviews(@PathVariable String cafeCode) {
-        List<CafeReviewDto> cafeReviews = cafeService.getCafeReviews(cafeCode);
-        CafeReviewsResponseDto response = new CafeReviewsResponseDto(cafeReviews, cafeReviews.size());
+    public CompletableFuture<ResponseEntity<ResponseDto<CafeReviewsResponseDto>>> getCafeReviews(
+            @PathVariable String cafeCode,
+            @RequestParam(defaultValue = "0") int page) {
 
-        return ResponseUtil.buildResponse(HttpStatus.OK, CAFE_REVIEWS_OK.getMessage(), response, true);
+        return cafeService.getCafeReviewsAsync(cafeCode, page)
+                .thenApply(responseDto ->
+                        ResponseUtil.buildResponse(HttpStatus.OK, CAFE_REVIEWS_OK.getMessage(), responseDto, true)
+                );
     }
+
 
     @GetMapping("/themes")
     public ResponseEntity<ResponseDto<List<CafeThemeDto>>> getCafeThemes() {
