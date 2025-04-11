@@ -1,20 +1,15 @@
 import {checkLoginStatus, logout} from './auth.js';
 
-
 document.addEventListener("DOMContentLoaded", () => {
-
     window.logout = logout;
-
     checkLoginStatus();
     loadCafeDetails();
 });
-
 
 function getCafeCodeFromUrl() {
     const pathParts = window.location.pathname.split('/');
     return pathParts[pathParts.length - 1] || null;
 }
-
 
 function generateStarRating(rating) {
     const fullStars = Math.floor(rating);
@@ -32,7 +27,6 @@ function generateStarRating(rating) {
     }
     return starsHTML;
 }
-
 
 function showMapForAddress(address) {
     const mapEl = document.getElementById('map');
@@ -55,18 +49,20 @@ function showMapForAddress(address) {
     });
 }
 
-
 function loadCafeDetails() {
     const cafeCode = getCafeCodeFromUrl();
     if (!cafeCode) {
         console.error("카페 코드를 찾을 수 없습니다.");
         return;
     }
+    // 카페 상세 정보 호출
     fetch(`/api/cafes/${cafeCode}`)
         .then(response => response.json())
         .then(result => {
             if (result.success && result.data) {
                 populateCafeDetails(result.data);
+                // 상세 정보 로드 후 별도의 리뷰 API 호출
+                loadCafeReviews(cafeCode);
             } else {
                 console.error("카페 정보를 가져오는데 실패했습니다.", result.message);
             }
@@ -74,6 +70,19 @@ function loadCafeDetails() {
         .catch(error => console.error("카페 정보 요청 오류:", error));
 }
 
+function loadCafeReviews(cafeCode) {
+    // 분리된 리뷰 API 호출
+    fetch(`/api/cafes/reviews/${cafeCode}`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success && result.data) {
+                populateCafeReviews(result.data);
+            } else {
+                console.error("리뷰 정보를 가져오는데 실패했습니다.", result.message);
+            }
+        })
+        .catch(error => console.error("리뷰 정보 요청 오류:", error));
+}
 
 function populateCafeDetails(data) {
     // 카페 이름
@@ -85,7 +94,7 @@ function populateCafeDetails(data) {
         nameEl.style.display = "none";
     }
 
-
+    // 카페 주소
     const addressEl = document.getElementById("cafe-address");
     if (data.address) {
         addressEl.innerHTML = `<i class="bi bi-geo-alt-fill me-2"></i>${data.address}`;
@@ -94,7 +103,7 @@ function populateCafeDetails(data) {
         addressEl.style.display = "none";
     }
 
-
+    // 영업시간
     const hoursEl = document.getElementById("cafe-hours");
     if (data.openingHours) {
         hoursEl.innerHTML = `<strong>영업시간:</strong> ${data.openingHours}`;
@@ -103,7 +112,7 @@ function populateCafeDetails(data) {
         hoursEl.style.display = "none";
     }
 
-
+    // 전화번호
     const phoneEl = document.getElementById("cafe-phone");
     if (data.phoneNumber) {
         phoneEl.innerHTML = `<strong>전화번호:</strong> ${data.phoneNumber}`;
@@ -112,16 +121,7 @@ function populateCafeDetails(data) {
         phoneEl.style.display = "none";
     }
 
-
-    const reviewEl = document.getElementById("cafe-review");
-    if (data.averageRating !== null && data.averageRating !== undefined) {
-        reviewEl.innerHTML = `<strong>평균 평점:</strong> ${generateStarRating(data.averageRating)}<span class="rating-text">${data.averageRating}</span>`;
-        reviewEl.style.display = "block";
-    } else {
-        reviewEl.style.display = "none";
-    }
-
-
+    // 이미지
     const imageEl = document.getElementById("cafe-image");
     if (data.imageUrl) {
         imageEl.src = data.imageUrl;
@@ -130,7 +130,7 @@ function populateCafeDetails(data) {
         imageEl.style.display = "none";
     }
 
-
+    // 테마
     const themesContainer = document.getElementById("cafe-themes");
     themesContainer.innerHTML = "";
     if (data.themes && data.themes.length > 0) {
@@ -163,11 +163,16 @@ function populateCafeDetails(data) {
         themesContainer.style.display = "none";
     }
 
+    // 지도 표시
+    showMapForAddress(data.address);
+}
 
+function populateCafeReviews(data) {
+    // 리뷰 수 업데이트
     const reviewCountSpan = document.getElementById("review-count");
     reviewCountSpan.innerText = (data.reviewCount !== undefined && data.reviewCount !== null) ? data.reviewCount : 0;
 
-
+    // 리뷰 목록 업데이트
     const reviewsContainer = document.getElementById("reviews");
     reviewsContainer.innerHTML = "";
     if (data.reviews && data.reviews.length > 0) {
@@ -175,17 +180,14 @@ function populateCafeDetails(data) {
             const card = document.createElement("div");
             card.className = "review-card";
             card.innerHTML = `
-        <div class="review-rating">
-          ${generateStarRating(review.rating)}<span class="rating-text">${review.rating}</span>
-        </div>
-        <p class="review-text">${review.review}</p>
-      `;
+                <div class="review-rating">
+                    ${generateStarRating(review.rating)}<span class="rating-text">${review.rating}</span>
+                </div>
+                <p class="review-text">${review.review}</p>
+            `;
             reviewsContainer.appendChild(card);
         });
     } else {
         reviewsContainer.innerHTML = "<p>등록된 리뷰가 없습니다.</p>";
     }
-
-
-    showMapForAddress(data.address);
 }
