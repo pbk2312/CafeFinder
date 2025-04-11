@@ -21,7 +21,10 @@ public enum ResponseMessage {
     GET_RECOMMAND_CAFES("추천 카페 조회"),
     CLICK_EVENT_SUCCESS("카페 클릭 이벤트 전송 성공"),
     MOST_CLICKED_CAFES("사용자들이 가장 많이 클릭한 카페 추천"),
-    GET_CAFES_BY_DISTANCE("거리순으로 카페 조회 완료");
+    GET_CAFES_BY_DISTANCE("거리순으로 카페 조회 완료"),
+    POST_SCRAP_OK("카페 스크랩 완료"),
+    CAFESLIST_SCRAPS_OK("스크랩된 카페 코드 불러오기 완료"),
+    CAFE_REVIEWS_OK("카페 리뷰 조회 성공");
 
 
     private final String message;
