@@ -13,7 +13,7 @@ public class EmailSender {
 
     private final JavaMailSender mailSender;
 
-    @Async
+    @Async("emailTaskExecutor")
     public void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
