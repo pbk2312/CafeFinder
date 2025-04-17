@@ -1,8 +1,8 @@
-package CafeFinder.cafe.infrastructure.auth;
+package CafeFinder.cafe.member.oAuth;
 
-import CafeFinder.cafe.domain.AuthProvider;
-import CafeFinder.cafe.domain.Member;
-import CafeFinder.cafe.domain.MemberRole;
+import CafeFinder.cafe.member.domain.AuthProvider;
+import CafeFinder.cafe.member.domain.Member;
+import CafeFinder.cafe.member.domain.MemberRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -17,7 +17,6 @@ public class OAuth2Member {
     private String nickname;
     private AuthProvider provider;
 
-    // 기본 프로필 이미지는 외부에서 주입하도록 변경
     public Member toEntity(String defaultProfileImage) {
         return Member.builder()
                 .email(email)
