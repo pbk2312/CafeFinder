@@ -4,8 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
     window.logout = logout;
     checkLoginStatus();
     loadCafeDetails();
+    // 스크롤 이벤트 등록: 페이지 끝 근처 감지
+    window.addEventListener("scroll", handleScroll);
 });
 
+// 전역 변수: 현재 페이지, 로딩 상태, 추가 데이터 여부
+let currentReviewPage = 0;
+let isLoadingReviews = false;
+let hasMoreReviews = true;
+
+// 현재 URL에서 카페 코드를 추출
 function getCafeCodeFromUrl() {
     const pathParts = window.location.pathname.split('/');
     return pathParts[pathParts.length - 1] || null;
@@ -61,7 +69,7 @@ function loadCafeDetails() {
         .then(result => {
             if (result.success && result.data) {
                 populateCafeDetails(result.data);
-                // 상세 정보 로드 후 별도의 리뷰 API 호출
+                // 상세 정보 로드 후 초기 리뷰 API 호출
                 loadCafeReviews(cafeCode);
             } else {
                 console.error("카페 정보를 가져오는데 실패했습니다.", result.message);
@@ -70,18 +78,33 @@ function loadCafeDetails() {
         .catch(error => console.error("카페 정보 요청 오류:", error));
 }
 
+/**
+ * 페이지 번호를 인자로 받아 해당 페이지의 리뷰를 가져옴.
+ */
 function loadCafeReviews(cafeCode) {
-    // 분리된 리뷰 API 호출
-    fetch(`/api/cafes/reviews/${cafeCode}`)
+    if (isLoadingReviews || !hasMoreReviews) return;
+
+    isLoadingReviews = true;
+    fetch(`/api/cafes/reviews/${cafeCode}?page=${currentReviewPage}`)
         .then(response => response.json())
         .then(result => {
             if (result.success && result.data) {
-                populateCafeReviews(result.data);
+                // 데이터가 없으면 종료 조건 처리
+                if (!result.data.reviews || result.data.reviews.length === 0) {
+                    hasMoreReviews = false;
+                } else {
+                    populateCafeReviews(result.data);
+                    // 다음 페이지를 위해 현재 페이지 번호 증가
+                    currentReviewPage++;
+                }
             } else {
                 console.error("리뷰 정보를 가져오는데 실패했습니다.", result.message);
             }
         })
-        .catch(error => console.error("리뷰 정보 요청 오류:", error));
+        .catch(error => console.error("리뷰 정보 요청 오류:", error))
+        .finally(() => {
+            isLoadingReviews = false;
+        });
 }
 
 function populateCafeDetails(data) {
@@ -112,6 +135,15 @@ function populateCafeDetails(data) {
         hoursEl.style.display = "none";
     }
 
+    // 평균 평점 업데이트 추가
+    const averageRatingEl = document.getElementById("cafe-review");
+    if (data.averageRating != null) {
+        // 별점 아이콘과 함께 평균 평점을 표현 (소수점 첫째자리까지 표시)
+        averageRatingEl.innerHTML = `<strong>평균 평점:</strong> ${data.averageRating.toFixed(1)} ${generateStarRating(data.averageRating)}`;
+    } else {
+        averageRatingEl.innerHTML = `<strong>평균 평점:</strong> 평가 정보가 없습니다.`;
+    }
+
     // 전화번호
     const phoneEl = document.getElementById("cafe-phone");
     if (data.phoneNumber) {
@@ -138,7 +170,7 @@ function populateCafeDetails(data) {
         data.themes.forEach(themeCode => {
             const span = document.createElement("span");
             span.className = "badge-theme";
-            // 테마별 스타일 지정 (없으면 기본 스타일 적용)
+            // 테마별 스타일 지정
             const themeStyles = {
                 COZY: 'background-color: #FAD7A0; color: #6F4E37;',
                 QUIET: 'background-color: #D5F5E3; color: #27AE60;',
@@ -167,14 +199,19 @@ function populateCafeDetails(data) {
     showMapForAddress(data.address);
 }
 
+/**
+ * 기존 리뷰 데이터를 기존 목록에 추가하는 함수
+ */
 function populateCafeReviews(data) {
-    // 리뷰 수 업데이트
     const reviewCountSpan = document.getElementById("review-count");
-    reviewCountSpan.innerText = (data.reviewCount !== undefined && data.reviewCount !== null) ? data.reviewCount : 0;
 
-    // 리뷰 목록 업데이트
+    // 최초 페이지일 때만 리뷰 총 개수 표시
+    if (currentReviewPage === 0 && data.reviewCount !== undefined && data.reviewCount !== null) {
+        reviewCountSpan.innerText = data.reviewCount;
+    }
+
     const reviewsContainer = document.getElementById("reviews");
-    reviewsContainer.innerHTML = "";
+
     if (data.reviews && data.reviews.length > 0) {
         data.reviews.forEach(review => {
             const card = document.createElement("div");
@@ -187,7 +224,22 @@ function populateCafeReviews(data) {
             `;
             reviewsContainer.appendChild(card);
         });
-    } else {
+    } else if (currentReviewPage === 0) {
         reviewsContainer.innerHTML = "<p>등록된 리뷰가 없습니다.</p>";
+    }
+}
+
+
+/**
+ * 스크롤 이벤트 핸들러: 스크롤이 페이지 하단에 근접하면 추가 리뷰 불러오기
+ */
+function handleScroll() {
+    // 현재 스크롤 위치 + 창 높이가 전체 문서 높이보다 일정 거리에 있으면 추가 로드 실행
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+        // 카페 코드 추출 후 API 호출
+        const cafeCode = getCafeCodeFromUrl();
+        if (cafeCode) {
+            loadCafeReviews(cafeCode);
+        }
     }
 }
