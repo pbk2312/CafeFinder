@@ -1,28 +1,26 @@
 package CafeFinder.cafe.member.jwt;
 
-import static CafeFinder.cafe.member.jwt.JwtMessage.EXPIRED_JWT;
-import static CafeFinder.cafe.member.jwt.JwtMessage.ILLEGAL_JWT;
 import static CafeFinder.cafe.member.jwt.JwtMessage.INVALID_JWT;
-import static CafeFinder.cafe.member.jwt.JwtMessage.UNSUPPORTED_JWT;
 
+import CafeFinder.cafe.member.dto.TokenDto;
 import CafeFinder.cafe.member.exception.InvalidTokenException;
 import CafeFinder.cafe.member.exception.MemberNotFoundException;
-import CafeFinder.cafe.member.dto.TokenDto;
+import CafeFinder.cafe.member.jwt.config.Jwtconfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.Jwts.SIG;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
+import javax.crypto.SecretKey;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,64 +30,48 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TokenProvider {
 
-    private static final String AUTHORITIES_KEY = "auth";
-    private static final String BEARER_TYPE = "Bearer";
-    private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
+
+    private final Jwtconfig jwtconfig;
 
     private final CustomUserDetailsService customUserDetailsService;
 
-    @Value("${jwt.access-token-expire-time}") // 60분
-    private long accessTokenExpireTime;
-
-    @Value("${jwt.refresh-token-expire-time}") // 7일
-    private long refreshTokenExpireTime;
-
-    private final Key key;
-
-    public TokenProvider(@Value("${jwt.secret}") String secretKey, CustomUserDetailsService customUserDetailsService) {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.customUserDetailsService = customUserDetailsService;
-    }
 
     public TokenDto generateTokenDto(Authentication authentication) {
         String authorities = extractAuthoritiesString(authentication);
-        long now = System.currentTimeMillis();
 
-        String accessToken = createAccessToken(authentication.getName(), authorities, now);
-        String refreshToken = createRefreshToken(authentication.getName(), now);
-
-        int accessTokenMaxAge = (int) (accessTokenExpireTime / 1000); // 밀리초 -> 초 변환
-        int refreshTokenExpiresIn = (int) (refreshTokenExpireTime / 1000); // 밀리초 -> 초 변환
+        String accessToken = createAccessToken(authentication.getName(), authorities);
+        String refreshToken = createRefreshToken(authentication.getName());
 
         return TokenDto.builder()
-                .grantType(BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .accessTokenExpiresIn(accessTokenMaxAge)
-                .refreshTokenExpiresIn(refreshTokenExpiresIn)
+                .accessTokenExpiresIn(jwtconfig.getValidation().getAccess().intValue())
+                .refreshTokenExpiresIn(jwtconfig.getValidation().getRefresh().intValue())
                 .build();
     }
 
-    private String createAccessToken(String subject, String authorities, long now) {
+    private String createAccessToken(String email, String authorities) {
         return Jwts.builder()
-                .claim("email", subject)
-                .claim(AUTHORITIES_KEY, authorities)
-                .setSubject(subject)
-                .signWith(key, SIGNATURE_ALGORITHM)
-                .setExpiration(new Date(now + accessTokenExpireTime))
+                .claim("email", email)
+                .claim("role", authorities)
+                .issuedAt(new Date())
+                .expiration(new Date(new Date().getTime() + jwtconfig.getValidation().getAccess()))
+                .signWith(getSecretKey(), SIG.HS256)
                 .compact();
     }
 
-    private String createRefreshToken(String subject, long now) {
+    private String createRefreshToken(String email) {
         return Jwts.builder()
-                .setSubject(subject)
-                .signWith(key, SIGNATURE_ALGORITHM)
-                .setExpiration(new Date(now + refreshTokenExpireTime))
+                .claim("email", email)
+                .issuedAt(new Date())
+                .expiration(new Date(new Date().getTime() + jwtconfig.getValidation().getRefresh()))
+                .signWith(getSecretKey(), SIG.HS256)
                 .compact();
     }
+
 
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
@@ -107,7 +89,7 @@ public class TokenProvider {
 
     private UserDetails getUserDetailsFromClaims(Claims claims) {
         validateClaims(claims);
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(claims.getSubject());
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(claims.get("email").toString());
         if (userDetails == null) {
             throw new MemberNotFoundException();
         }
@@ -115,40 +97,49 @@ public class TokenProvider {
     }
 
     private static void validateClaims(Claims claims) {
-        if (claims == null || claims.getSubject() == null) {
+        if (claims == null) {
             throw new InvalidTokenException(INVALID_JWT.getMessage());
         }
     }
+
 
     private Collection<? extends GrantedAuthority> extractAuthoritiesFromClaims(Claims claims) {
-        Object authoritiesClaim = claims.get(AUTHORITIES_KEY);
-        if (authoritiesClaim == null) {
+        if (claims == null) {
             throw new InvalidTokenException(INVALID_JWT.getMessage());
         }
 
-        return Arrays.stream(authoritiesClaim.toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        String role = claims.get("role", String.class);
+        if (role == null || role.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        return List.of(new SimpleGrantedAuthority(role));
     }
+
 
     public boolean validate(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+
+            Jws<Claims> claimsJws = Jwts.parser()
+                    .verifyWith(getSecretKey())
+                    .build()
+                    .parseSignedClaims(token);
+
             return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+        } catch (JwtException e) {
             throw new InvalidTokenException(INVALID_JWT.getMessage());
-        } catch (ExpiredJwtException e) {
-            throw new InvalidTokenException(EXPIRED_JWT.getMessage());
-        } catch (UnsupportedJwtException e) {
-            throw new InvalidTokenException(UNSUPPORTED_JWT.getMessage());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidTokenException(ILLEGAL_JWT.getMessage());
         }
+
     }
 
     private Claims parseClaims(String token) {
         try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            Jws<Claims> claimsJws = Jwts.parser()
+                    .verifyWith(getSecretKey())
+                    .build()
+                    .parseSignedClaims(token);
+
+            return claimsJws.getPayload();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
@@ -158,6 +149,11 @@ public class TokenProvider {
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
+    }
+
+    private SecretKey getSecretKey() {
+        return Keys.hmacShaKeyFor(
+                jwtconfig.getSecrets().getAppkey().getBytes());
     }
 
 }
