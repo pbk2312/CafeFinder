@@ -37,6 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
         boolean isMemberScrap = method.equals("POST") && uri.matches("^/api/member/[^/]+/scrap$");
         boolean isMemberProfilePage = method.equals("GET") && uri.equals("/member/profile");
         boolean isMemberEditPage = method.equals("GET") && uri.equals("/member/edit");
+        boolean isGetScrapCafes = method.equals("GET") && uri.equals("/api/member/scrapCafes");
 
         boolean shouldFilter = isCafeClick ||
                 isMemberLogout ||
@@ -45,6 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 isMemberRecommand ||
                 isMemberScrap ||
                 isMemberProfilePage ||
+                isGetScrapCafes ||
                 isMemberEditPage;
 
         return !shouldFilter;
@@ -54,36 +56,37 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                    @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
         String requestId = UUID.randomUUID().toString();
         long startTime = System.currentTimeMillis();
 
         log.info("Request ID: {} - 요청 URI: {}에 대한 JWT 필터 시작", requestId, request.getRequestURI());
 
         String jwt = resolveToken(request);
-        if (jwt == null) {
-            log.debug("Request ID: {} - 요청 헤더와 쿠키에 JWT 토큰이 없음", requestId);
-        } else {
-            log.debug("Request ID: {} - JWT 토큰 발견: {}", requestId, jwt);
+        if (!StringUtils.hasText(jwt)) {
+            log.warn("Request ID: {} - JWT 토큰 누락", requestId);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 토큰이 필요합니다.");
+            return;
         }
 
-        if (StringUtils.hasText(jwt) && tokenProvider.validate(jwt)) {
-            Authentication authentication = tokenProvider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("Request ID: {} - 유효한 JWT 토큰. 인증 정보 설정: {}", requestId, authentication.getName());
-        } else {
-            if (StringUtils.hasText(jwt)) {
-                log.info("Request ID: {} - 유효하지 않은 JWT 토큰", requestId);
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 JWT 토큰");
-                return;
-            }
+        if (!tokenProvider.validate(jwt)) {
+            log.warn("Request ID: {} - 유효하지 않은 JWT 토큰: {}", requestId, jwt);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 JWT 토큰");
+            return;
         }
+
+        Authentication authentication = tokenProvider.getAuthentication(jwt);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.info("Request ID: {} - 인증 정보 설정: {}", requestId, authentication.getName());
 
         filterChain.doFilter(request, response);
+
         long duration = System.currentTimeMillis() - startTime;
-        log.info("Request ID: {} - 요청 URI: {}에 대한 JWT 필터 종료. 처리 시간: {} ms", requestId, request.getRequestURI(),
-                duration);
+        log.info("Request ID: {} - 요청 URI: {}에 대한 JWT 필터 종료. 처리 시간: {} ms",
+                requestId, request.getRequestURI(), duration);
     }
+
 
     private String resolveToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();

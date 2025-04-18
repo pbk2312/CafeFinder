@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -24,9 +23,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "userDetailsCache", key = "#email")
     public UserDetails loadUserByUsername(String email) {
         Optional<MemberAuthProjection> optionalProjection = memberRepository.findMemberAuthByEmail(email);
+        log.info("email = {}", email);
         return optionalProjection
                 .map(this::createUserDetails)
                 .orElseThrow(MemberNotFoundException::new);
@@ -42,4 +41,5 @@ public class CustomUserDetailsService implements UserDetailsService {
                 Collections.singletonList(grantedAuthority)
         );
     }
+
 }

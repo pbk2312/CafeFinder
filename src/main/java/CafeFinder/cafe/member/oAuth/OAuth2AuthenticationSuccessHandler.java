@@ -34,7 +34,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         TokenDto tokenDto = tokenProvider.generateTokenDto(oAuth2Authentication);
 
-        CookieUtils.addCookie(response, "accessToken", tokenDto.getAccessToken(), tokenDto.getAccessTokenExpiresIn());
+        CookieUtils.addCookie(response, "accessToken", tokenDto.getAccessToken(),
+                tokenDto.getAccessTokenExpiresIn());
         CookieUtils.addCookie(response, "refreshToken", tokenDto.getRefreshToken(),
                 tokenDto.getRefreshTokenExpiresIn());
 
