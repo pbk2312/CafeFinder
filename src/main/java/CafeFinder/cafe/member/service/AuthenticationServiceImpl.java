@@ -2,15 +2,15 @@ package CafeFinder.cafe.member.service;
 
 import static CafeFinder.cafe.member.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
 
+import CafeFinder.cafe.global.infrastructure.redis.RefreshTokenService;
+import CafeFinder.cafe.member.dto.AccesTokenInfoDto;
 import CafeFinder.cafe.member.dto.MemberLoginDto;
 import CafeFinder.cafe.member.dto.RefreshTokenDto;
+import CafeFinder.cafe.member.dto.TokenDto;
 import CafeFinder.cafe.member.dto.TokenRequestDto;
 import CafeFinder.cafe.member.dto.TokenResultDto;
 import CafeFinder.cafe.member.exception.IncorrectPasswordException;
-import CafeFinder.cafe.member.dto.AccesTokenInfoDto;
-import CafeFinder.cafe.member.dto.TokenDto;
 import CafeFinder.cafe.member.jwt.TokenProvider;
-import CafeFinder.cafe.global.infrastructure.redis.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -108,6 +108,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private TokenResultDto buildAccessTokenValidResult() {
+
         return TokenResultDto.builder()
                 .isAccessTokenValid(true)
                 .isRefreshTokenValid(false)
@@ -145,7 +146,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private AccesTokenInfoDto generateAccessToken(Authentication authentication) {
         TokenDto tokenDto = tokenService.generateToken(authentication);
         return AccesTokenInfoDto.builder()
-                .grantType(tokenDto.getGrantType())
                 .accessToken(tokenDto.getAccessToken())
                 .accessTokenExpiresIn(tokenDto.getAccessTokenExpiresIn())
                 .build();
