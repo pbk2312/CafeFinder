@@ -1,7 +1,7 @@
-package CafeFinder.cafe.member.oAuth;
+package CafeFinder.cafe.member.security.oAuth;
 
 import CafeFinder.cafe.member.dto.TokenDto;
-import CafeFinder.cafe.member.jwt.TokenProvider;
+import CafeFinder.cafe.member.security.jwt.TokenProvider;
 import CafeFinder.cafe.member.util.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

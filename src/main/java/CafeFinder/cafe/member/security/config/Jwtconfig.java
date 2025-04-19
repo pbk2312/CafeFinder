@@ -1,4 +1,4 @@
-package CafeFinder.cafe.member.jwt.config;
+package CafeFinder.cafe.member.security.config;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

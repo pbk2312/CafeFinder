@@ -1,4 +1,4 @@
-package CafeFinder.cafe.member.jwt;
+package CafeFinder.cafe.member.security.jwt;
 
 import static CafeFinder.cafe.global.util.ErrorMessage.LOGIN_ERROR_MESSAGE;
 

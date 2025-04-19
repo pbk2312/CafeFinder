@@ -1,6 +1,6 @@
 package CafeFinder.cafe.member.service;
 
-import static CafeFinder.cafe.member.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
+import static CafeFinder.cafe.member.security.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
 
 import CafeFinder.cafe.global.infrastructure.redis.RefreshTokenService;
 import CafeFinder.cafe.member.dto.AccesTokenInfoDto;
@@ -10,7 +10,7 @@ import CafeFinder.cafe.member.dto.TokenDto;
 import CafeFinder.cafe.member.dto.TokenRequestDto;
 import CafeFinder.cafe.member.dto.TokenResultDto;
 import CafeFinder.cafe.member.exception.IncorrectPasswordException;
-import CafeFinder.cafe.member.jwt.TokenProvider;
+import CafeFinder.cafe.member.security.jwt.JwtAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -32,10 +32,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final TokenProvider tokenProvider;
+    private final JwtAuthenticationProvider authenticationProvider;
 
     @Override
     public TokenDto login(MemberLoginDto loginDto) {
+
         log.info("로그인 요청 시작: 이메일={}", loginDto.getEmail());
 
         Authentication authentication = authenticateUser(loginDto);
@@ -127,7 +128,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private UserDetails getUserDetailsFromRefreshToken(String refreshToken) {
-        return tokenProvider.getUserDetailsFromRefreshToken(refreshToken);
+        return authenticationProvider.getUserDetailsFromRefreshToken(refreshToken);
     }
 
     private TokenResultDto generateNewAccessToken(UserDetails userDetails) {

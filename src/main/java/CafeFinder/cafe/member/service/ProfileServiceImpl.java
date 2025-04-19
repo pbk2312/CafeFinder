@@ -1,11 +1,13 @@
 package CafeFinder.cafe.member.service;
 
+import CafeFinder.cafe.global.service.FileService;
 import CafeFinder.cafe.member.domain.Member;
-import CafeFinder.cafe.member.dto.AccessTokenDto;
 import CafeFinder.cafe.member.dto.MemberProfileDto;
 import CafeFinder.cafe.member.dto.MemberUpdateDto;
 import CafeFinder.cafe.member.dto.ProfileDto;
-import CafeFinder.cafe.global.service.FileService;
+import CafeFinder.cafe.member.exception.MemberNotFoundException;
+import CafeFinder.cafe.member.repository.MemberRepository;
+import CafeFinder.cafe.member.security.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,20 +27,23 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final MemberService memberService;
     private final FileService fileService;
+    private final MemberRepository memberRepository;
 
 
     @Override
     @Transactional
-    public void update(MemberUpdateDto updateDto, AccessTokenDto accessTokenDto) {
-        Member member = memberService.getMemberByToken(accessTokenDto.getAccessToken());
+    public void update(MemberUpdateDto updateDto) {
+
+        Member member = getMember();
+
         updateMemberProfile(member, updateDto);
         log.info("멤버 정보 수정 성공: {}", updateDto.getNickName());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ProfileDto getProfileByToken(AccessTokenDto accessTokenDto) {
-        Member member = memberService.getMemberByToken(accessTokenDto.getAccessToken());
+    public ProfileDto getProfileByToken() {
+        Member member = getMember();
         String relativePath = convertToRelativePath(member.getProfileImagePath());
         return ProfileDto.builder()
                 .email(member.getEmail())
@@ -50,13 +55,19 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public MemberProfileDto getUserInfoByToken(AccessTokenDto accessTokenDto) {
-        Member member = memberService.getMemberByToken(accessTokenDto.getAccessToken());
+    public MemberProfileDto getMemberInfo() {
+        Member member = getMember();
         String relativePath = convertToRelativePath(member.getProfileImagePath());
         return MemberProfileDto.builder()
                 .nickName(member.getNickName())
                 .profileImagePath(relativePath)
                 .build();
+    }
+
+    private Member getMember() {
+        Long memberId = SecurityUtil.getMemberId();
+        return memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
     }
 
 

@@ -1,6 +1,5 @@
-package CafeFinder.cafe.cafe.service;
+package CafeFinder.cafe.member.service;
 
-import CafeFinder.cafe.member.dto.AccessTokenDto;
 import CafeFinder.cafe.cafe.dto.CafeDto;
 import CafeFinder.cafe.cafe.dto.CafeScrapDto;
 import CafeFinder.cafe.cafe.dto.ScrapCafeCodeDto;
@@ -10,9 +9,9 @@ public interface CafeScrapService {
 
     boolean cafeScraps(CafeScrapDto cafeScrapDto);
 
-    List<CafeDto> getCafeScraps(AccessTokenDto accessTokenDto);
+    List<CafeDto> getCafeScraps();
 
-    List<ScrapCafeCodeDto> getCafeScrapCodes(AccessTokenDto accessTokenDto);
+    List<ScrapCafeCodeDto> getCafeScrapCodes();
 
 
 }

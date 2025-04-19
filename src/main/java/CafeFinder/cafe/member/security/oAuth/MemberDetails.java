@@ -1,4 +1,4 @@
-package CafeFinder.cafe.member.oAuth;
+package CafeFinder.cafe.member.security.oAuth;
 
 import CafeFinder.cafe.member.domain.Member;
 import CafeFinder.cafe.member.domain.MemberRole;
@@ -20,6 +20,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @Accessors(chain = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberDetails implements OAuth2User {
+
+    @Setter
+    private Long memberId;
 
     private String name;
     private String email;

@@ -1,7 +1,7 @@
 package CafeFinder.cafe.member.repository;
 
 import CafeFinder.cafe.member.domain.Member;
-import CafeFinder.cafe.member.jwt.MemberAuthProjection;
+import CafeFinder.cafe.member.security.jwt.MemberAuthProjection;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

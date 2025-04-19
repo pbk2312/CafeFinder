@@ -23,6 +23,7 @@ public enum ErrorMessage {
     UNAUTHORIZED("인증되지않은 사용자입니다."),
     INVALID_LOCATION_FORMAT("잘못된 위도, 경도 형식입니다."),
     REDIS_ERROR("Redis 작업 중 오류가 발생했습니다. (memberId=%s, cafeCode=%s)"),
+    EXPRIED_TOKEN("만료된 토큰입니다"),
     DUPLICARTED_SOCAIL("이미 다른 이메일로 가입 되어있는 유저입니다. 다시 로그인 부탁드립니다.");
 
     private final String message;

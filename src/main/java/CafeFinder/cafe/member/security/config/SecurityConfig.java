@@ -1,11 +1,12 @@
-package CafeFinder.cafe.global.config;
+package CafeFinder.cafe.member.security.config;
 
-import CafeFinder.cafe.member.config.JwtSecurityConfig;
-import CafeFinder.cafe.member.oAuth.OAuth2AuthenticationSuccessHandler;
-import CafeFinder.cafe.member.oAuth.OAuth2MemberService;
-import CafeFinder.cafe.member.jwt.JwtAccessDeniedHandler;
-import CafeFinder.cafe.member.jwt.JwtAuthenticationEntryPoint;
-import CafeFinder.cafe.member.jwt.TokenProvider;
+import CafeFinder.cafe.member.security.JwtSecurityConfig;
+import CafeFinder.cafe.member.security.jwt.JwtAccessDeniedHandler;
+import CafeFinder.cafe.member.security.jwt.JwtAuthenticationEntryPoint;
+import CafeFinder.cafe.member.security.jwt.JwtAuthenticationProvider;
+import CafeFinder.cafe.member.security.jwt.JwtValidator;
+import CafeFinder.cafe.member.security.oAuth.OAuth2AuthenticationSuccessHandler;
+import CafeFinder.cafe.member.security.oAuth.OAuth2MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final TokenProvider tokenProvider;
+    private final JwtValidator validator;
+    private final JwtAuthenticationProvider authenticationProvider;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
@@ -52,7 +54,7 @@ public class SecurityConfig {
                                 userInfoEndpoint.userService(oAuth2MemberService)
                         )
                 )
-                .with(new JwtSecurityConfig(tokenProvider), jwtSecurityConfig -> {
+                .with(new JwtSecurityConfig(validator, authenticationProvider), jwtSecurityConfig -> {
                 });
 
         return http.build();

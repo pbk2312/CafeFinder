@@ -1,18 +1,15 @@
 package CafeFinder.cafe.member.service;
 
+import CafeFinder.cafe.global.infrastructure.redis.RedisEmailVerifyService;
+import CafeFinder.cafe.global.service.FileService;
 import CafeFinder.cafe.member.domain.Member;
 import CafeFinder.cafe.member.dto.MemberSignUpDto;
-import CafeFinder.cafe.member.exception.MemberNotFoundException;
 import CafeFinder.cafe.member.exception.YetVerifyEmailException;
-import CafeFinder.cafe.global.infrastructure.redis.RedisEmailVerifyService;
 import CafeFinder.cafe.member.repository.MemberRepository;
-import CafeFinder.cafe.global.service.FileService;
 import CafeFinder.cafe.member.validator.MemberValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,37 +40,11 @@ public class MemberServiceImpl implements MemberService {
         log.info("회원가입 성공: 이메일={}", signUpDto.getEmail());
     }
 
-
-    @Override
-    public Member getMemberByToken(String accessToken) {
-        Authentication authentication = tokenService.getAuthentication(accessToken);
-        return getMemberFromAuthentication(authentication);
-    }
-
-    @Override
-    public Member getMemberByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    log.error("회원 조회 실패: 이메일={}", email);
-                    return new MemberNotFoundException();
-                });
-    }
-
     private void verifyEmailAuthentication(MemberSignUpDto signUpDto) {
         String isVerified = redisTemplate.opsForValue().get("verified:" + signUpDto.getEmail());
         if (!"true".equals(isVerified)) {
             log.warn("회원가입 실패: 이메일 인증 미완료, 이메일={}", signUpDto.getEmail());
             throw new YetVerifyEmailException();
-        }
-    }
-
-    private Member getMemberFromAuthentication(Authentication authentication) {
-        try {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            return getMemberByEmail(userDetails.getUsername());
-        } catch (Exception e) {
-            log.warn("인증된 사용자를 찾을 수 없음: authentication={}", authentication);
-            throw new MemberNotFoundException();
         }
     }
 

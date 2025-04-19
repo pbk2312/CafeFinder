@@ -1,10 +1,10 @@
-package CafeFinder.cafe.member.jwt;
+package CafeFinder.cafe.member.security.jwt;
 
 import lombok.Getter;
 
 @Getter
 public enum JwtMessage {
-    
+
     INVALID_JWT("유효하지 않은 JWT 토큰입니다."),
     EXPIRED_JWT("만료된 JWT 토큰입니다."),
     UNSUPPORTED_JWT("지원하지 않는 JWT 토큰입니다."),

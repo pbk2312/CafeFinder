@@ -1,11 +1,10 @@
 package CafeFinder.cafe.global.infrastructure.kafka;
 
 
-import CafeFinder.cafe.member.domain.Member;
 import CafeFinder.cafe.cafe.dto.CafeClickEventDto;
 import CafeFinder.cafe.cafe.dto.CafeDto;
 import CafeFinder.cafe.cafe.service.CafeService;
-import CafeFinder.cafe.member.service.MemberService;
+import CafeFinder.cafe.member.security.util.SecurityUtil;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +18,12 @@ public class CafeClickProducer {
 
     private static final String TOPIC = "cafe-click-topic";
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final MemberService memberService;
     private final CafeService cafeService;
 
-    public void sendCafeClickEvent(String accessToken, String cafeCode) {
+    public void sendCafeClickEvent(String cafeCode) {
 
-        if (isAccessTokenEmpty(accessToken)) {
-            return;
-        }
+        Long memberId = SecurityUtil.getMemberId();
 
-        Member member = memberService.getMemberByToken(accessToken);
         CafeDto cafeDto = cafeService.getCafe(cafeCode);
 
         String districtName = cafeDto.getDistrict().name();
@@ -37,7 +32,7 @@ public class CafeClickProducer {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        CafeClickEventDto event = buildCafeClickEventDto(cafeCode, themeNames, districtName, member);
+        CafeClickEventDto event = buildCafeClickEventDto(cafeCode, themeNames, districtName, memberId);
 
         kafkaTemplate.send(TOPIC, event.getCafeCode(), event);
     }
@@ -47,9 +42,9 @@ public class CafeClickProducer {
     }
 
     private static CafeClickEventDto buildCafeClickEventDto(String cafeCode, Set<String> cafeThemes, String district,
-                                                            Member member) {
+                                                            Long memberId) {
         return CafeClickEventDto.builder()
-                .memberId(String.valueOf(member.getId()))
+                .memberId(String.valueOf(memberId))
                 .cafeCode(cafeCode)
                 .themes(cafeThemes)
                 .district(district)

@@ -1,4 +1,4 @@
-package CafeFinder.cafe.cafe.service;
+package CafeFinder.cafe.member.service;
 
 import CafeFinder.cafe.cafe.domain.Cafe;
 import CafeFinder.cafe.cafe.domain.CafeScrap;
@@ -11,14 +11,12 @@ import CafeFinder.cafe.global.infrastructure.elasticSearch.CafeSearchRepository;
 import CafeFinder.cafe.global.infrastructure.elasticSearch.IndexedCafe;
 import CafeFinder.cafe.global.infrastructure.redis.CafeScrapsRedisService;
 import CafeFinder.cafe.member.domain.Member;
-import CafeFinder.cafe.member.dto.AccessTokenDto;
-import CafeFinder.cafe.member.exception.UnauthorizedException;
-import CafeFinder.cafe.member.service.MemberService;
+import CafeFinder.cafe.member.repository.MemberRepository;
+import CafeFinder.cafe.member.security.util.SecurityUtil;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -30,6 +28,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class CafeScrapServiceImpl implements CafeScrapService {
 
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
     private final CafeScrapsRedisService scrapsRedisService;
     private final CafeSearchRepository cafeSearchRepository;
     private final CafeScrapRepository cafeScrapRepository;
@@ -39,8 +38,9 @@ public class CafeScrapServiceImpl implements CafeScrapService {
     @Transactional
     public boolean cafeScraps(CafeScrapDto dto) {
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberService.getMemberByEmail(email);
+        Long memberId = getMemberId();
+
+        Member member = memberRepository.getReferenceById(memberId);
 
         Cafe cafe = cafeRepository.getReferenceById(dto.getCafeCode());
 
@@ -50,7 +50,6 @@ public class CafeScrapServiceImpl implements CafeScrapService {
                 .build();
         cafeScrapRepository.save(scrap);
 
-        // 4) 커밋 후에 Redis 동기화
         TransactionSynchronizationManager.registerSynchronization(
                 new TransactionSynchronization() {
                     @Override
@@ -67,31 +66,29 @@ public class CafeScrapServiceImpl implements CafeScrapService {
 
 
     @Override
-    public List<CafeDto> getCafeScraps(AccessTokenDto accessTokenDto) {
-        Member member = getMemberByToken(accessTokenDto.getAccessToken());
-        List<String> cafeCodes = scrapsRedisService.getCafeCodesForMember(member.getId());
+    public List<CafeDto> getCafeScraps() {
+        Long memberId = getMemberId();
+        List<String> cafeCodes = scrapsRedisService.getCafeCodesForMember(memberId);
         List<IndexedCafe> indexedCafes = cafeCodes.stream()
                 .map(cafeSearchRepository::findByCafeCode)
                 .flatMap(Optional::stream)
                 .toList();
-        return indexedCafes.stream().map(CafeDto::fromDocumentForList)
+        return indexedCafes.stream()
+                .map(CafeDto::fromDocumentForList)
                 .toList();
     }
 
     @Override
-    public List<ScrapCafeCodeDto> getCafeScrapCodes(AccessTokenDto accessTokenDto) {
-        Member member = getMemberByToken(accessTokenDto.getAccessToken());
-        List<String> cafeCodes = scrapsRedisService.getCafeCodesForMember(member.getId());
+    public List<ScrapCafeCodeDto> getCafeScrapCodes() {
+        Long memberId = getMemberId();
+        List<String> cafeCodes = scrapsRedisService.getCafeCodesForMember(memberId);
         return cafeCodes.stream()
                 .map(ScrapCafeCodeDto::from)
                 .toList();
     }
 
-    private Member getMemberByToken(String accessToken) {
-        if (accessToken == null || accessToken.trim().isEmpty()) {
-            throw new UnauthorizedException();
-        }
-        return memberService.getMemberByToken(accessToken);
+    private Long getMemberId() {
+        return SecurityUtil.getMemberId();
     }
 
 }

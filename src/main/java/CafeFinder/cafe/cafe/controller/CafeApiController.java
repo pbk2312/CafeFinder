@@ -11,11 +11,11 @@ import CafeFinder.cafe.cafe.dto.CafeDto;
 import CafeFinder.cafe.cafe.dto.CafeMapDto;
 import CafeFinder.cafe.cafe.dto.CafeReviewsResponseDto;
 import CafeFinder.cafe.cafe.dto.CafeThemeDto;
-import CafeFinder.cafe.global.dto.ResponseDto;
-import CafeFinder.cafe.global.infrastructure.kafka.CafeClickProducer;
 import CafeFinder.cafe.cafe.service.CafeService;
 import CafeFinder.cafe.cafe.service.CafeThemeService;
 import CafeFinder.cafe.cafe.service.RecommendationService;
+import CafeFinder.cafe.global.dto.ResponseDto;
+import CafeFinder.cafe.global.infrastructure.kafka.CafeClickProducer;
 import CafeFinder.cafe.global.util.ResponseMessage;
 import CafeFinder.cafe.global.util.ResponseUtil;
 import java.util.List;
@@ -27,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,10 +92,9 @@ public class CafeApiController {
 
     @PostMapping("/click/{cafeCode}")
     public ResponseEntity<ResponseDto<String>> clickCafe(
-            @CookieValue(value = "accessToken", required = true) String accessToken,
             @PathVariable String cafeCode) {
 
-        cafeClickProducer.sendCafeClickEvent(accessToken, cafeCode);
+        cafeClickProducer.sendCafeClickEvent(cafeCode);
         return ResponseUtil.buildResponse(HttpStatus.ACCEPTED, CLICK_EVENT_SUCCESS.getMessage(), null, true);
     }
 

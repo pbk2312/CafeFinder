@@ -1,4 +1,4 @@
-package CafeFinder.cafe.member.oAuth;
+package CafeFinder.cafe.member.security.oAuth;
 
 import static CafeFinder.cafe.global.util.ErrorMessage.DUPLICARTED_SOCAIL;
 
@@ -58,7 +58,7 @@ public class OAuth2MemberService extends DefaultOAuth2UserService {
         );
 
         if (findMember.getProvider().equals(AuthProvider.valueOf(providerId))) {
-            return memberDetails.setMemberRole(findMember.getMemberRole());
+            return memberDetails.setMemberRole(findMember.getMemberRole()).setMemberId(findMember.getId());
         } else {
             throw new IllegalStateException(DUPLICARTED_SOCAIL.getMessage());
         }

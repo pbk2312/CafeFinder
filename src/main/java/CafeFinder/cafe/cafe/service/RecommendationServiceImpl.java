@@ -1,10 +1,8 @@
 package CafeFinder.cafe.cafe.service;
 
-import CafeFinder.cafe.member.domain.Member;
-import CafeFinder.cafe.member.dto.AccessTokenDto;
 import CafeFinder.cafe.cafe.dto.CafeDto;
 import CafeFinder.cafe.global.infrastructure.redis.RecommendationRedisService;
-import CafeFinder.cafe.member.service.MemberService;
+import CafeFinder.cafe.member.security.util.SecurityUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +15,13 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     private final RecommendationRedisService recommendationRedisService;
     private final CafeService cafeService;
-    private final MemberService memberService;
 
     @Override
-    public List<CafeDto> getRecommendationCafes(AccessTokenDto accessTokenDto) {
+    public List<CafeDto> getRecommendationCafes() {
 
-        Member member = memberService.getMemberByToken(accessTokenDto.getAccessToken());
-        String themeDistrict = recommendationRedisService.getMemberTopThemeDistrict(String.valueOf(member.getId()));
+        Long memberId = SecurityUtil.getMemberId();
+
+        String themeDistrict = recommendationRedisService.getMemberTopThemeDistrict(String.valueOf(memberId));
 
         return getCafesByThemeDistrict(themeDistrict, true);
     }

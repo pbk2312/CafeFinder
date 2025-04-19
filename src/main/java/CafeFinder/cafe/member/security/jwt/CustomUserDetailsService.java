@@ -1,14 +1,10 @@
-package CafeFinder.cafe.member.jwt;
+package CafeFinder.cafe.member.security.jwt;
 
 import CafeFinder.cafe.member.exception.MemberNotFoundException;
 import CafeFinder.cafe.member.repository.MemberRepository;
-import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -25,21 +21,19 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) {
         Optional<MemberAuthProjection> optionalProjection = memberRepository.findMemberAuthByEmail(email);
-        log.info("email = {}", email);
         return optionalProjection
                 .map(this::createUserDetails)
                 .orElseThrow(MemberNotFoundException::new);
     }
 
     private UserDetails createUserDetails(MemberAuthProjection projection) {
-        String role = projection.getMemberRole().name();
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role);
-
-        return new User(
-                projection.getEmail(),
-                projection.getPassword(),
-                Collections.singletonList(grantedAuthority)
-        );
+        return CustomUserDetails.builder()
+                .nickName(projection.getNickName())
+                .password(projection.getPassword())
+                .memberId(projection.getId())
+                .memberRole(projection.getMemberRole())
+                .username(projection.getEmail())
+                .build();
     }
 
 }

@@ -1,4 +1,4 @@
-package CafeFinder.cafe.member.oAuth;
+package CafeFinder.cafe.member.security.oAuth;
 
 import CafeFinder.cafe.member.domain.AuthProvider;
 import CafeFinder.cafe.member.domain.Member;
