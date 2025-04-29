@@ -1,9 +1,5 @@
 package CafeFinder.cafe.member.security.jwt;
 
-import static CafeFinder.cafe.member.security.jwt.JwtMessage.INVALID_JWT;
-
-import CafeFinder.cafe.member.exception.InvalidTokenException;
-import CafeFinder.cafe.member.exception.TokenIsExpired;
 import CafeFinder.cafe.member.security.config.Jwtconfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -33,12 +29,28 @@ public class JwtValidator {
 
             return true;
         } catch (ExpiredJwtException e) {
-            throw new TokenIsExpired();
+            log.info("JWT 토큰 만료됨: {}", token);
+            return false;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new InvalidTokenException(INVALID_JWT.getMessage());
+            log.warn("유효하지 않은 JWT 토큰: {}", token, e);
+            return false;
         }
 
+    }
 
+    public boolean isExpired(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(getSecretKey())
+                    .build()
+                    .parseSignedClaims(token);
+            return false;
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 JWT 토큰 검사: {}", token, e);
+            return false;
+        }
     }
 
     private SecretKey getSecretKey() {

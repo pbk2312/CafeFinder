@@ -1,7 +1,9 @@
 package CafeFinder.cafe.member.security.oAuth;
 
-import static CafeFinder.cafe.global.util.ErrorMessage.DUPLICARTED_SOCAIL;
 
+import static CafeFinder.cafe.global.exception.ErrorCode.OAUTH_PROVIDER_MISMATCH;
+
+import CafeFinder.cafe.global.exception.ErrorException;
 import CafeFinder.cafe.member.domain.AuthProvider;
 import CafeFinder.cafe.member.domain.Member;
 import CafeFinder.cafe.member.domain.MemberRole;
@@ -45,24 +47,24 @@ public class OAuth2MemberService extends DefaultOAuth2UserService {
         String encodedPwd = passwordEncoder.encode(rawUuid);
 
         Member findMember = memberOptional.orElseGet(() -> {
-                    Member member = Member.builder()
-                            .email(memberDetails.getEmail())
-                            .provider(AuthProvider.valueOf(providerId))
-                            .nickName(memberDetails.getName())
-                            .password(encodedPwd)
-                            .memberRole(MemberRole.REGULAR)
-                            .profileImagePath(defaultProfileImage)
-                            .build();
-                    return memberRepository.save(member);
-                }
+                Member member = Member.builder()
+                    .email(memberDetails.getEmail())
+                    .provider(AuthProvider.valueOf(providerId))
+                    .nickName(memberDetails.getName())
+                    .password(encodedPwd)
+                    .memberRole(MemberRole.REGULAR)
+                    .profileImagePath(defaultProfileImage)
+                    .build();
+                return memberRepository.save(member);
+            }
         );
 
         if (findMember.getProvider().equals(AuthProvider.valueOf(providerId))) {
-            return memberDetails.setMemberRole(findMember.getMemberRole()).setMemberId(findMember.getId());
+            return memberDetails.setMemberRole(findMember.getMemberRole())
+                .setMemberId(findMember.getId());
         } else {
-            throw new IllegalStateException(DUPLICARTED_SOCAIL.getMessage());
+            throw new ErrorException(OAUTH_PROVIDER_MISMATCH);
         }
 
     }
-
 }

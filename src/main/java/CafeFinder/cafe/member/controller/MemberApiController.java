@@ -3,7 +3,6 @@ package CafeFinder.cafe.member.controller;
 import static CafeFinder.cafe.global.util.ResponseMessage.GET_RECOMMAND_CAFES;
 import static CafeFinder.cafe.global.util.ResponseMessage.LOGIN_SUCCESS;
 import static CafeFinder.cafe.global.util.ResponseMessage.LOGOUT_SUCCESS;
-import static CafeFinder.cafe.global.util.ResponseMessage.NOT_LOGIN;
 import static CafeFinder.cafe.global.util.ResponseMessage.POST_SCRAP_OK;
 import static CafeFinder.cafe.global.util.ResponseMessage.PROFILE_INFO;
 import static CafeFinder.cafe.global.util.ResponseMessage.SIGN_UP_SUCCESS;
@@ -16,16 +15,12 @@ import CafeFinder.cafe.cafe.service.RecommendationService;
 import CafeFinder.cafe.global.dto.ResponseDto;
 import CafeFinder.cafe.global.util.ResponseMessage;
 import CafeFinder.cafe.global.util.ResponseUtil;
-import CafeFinder.cafe.member.dto.AccessTokenDto;
 import CafeFinder.cafe.member.dto.MemberLoginDto;
-import CafeFinder.cafe.member.dto.MemberProfileDto;
 import CafeFinder.cafe.member.dto.MemberSignUpDto;
 import CafeFinder.cafe.member.dto.MemberUpdateDto;
 import CafeFinder.cafe.member.dto.ProfileDto;
 import CafeFinder.cafe.member.dto.RefreshTokenDto;
 import CafeFinder.cafe.member.dto.TokenDto;
-import CafeFinder.cafe.member.dto.TokenRequestDto;
-import CafeFinder.cafe.member.dto.TokenResultDto;
 import CafeFinder.cafe.member.service.AuthenticationService;
 import CafeFinder.cafe.member.service.CafeScrapService;
 import CafeFinder.cafe.member.service.MemberService;
@@ -111,32 +106,6 @@ public class MemberApiController {
         return ResponseUtil.buildResponse(HttpStatus.OK, PROFILE_INFO.getMessage(), profileDto, true);
     }
 
-    @GetMapping("/validateToken")
-    public ResponseEntity<ResponseDto<MemberProfileDto>> validateToken(
-            @CookieValue(value = "accessToken", required = false) String accessToken,
-            @CookieValue(value = "refreshToken", required = false) String refreshToken,
-            HttpServletResponse response
-    ) {
-        if ((accessToken == null || accessToken.isEmpty()) && (refreshToken == null || refreshToken.isEmpty())) {
-            return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, NOT_LOGIN.getMessage(), null, false);
-        }
-
-        TokenRequestDto tokenRequestDto = createTokenRequestDto(accessToken, refreshToken);
-
-        TokenResultDto result = authenticationService.validateToken(tokenRequestDto);
-
-        if (!result.isAccessTokenValid()) {
-            if (result.isRefreshTokenValid()) {
-                accessToken = result.getNewAccessToken().getAccessToken();
-                CookieUtils.addCookie(response, "accessToken", accessToken,
-                        result.getNewAccessToken().getAccessTokenExpiresIn());
-            } else {
-                return ResponseUtil.buildResponse(HttpStatus.UNAUTHORIZED, result.getMessage(), null, false);
-            }
-        }
-        MemberProfileDto userInfo = profileService.getMemberInfo();
-        return ResponseUtil.buildResponse(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), userInfo, true);
-    }
 
     @GetMapping("/getRecommandCafes")
     public ResponseEntity<ResponseDto<List<CafeDto>>> getRecommandCafes(
@@ -173,21 +142,8 @@ public class MemberApiController {
         return redirectUrl;
     }
 
-    private AccessTokenDto createAccessTokenDto(String accessToken) {
-        return AccessTokenDto.builder()
-                .accessToken(accessToken)
-                .build();
-    }
-
     private RefreshTokenDto createRefreshTokenDto(String refreshToken) {
         return RefreshTokenDto.builder()
-                .refreshToken(refreshToken)
-                .build();
-    }
-
-    private TokenRequestDto createTokenRequestDto(String accessToken, String refreshToken) {
-        return TokenRequestDto.builder()
-                .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
     }

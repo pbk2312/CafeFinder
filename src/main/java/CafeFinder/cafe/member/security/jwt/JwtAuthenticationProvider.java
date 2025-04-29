@@ -1,10 +1,10 @@
 package CafeFinder.cafe.member.security.jwt;
 
 
-import static CafeFinder.cafe.member.security.jwt.JwtMessage.INVALID_JWT;
+import static CafeFinder.cafe.global.exception.ErrorCode.INVALID_JWT;
+import static CafeFinder.cafe.global.exception.ErrorCode.MEMBER_NOT_FOUND;
 
-import CafeFinder.cafe.member.exception.InvalidTokenException;
-import CafeFinder.cafe.member.exception.MemberNotFoundException;
+import CafeFinder.cafe.global.exception.ErrorException;
 import io.jsonwebtoken.Claims;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,22 +35,23 @@ public class JwtAuthenticationProvider {
 
     private UserDetails getUserDetailsFromClaims(Claims claims) {
         validateClaims(claims);
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(claims.get("email").toString());
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(
+            claims.get("email").toString());
         if (userDetails == null) {
-            throw new MemberNotFoundException();
+            throw new ErrorException(MEMBER_NOT_FOUND);
         }
         return userDetails;
     }
 
     private static void validateClaims(Claims claims) {
         if (claims == null) {
-            throw new InvalidTokenException(INVALID_JWT.getMessage());
+            throw new ErrorException(INVALID_JWT);
         }
     }
 
     private Collection<? extends GrantedAuthority> extractAuthoritiesFromClaims(Claims claims) {
         if (claims == null) {
-            throw new InvalidTokenException(INVALID_JWT.getMessage());
+            throw new ErrorException(INVALID_JWT);
         }
 
         String role = claims.get("role", String.class);

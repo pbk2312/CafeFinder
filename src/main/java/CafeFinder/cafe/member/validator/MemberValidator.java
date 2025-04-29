@@ -1,7 +1,9 @@
 package CafeFinder.cafe.member.validator;
 
-import CafeFinder.cafe.member.exception.MemberAlreadyExistsException;
-import CafeFinder.cafe.member.exception.PasswordConfirmationMisMatch;
+import static CafeFinder.cafe.global.exception.ErrorCode.INVALID_PASSWORD_MATCH;
+import static CafeFinder.cafe.global.exception.ErrorCode.MEMBER_ALREADY_EXISTS;
+
+import CafeFinder.cafe.global.exception.ErrorException;
 import CafeFinder.cafe.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,13 +17,13 @@ public class MemberValidator {
 
     public static void validatePassword(String password, String checkPassword) {
         if (!password.equals(checkPassword)) {
-            throw new PasswordConfirmationMisMatch();
+            throw new ErrorException(INVALID_PASSWORD_MATCH);
         }
     }
 
     public void isMemberExists(String email) {
         if (memberRepository.findByEmail(email).isPresent()) {
-            throw new MemberAlreadyExistsException();
+            throw new ErrorException(MEMBER_ALREADY_EXISTS);
         }
     }
 

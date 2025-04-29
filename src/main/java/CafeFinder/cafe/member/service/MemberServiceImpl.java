@@ -1,10 +1,12 @@
 package CafeFinder.cafe.member.service;
 
+import static CafeFinder.cafe.global.exception.ErrorCode.NOT_VERIFIED_EMAIL;
+
+import CafeFinder.cafe.global.exception.ErrorException;
 import CafeFinder.cafe.global.infrastructure.redis.RedisEmailVerifyService;
 import CafeFinder.cafe.global.service.FileService;
 import CafeFinder.cafe.member.domain.Member;
 import CafeFinder.cafe.member.dto.MemberSignUpDto;
-import CafeFinder.cafe.member.exception.YetVerifyEmailException;
 import CafeFinder.cafe.member.repository.MemberRepository;
 import CafeFinder.cafe.member.validator.MemberValidator;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,6 @@ public class MemberServiceImpl implements MemberService {
 
 
     private final MemberRepository memberRepository;
-    private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisEmailVerifyService redisEmailVerifyService;
@@ -34,7 +35,8 @@ public class MemberServiceImpl implements MemberService {
         verifyEmailAuthentication(signUpDto);
         MemberValidator.validatePassword(signUpDto.getPassword(), signUpDto.getCheckPassword());
         String profileImagePath = fileService.saveProfileImage(signUpDto.getProfileImage());
-        Member member = Member.create(signUpDto, passwordEncoder.encode(signUpDto.getPassword()), profileImagePath);
+        Member member = Member.create(signUpDto, passwordEncoder.encode(signUpDto.getPassword()),
+            profileImagePath);
         memberRepository.save(member);
         redisEmailVerifyService.deleteVerificationCode(signUpDto.getEmail());
         log.info("회원가입 성공: 이메일={}", signUpDto.getEmail());
@@ -44,7 +46,7 @@ public class MemberServiceImpl implements MemberService {
         String isVerified = redisTemplate.opsForValue().get("verified:" + signUpDto.getEmail());
         if (!"true".equals(isVerified)) {
             log.warn("회원가입 실패: 이메일 인증 미완료, 이메일={}", signUpDto.getEmail());
-            throw new YetVerifyEmailException();
+            throw new ErrorException(NOT_VERIFIED_EMAIL);
         }
     }
 

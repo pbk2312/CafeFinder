@@ -6,6 +6,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,41 +22,51 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
 
+
+    private static final List<String> skipPaths = List.of(
+            "/member/signupAndLogin",
+            "/api/member/signUp",
+            "/api/member/login",
+            "/css", "/js", "/img", "/favicon.ico", "/webjars", "/actuator/prometheus"
+    );
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return skipPaths.stream().anyMatch(path::startsWith);
+    }
+
     private final JwtValidator jwtValidator;
     private final JwtAuthenticationProvider authenticationProvider;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
         String requestId = UUID.randomUUID().toString();
         long startTime = System.currentTimeMillis();
 
         log.info("Request ID: {} - 요청 URI: {}에 대한 JWT 필터 시작", requestId, request.getRequestURI());
 
-        String jwt = resolveToken(request);
-        if (jwt == null) {
-            log.debug("Request ID: {} - 요청 헤더와 쿠키에 JWT 토큰이 없음", requestId);
-        } else {
-            log.debug("Request ID: {} - JWT 토큰 발견: {}", requestId, jwt);
-        }
+        try {
+            String jwt = resolveToken(request);
 
-        if (StringUtils.hasText(jwt) && jwtValidator.validate(jwt)) {
-            Authentication authentication = authenticationProvider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("Request ID: {} - 유효한 JWT 토큰. 인증 정보 설정: {}", requestId, authentication.getName());
-        } else {
-            if (StringUtils.hasText(jwt)) {
-                log.info("Request ID: {} - 유효하지 않은 JWT 토큰", requestId);
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 JWT 토큰");
-                return;
+            if (StringUtils.hasText(jwt) && jwtValidator.validate(jwt)) {
+                Authentication authentication = authenticationProvider.getAuthentication(jwt);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.info("Request ID: {} - 유효한 JWT 토큰. 인증 정보 설정: {}", requestId, authentication.getName());
+            } else {
+                log.debug("Request ID: {} - JWT 토큰 없음 또는 유효하지 않음", requestId);
             }
-        }
 
-        filterChain.doFilter(request, response);
-        long duration = System.currentTimeMillis() - startTime;
-        log.info("Request ID: {} - 요청 URI: {}에 대한 JWT 필터 종료. 처리 시간: {} ms", requestId, request.getRequestURI(),
-                duration);
+            filterChain.doFilter(request, response);
+        } finally {
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Request ID: {} - 요청 URI: {}에 대한 JWT 필터 종료. 처리 시간: {} ms",
+                    requestId, request.getRequestURI(), duration);
+        }
     }
 
     private String resolveToken(HttpServletRequest request) {
@@ -71,5 +82,3 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
 }
-
-

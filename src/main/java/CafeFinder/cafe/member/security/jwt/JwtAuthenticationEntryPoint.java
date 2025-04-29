@@ -1,6 +1,5 @@
 package CafeFinder.cafe.member.security.jwt;
 
-import static CafeFinder.cafe.global.util.ErrorMessage.LOGIN_ERROR_MESSAGE;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,12 +16,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
+        AuthenticationException authException) throws IOException {
 
         String redirectUrl = "/member/signupAndLogin";
 
-        String encodedMessage = URLEncoder.encode(LOGIN_ERROR_MESSAGE.getMessage(),
-                StandardCharsets.UTF_8);
+        String encodedMessage = URLEncoder.encode("로그인을 해주세요",
+            StandardCharsets.UTF_8);
         response.sendRedirect(redirectUrl + "?errorMessage=" + encodedMessage);
     }
 

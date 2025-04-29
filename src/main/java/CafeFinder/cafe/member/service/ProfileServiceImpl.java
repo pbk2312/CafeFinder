@@ -1,11 +1,13 @@
 package CafeFinder.cafe.member.service;
 
+import static CafeFinder.cafe.global.exception.ErrorCode.MEMBER_NOT_FOUND;
+
+import CafeFinder.cafe.global.exception.ErrorException;
 import CafeFinder.cafe.global.service.FileService;
 import CafeFinder.cafe.member.domain.Member;
 import CafeFinder.cafe.member.dto.MemberProfileDto;
 import CafeFinder.cafe.member.dto.MemberUpdateDto;
 import CafeFinder.cafe.member.dto.ProfileDto;
-import CafeFinder.cafe.member.exception.MemberNotFoundException;
 import CafeFinder.cafe.member.repository.MemberRepository;
 import CafeFinder.cafe.member.security.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -46,12 +48,12 @@ public class ProfileServiceImpl implements ProfileService {
         Member member = getMember();
         String relativePath = convertToRelativePath(member.getProfileImagePath());
         return ProfileDto.builder()
-                .email(member.getEmail())
-                .nickName(member.getNickName())
-                .memberRole(member.getMemberRole())
-                .provider(member.getProvider())
-                .profileImagePath(relativePath)
-                .build();
+            .email(member.getEmail())
+            .nickName(member.getNickName())
+            .memberRole(member.getMemberRole())
+            .provider(member.getProvider())
+            .profileImagePath(relativePath)
+            .build();
     }
 
     @Override
@@ -59,15 +61,15 @@ public class ProfileServiceImpl implements ProfileService {
         Member member = getMember();
         String relativePath = convertToRelativePath(member.getProfileImagePath());
         return MemberProfileDto.builder()
-                .nickName(member.getNickName())
-                .profileImagePath(relativePath)
-                .build();
+            .nickName(member.getNickName())
+            .profileImagePath(relativePath)
+            .build();
     }
 
     private Member getMember() {
         Long memberId = SecurityUtil.getMemberId();
         return memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+            .orElseThrow(() -> new ErrorException(MEMBER_NOT_FOUND));
     }
 
 

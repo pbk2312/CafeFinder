@@ -1,7 +1,9 @@
 package CafeFinder.cafe.member.security.oAuth;
 
 
-import CafeFinder.cafe.member.exception.UnavailableProviderException;
+import static CafeFinder.cafe.global.exception.ErrorCode.UNSUPPORTED_PROVIDER;
+
+import CafeFinder.cafe.global.exception.ErrorException;
 import java.util.Map;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -15,27 +17,27 @@ public class MemberDetailsFactory {
         switch (provider.toUpperCase().trim()) {
             case "GOOGLE" -> {
                 return MemberDetails.builder()
-                        .nickName(attributes.get("name").toString())
-                        .email(attributes.get("email").toString())
-                        .attributes(attributes)
-                        .build();
+                    .nickName(attributes.get("name").toString())
+                    .email(attributes.get("email").toString())
+                    .attributes(attributes)
+                    .build();
             }
             case "NAVER" -> {
                 Map<String, String> properties = (Map<String, String>) attributes.get("response");
                 return MemberDetails.builder()
-                        .nickName(properties.get("name"))
-                        .email(properties.get("id") + "@naver.com")
-                        .attributes(attributes)
-                        .build();
+                    .nickName(properties.get("name"))
+                    .email(properties.get("id") + "@naver.com")
+                    .attributes(attributes)
+                    .build();
             }
             case "KAKAO" -> {
                 Map<String, String> properties = (Map<String, String>) attributes.get("properties");
                 return MemberDetails.builder()
-                        .nickName(properties.get("nickname"))
-                        .email(attributes.get("id").toString() + "@kakao.com")
-                        .build();
+                    .nickName(properties.get("nickname"))
+                    .email(attributes.get("id").toString() + "@kakao.com")
+                    .build();
             }
-            default -> throw new UnavailableProviderException(provider);
+            default -> throw new ErrorException(UNSUPPORTED_PROVIDER);
         }
 
     }

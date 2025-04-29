@@ -1,6 +1,8 @@
 package CafeFinder.cafe.global.service;
 
-import CafeFinder.cafe.member.exception.ProfileFileException;
+import static CafeFinder.cafe.global.exception.ErrorCode.PROFILE_SAVE_EXCEPTION;
+
+import CafeFinder.cafe.global.exception.ErrorException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -32,7 +34,7 @@ public class FileServiceImpl implements FileService {
             return filePath;
         } catch (IOException e) {
             log.error("프로필 이미지 저장 실패", e);
-            throw new ProfileFileException();
+            throw new ErrorException(PROFILE_SAVE_EXCEPTION);
         }
     }
 

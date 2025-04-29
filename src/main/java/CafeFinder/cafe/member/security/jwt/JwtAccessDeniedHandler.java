@@ -1,6 +1,5 @@
 package CafeFinder.cafe.member.security.jwt;
 
-import static CafeFinder.cafe.global.util.ErrorMessage.LEVEL_MESSAGE;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,8 +16,9 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
-                       AccessDeniedException accessDeniedException) throws IOException {
-        String encodedMessage = URLEncoder.encode(LEVEL_MESSAGE.getMessage(), StandardCharsets.UTF_8);
+        AccessDeniedException accessDeniedException) throws IOException {
+        String encodedMessage = URLEncoder.encode("권한이 없습니다.",
+            StandardCharsets.UTF_8);
         response.sendRedirect("/error?message=" + encodedMessage);
     }
 

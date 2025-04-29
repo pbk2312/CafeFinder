@@ -18,7 +18,7 @@ public class RecommendationRedisService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     public void updateMemberClickEvent(String key, Long clickCount) {
-        redisTemplate.opsForValue().increment(key, clickCount);
+        redisTemplate.opsForValue().increment(redisKeyPrefix + key, clickCount);
 
         // 전역 클릭 수도 함께 업데이트
         String themeDistrict = extractThemeAndDistrict(key);

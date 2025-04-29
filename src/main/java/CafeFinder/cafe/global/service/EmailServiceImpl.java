@@ -1,8 +1,10 @@
 package CafeFinder.cafe.global.service;
 
+import static CafeFinder.cafe.global.exception.ErrorCode.VERIFY_CODE_MISMATCH;
+
 import CafeFinder.cafe.global.dto.EmailDto;
 import CafeFinder.cafe.global.dto.EmailVerifyDto;
-import CafeFinder.cafe.member.exception.VerifyCodeMisMatchException;
+import CafeFinder.cafe.global.exception.ErrorException;
 import CafeFinder.cafe.global.infrastructure.email.EmailSender;
 import CafeFinder.cafe.global.infrastructure.email.EmailTemplate;
 import CafeFinder.cafe.global.infrastructure.redis.RedisEmailVerifyService;
@@ -71,7 +73,7 @@ public class EmailServiceImpl implements EmailService {
 
     private void checkVerificationCode(String providedCode, String storedCode) {
         if (!providedCode.equals(storedCode)) {
-            throw new VerifyCodeMisMatchException();
+            throw new ErrorException(VERIFY_CODE_MISMATCH);
         }
     }
 
