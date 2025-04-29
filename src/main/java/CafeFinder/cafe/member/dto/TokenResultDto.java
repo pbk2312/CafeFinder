@@ -8,6 +8,6 @@ import lombok.Getter;
 public class TokenResultDto {
     private boolean isAccessTokenValid;
     private boolean isRefreshTokenValid;
-    private AccesTokenInfoDto newAccessToken;
+    private AccesTokenDto newAccessToken;
     private String message;
 }
