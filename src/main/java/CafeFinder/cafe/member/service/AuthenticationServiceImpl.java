@@ -1,15 +1,16 @@
 package CafeFinder.cafe.member.service;
 
+import static CafeFinder.cafe.global.exception.ErrorCode.PASSWORD_INCORRECT;
 import static CafeFinder.cafe.member.security.jwt.JwtMessage.GENERATE_ACCESSTOKEN;
 
+import CafeFinder.cafe.global.exception.ErrorException;
 import CafeFinder.cafe.global.infrastructure.redis.RefreshTokenService;
-import CafeFinder.cafe.member.dto.AccesTokenInfoDto;
+import CafeFinder.cafe.member.dto.AccesTokenDto;
 import CafeFinder.cafe.member.dto.MemberLoginDto;
 import CafeFinder.cafe.member.dto.RefreshTokenDto;
 import CafeFinder.cafe.member.dto.TokenDto;
 import CafeFinder.cafe.member.dto.TokenRequestDto;
 import CafeFinder.cafe.member.dto.TokenResultDto;
-import CafeFinder.cafe.member.exception.IncorrectPasswordException;
 import CafeFinder.cafe.member.security.jwt.JwtAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public TokenResultDto validateToken(TokenRequestDto tokenRequestDto) {
+
         final String accessToken = tokenRequestDto.getAccessToken();
         final String refreshToken = tokenRequestDto.getRefreshToken();
 
@@ -87,21 +89,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         try {
             return authenticationManagerBuilder.getObject().authenticate(authToken);
         } catch (BadCredentialsException e) {
-            log.error("로그인 실패: 잘못된 비밀번호, 이메일={}", loginDto.getEmail());
-            throw new IncorrectPasswordException();
+            throw new ErrorException(PASSWORD_INCORRECT);
         }
     }
 
     private boolean isAccessTokenValid(String accessToken) {
         return accessToken != null
-                && !accessToken.isEmpty()
-                && tokenService.validateToken(accessToken);
+            && !accessToken.isEmpty()
+            && tokenService.validateToken(accessToken);
     }
 
     private boolean isRefreshTokenInvalid(String refreshToken) {
         return refreshToken == null
-                || refreshToken.isEmpty()
-                || !tokenService.validateToken(refreshToken);
+            || refreshToken.isEmpty()
+            || !tokenService.validateToken(refreshToken);
     }
 
     private boolean isRefreshTokenBlacklisted(String refreshToken) {
@@ -111,20 +112,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private TokenResultDto buildAccessTokenValidResult() {
 
         return TokenResultDto.builder()
-                .isAccessTokenValid(true)
-                .isRefreshTokenValid(false)
-                .message("유효한 AccessToken")
-                .newAccessToken(null)
-                .build();
+            .isAccessTokenValid(true)
+            .isRefreshTokenValid(false)
+            .message("유효한 AccessToken")
+            .newAccessToken(null)
+            .build();
     }
 
     private TokenResultDto buildInvalidTokenResult() {
         return TokenResultDto.builder()
-                .isAccessTokenValid(false)
-                .isRefreshTokenValid(false)
-                .newAccessToken(null)
-                .message(UNAUTHORIZED_MESSAGE)
-                .build();
+            .isAccessTokenValid(false)
+            .isRefreshTokenValid(false)
+            .newAccessToken(null)
+            .message(UNAUTHORIZED_MESSAGE)
+            .build();
     }
 
     private UserDetails getUserDetailsFromRefreshToken(String refreshToken) {
@@ -133,23 +134,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private TokenResultDto generateNewAccessToken(UserDetails userDetails) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+            userDetails, null, userDetails.getAuthorities());
         log.info("액세스 토큰이 없거나 만료됨, 리프레시 토큰이 유효: 새로운 액세스 토큰 발급");
-        AccesTokenInfoDto newAccessToken = generateAccessToken(authentication);
+        AccesTokenDto newAccessToken = generateAccessToken(authentication);
         return TokenResultDto.builder()
-                .isAccessTokenValid(false)
-                .isRefreshTokenValid(true)
-                .message(GENERATE_ACCESSTOKEN.getMessage())
-                .newAccessToken(newAccessToken)
-                .build();
+            .isAccessTokenValid(false)
+            .isRefreshTokenValid(true)
+            .message(GENERATE_ACCESSTOKEN.getMessage())
+            .newAccessToken(newAccessToken)
+            .build();
     }
 
-    private AccesTokenInfoDto generateAccessToken(Authentication authentication) {
+    private AccesTokenDto generateAccessToken(Authentication authentication) {
         TokenDto tokenDto = tokenService.generateToken(authentication);
-        return AccesTokenInfoDto.builder()
-                .accessToken(tokenDto.getAccessToken())
-                .accessTokenExpiresIn(tokenDto.getAccessTokenExpiresIn())
-                .build();
+        return AccesTokenDto.builder()
+            .accessToken(tokenDto.getAccessToken())
+            .accessTokenExpiresIn(tokenDto.getAccessTokenExpiresIn())
+            .build();
     }
 
 }
