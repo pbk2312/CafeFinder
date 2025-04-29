@@ -31,7 +31,7 @@ public class Cafe {
     @Column(nullable = false, unique = true, length = 10)
     private String code;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 60)
     private String name;
 
     @Column(nullable = false, length = 100)
@@ -47,7 +47,7 @@ public class Cafe {
     @Column(name = "longitude", columnDefinition = "DECIMAL(10,6)")
     private Double longitude;
 
-    @Column(name = "opening_hours", length = 20)
+    @Column(name = "opening_hours", length = 255)
     private String openingHours;
 
     @Column(name = "phone_number", length = 30)
@@ -70,21 +70,21 @@ public class Cafe {
     private List<CafeReview> reviews = new ArrayList<>();
 
     public static Cafe create(String cafeCode, String name, String address, SeoulDistrict district,
-                              String openingHours, String phoneNumber, String imageUrl, Double averageRating,
-                              Set<CafeTheme> themes, Double latitude, Double longitude) {
+        String openingHours, String phoneNumber, String imageUrl, Double averageRating,
+        Set<CafeTheme> themes, Double latitude, Double longitude) {
         return Cafe.builder()
-                .code(cafeCode)
-                .name(name)
-                .address(address)
-                .district(district)
-                .openingHours(openingHours)
-                .phoneNumber(phoneNumber)
-                .imageUrl(imageUrl)
-                .averageRating(averageRating)
-                .themes(themes)
-                .latitude(latitude)
-                .longitude(longitude)
-                .build();
+            .code(cafeCode)
+            .name(name)
+            .address(address)
+            .district(district)
+            .openingHours(openingHours)
+            .phoneNumber(phoneNumber)
+            .imageUrl(imageUrl)
+            .averageRating(averageRating)
+            .themes(themes)
+            .latitude(latitude)
+            .longitude(longitude)
+            .build();
     }
 
 }
