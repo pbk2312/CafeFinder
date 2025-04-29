@@ -1,8 +1,8 @@
 package CafeFinder.cafe.cafe.service.importer;
 
+import CafeFinder.cafe.cafe.repository.CafeReviewRepository;
 import CafeFinder.cafe.cafe.service.CafeService;
 import CafeFinder.cafe.cafe.service.SeoulDistrictStatusService;
-import CafeFinder.cafe.cafe.repository.CafeReviewRepository;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
