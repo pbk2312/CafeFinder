@@ -1,6 +1,8 @@
 package CafeFinder.cafe.member.security.jwt;
 
-import CafeFinder.cafe.member.exception.MemberNotFoundException;
+import static CafeFinder.cafe.global.exception.ErrorCode.MEMBER_NOT_FOUND;
+
+import CafeFinder.cafe.global.exception.ErrorException;
 import CafeFinder.cafe.member.repository.MemberRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -20,20 +22,21 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) {
-        Optional<MemberAuthProjection> optionalProjection = memberRepository.findMemberAuthByEmail(email);
+        Optional<MemberAuthProjection> optionalProjection = memberRepository.findMemberAuthByEmail(
+            email);
         return optionalProjection
-                .map(this::createUserDetails)
-                .orElseThrow(MemberNotFoundException::new);
+            .map(this::createUserDetails)
+            .orElseThrow(() -> new ErrorException(MEMBER_NOT_FOUND));
     }
 
     private UserDetails createUserDetails(MemberAuthProjection projection) {
         return CustomUserDetails.builder()
-                .nickName(projection.getNickName())
-                .password(projection.getPassword())
-                .memberId(projection.getId())
-                .memberRole(projection.getMemberRole())
-                .username(projection.getEmail())
-                .build();
+            .nickName(projection.getNickName())
+            .password(projection.getPassword())
+            .memberId(projection.getId())
+            .memberRole(projection.getMemberRole())
+            .username(projection.getEmail())
+            .build();
     }
 
 }
