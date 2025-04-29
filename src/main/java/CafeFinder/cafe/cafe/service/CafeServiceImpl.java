@@ -1,22 +1,25 @@
 package CafeFinder.cafe.cafe.service;
 
+import static CafeFinder.cafe.global.exception.ErrorCode.INVALID_CAFE_SEARCH;
+import static CafeFinder.cafe.global.exception.ErrorCode.INVALID_DISTRICT_THEME;
+import static CafeFinder.cafe.global.exception.ErrorCode.NOT_FOUND_CAFE;
+
 import CafeFinder.cafe.cafe.domain.Cafe;
 import CafeFinder.cafe.cafe.domain.CafeReview;
 import CafeFinder.cafe.cafe.dto.CafeDto;
 import CafeFinder.cafe.cafe.dto.CafeMapDto;
 import CafeFinder.cafe.cafe.dto.CafeReviewDto;
 import CafeFinder.cafe.cafe.dto.CafeReviewsResponseDto;
-import CafeFinder.cafe.cafe.exception.CafeNotFoundException;
-import CafeFinder.cafe.cafe.exception.WrongDistrictAndTheme;
-import CafeFinder.cafe.cafe.exception.WrongSearchException;
-import CafeFinder.cafe.global.infrastructure.elasticSearch.CafeSearchRepository;
-import CafeFinder.cafe.global.infrastructure.elasticSearch.IndexedCafe;
 import CafeFinder.cafe.cafe.repository.CafeRepository;
 import CafeFinder.cafe.cafe.repository.CafeReviewRepository;
+import CafeFinder.cafe.global.exception.ErrorException;
+import CafeFinder.cafe.global.infrastructure.elasticSearch.CafeSearchRepository;
+import CafeFinder.cafe.global.infrastructure.elasticSearch.IndexedCafe;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,8 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class CafeServiceImpl implements CafeService {
 
     private static final Sort DEFAULT_SORT = Sort.by(
-            Sort.Order.desc("averageRating"),
-            Sort.Order.desc("reviewCount")
+        Sort.Order.desc("averageRating"),
+        Sort.Order.desc("reviewCount")
     );
 
     private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 6, DEFAULT_SORT);
@@ -48,6 +51,7 @@ public class CafeServiceImpl implements CafeService {
 
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "cafeLocalCache", key = "#cafeCode")
     @Override
     public CafeDto getCafe(String cafeCode) {
         Cafe cafe = findCafeByCafeCode(cafeCode);
@@ -56,22 +60,22 @@ public class CafeServiceImpl implements CafeService {
 
     private Cafe findCafeByCafeCode(String cafeCode) {
         return cafeRepository.findCafeByCode(cafeCode)
-                .orElseThrow(() -> new CafeNotFoundException(cafeCode));
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_CAFE));
     }
 
 
     @Async
     @Transactional(readOnly = true)
     @Override
-    public CompletableFuture<CafeReviewsResponseDto> getCafeReviewsAsync(String cafeCode, int page) {
+    public CompletableFuture<CafeReviewsResponseDto> getCafeReviewsAsync(String cafeCode,
+        int page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "id")); // 최신순
         Page<CafeReview> pageResult = cafeReviewRepository.findByCafe_Code(cafeCode, pageable);
 
         List<CafeReviewDto> dtos = pageResult.stream()
-                .map(CafeReviewDto::fromEntity)
-                .toList();
+            .map(CafeReviewDto::fromEntity)
+            .toList();
 
-        // 전체 리뷰 개수를 가져옴 (현재 페이지에 표시되는 수와는 별개)
         int totalReviewCount = (int) pageResult.getTotalElements();
 
         CafeReviewsResponseDto responseDto = new CafeReviewsResponseDto(dtos, totalReviewCount);
@@ -93,12 +97,14 @@ public class CafeServiceImpl implements CafeService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<CafeDto> getCafesByDistrictAndTheme(String district, String theme, Pageable pageable) {
+    public Page<CafeDto> getCafesByDistrictAndTheme(String district, String theme,
+        Pageable pageable) {
         try {
-            Page<IndexedCafe> searchResults = findCafesByDistrictAndTheme(district, theme, pageable);
+            Page<IndexedCafe> searchResults = findCafesByDistrictAndTheme(district, theme,
+                pageable);
             return searchResults.map(CafeDto::fromDocumentForList);
         } catch (IllegalArgumentException e) {
-            throw new WrongDistrictAndTheme();
+            throw new ErrorException(INVALID_DISTRICT_THEME);
         }
     }
 
@@ -109,7 +115,7 @@ public class CafeServiceImpl implements CafeService {
             Page<IndexedCafe> searchResults = findCafesByNameOrAddress(keyword, pageable);
             return searchResults.map(CafeDto::fromDocumentForList);
         } catch (IllegalArgumentException e) {
-            throw new WrongSearchException();
+            throw new ErrorException(INVALID_CAFE_SEARCH);
         }
     }
 
@@ -130,27 +136,30 @@ public class CafeServiceImpl implements CafeService {
         GeoPoint userLocation = new GeoPoint(latitude, longitude);
         log.info("사용자 위치: {}", userLocation);
 
-        List<IndexedCafe> distanceCafes = cafeSearchRepository.findCafesNearLocation(latitude, DISTANCE_RADIUS,
-                longitude);
+        List<IndexedCafe> distanceCafes = cafeSearchRepository.findCafesNearLocation(latitude,
+            DISTANCE_RADIUS,
+            longitude);
         log.info("사용자 위치 근처 카페 수: {}", distanceCafes.size());
 
         return distanceCafes.stream()
-                .map(CafeMapDto::fromIndexDocument)
-                .toList();
+            .map(CafeMapDto::fromIndexDocument)
+            .toList();
     }
 
     private List<CafeDto> getRecommendationCafes(String district, String theme) {
         Page<IndexedCafe> page = findCafesByDistrictAndTheme(district, theme, DEFAULT_PAGEABLE);
         return page.getContent().stream()
-                .map(CafeDto::fromDocumentForList)
-                .toList();
+            .map(CafeDto::fromDocumentForList)
+            .toList();
     }
 
     private Page<IndexedCafe> findCafesByNameOrAddress(String keyword, Pageable pageable) {
-        return cafeSearchRepository.findByNameContainingOrAddressContaining(keyword, keyword, pageable);
+        return cafeSearchRepository.findByNameContainingOrAddressContaining(keyword, keyword,
+            pageable);
     }
 
-    private Page<IndexedCafe> findCafesByDistrictAndTheme(String district, String theme, Pageable pageable) {
+    private Page<IndexedCafe> findCafesByDistrictAndTheme(String district, String theme,
+        Pageable pageable) {
         return cafeSearchRepository.findByDistrictAndThemesContaining(district, theme, pageable);
     }
 
