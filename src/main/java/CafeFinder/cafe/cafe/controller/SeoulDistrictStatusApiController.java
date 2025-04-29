@@ -2,9 +2,9 @@ package CafeFinder.cafe.cafe.controller;
 
 import static CafeFinder.cafe.global.util.ResponseMessage.GUREVIEW_STATS_SUCCESS;
 
-import CafeFinder.cafe.global.dto.ResponseDto;
 import CafeFinder.cafe.cafe.dto.SeoulDistrictStatusDto;
 import CafeFinder.cafe.cafe.service.SeoulDistrictStatusService;
+import CafeFinder.cafe.global.dto.ResponseDto;
 import CafeFinder.cafe.global.util.ResponseUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class SeoulDistrictStatusApiController {
     @GetMapping("/seoulDistrictStatus")
     public ResponseEntity<ResponseDto<List<SeoulDistrictStatusDto>>> getSeoulDistrictStatus() {
         List<SeoulDistrictStatusDto> guReviews = seoulDistrictStatusService.getAllStats();
-        return ResponseUtil.buildResponse(HttpStatus.OK, GUREVIEW_STATS_SUCCESS.getMessage(), guReviews, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, GUREVIEW_STATS_SUCCESS.getMessage(),
+            guReviews, true);
     }
-
 }

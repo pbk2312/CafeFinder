@@ -1,10 +1,12 @@
 package CafeFinder.cafe.member.security.config;
 
+import CafeFinder.cafe.global.infrastructure.redis.RefreshTokenService;
 import CafeFinder.cafe.member.security.JwtSecurityConfig;
 import CafeFinder.cafe.member.security.jwt.JwtAccessDeniedHandler;
 import CafeFinder.cafe.member.security.jwt.JwtAuthenticationEntryPoint;
 import CafeFinder.cafe.member.security.jwt.JwtAuthenticationProvider;
 import CafeFinder.cafe.member.security.jwt.JwtValidator;
+import CafeFinder.cafe.member.security.jwt.TokenProvider;
 import CafeFinder.cafe.member.security.oAuth.OAuth2AuthenticationSuccessHandler;
 import CafeFinder.cafe.member.security.oAuth.OAuth2MemberService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,9 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2MemberService oAuth2MemberService;
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
@@ -43,7 +48,9 @@ public class SecurityConfig {
                 .formLogin(form -> form.loginPage("/member/signupAndLogin"))
                 .authorizeHttpRequests(auth -> {
                             auth.requestMatchers("/member/signupAndLogin").anonymous()
-                                    .requestMatchers("/member/profile", "/member/edit").authenticated()
+                                    .requestMatchers("/").permitAll()
+                                    .requestMatchers("/member/profile").authenticated()
+                                    .requestMatchers("/api/token/validateToken").permitAll()
                                     .anyRequest().permitAll();
                         }
                 )
@@ -54,8 +61,9 @@ public class SecurityConfig {
                                 userInfoEndpoint.userService(oAuth2MemberService)
                         )
                 )
-                .with(new JwtSecurityConfig(validator, authenticationProvider), jwtSecurityConfig -> {
-                });
+                .with(new JwtSecurityConfig(validator, authenticationProvider, tokenProvider, refreshTokenService),
+                        jwtSecurityConfig -> {
+                        });
 
         return http.build();
     }
