@@ -1,5 +1,5 @@
 export function checkLoginStatus() {
-    return fetch("/api/member/validateToken", {
+    return fetch("/api/token/validateToken", {
         method: "GET",
         credentials: "include"
     })
