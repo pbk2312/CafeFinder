@@ -34,7 +34,17 @@ export function toggleScrap(cafeCode, button) {
         .then(response => {
             if (response.status === 401) {
                 alert("로그인이 필요합니다");
-                return; // 이후 처리를 중단합니다.
+                return refreshAccessToken()  // 새로 토큰 발급 시도
+                    .then(() => {
+                        // 새로 발급받은 accessToken을 사용하여 재요청
+                        return fetch(`/api/member/${encodeURIComponent(cafeCode)}/scrap`, {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        });
+                    });
             }
             if (!response.ok) {
                 throw new Error("스크랩 요청 실패");
@@ -55,3 +65,26 @@ export function toggleScrap(cafeCode, button) {
             alert("스크랩 처리 중 오류가 발생했습니다.");
         });
 }
+
+
+function refreshAccessToken() {
+    return fetch('/api/token/refreshToken', {
+        method: 'GET',
+        credentials: 'include' // 쿠키를 포함하여 요청
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("리프레시 토큰 요청에 실패했습니다.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            const {accessToken} = data.data;
+            if (accessToken) {
+                // 새로운 access token을 사용할 수 있도록 처리
+                document.cookie = `accessToken=${accessToken}; path=/;`;  // 쿠키에 저장
+            }
+            return accessToken;
+        });
+}
+
