@@ -46,8 +46,7 @@ public class CafeScrapsRedisService {
         }
 
         return keys.stream()
-                .map(key -> key.substring(key.indexOf('_') + 1))
-                .toList();
+            .map(key -> key.substring(key.indexOf('_') + 1))
+            .toList();
     }
-
 }

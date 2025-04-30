@@ -13,88 +13,87 @@ import org.springframework.stereotype.Service;
 public class RecommendationRedisService {
 
     @Value("${redis.key.prefix.recommendation}")
-    private String redisKeyPrefix;
+    private String prefix;
 
     private final RedisTemplate<String, Object> redisTemplate;
+    
+    public void recordClick(String key, Long clickCount) {
+        redisTemplate.opsForValue().increment(prefixed(key), clickCount);
 
-    public void updateMemberClickEvent(String key, Long clickCount) {
-        redisTemplate.opsForValue().increment(redisKeyPrefix + key, clickCount);
-
-        // 전역 클릭 수도 함께 업데이트
-        String themeDistrict = extractThemeAndDistrict(key);
-        if (themeDistrict != null) {
-            String[] parts = themeDistrict.split(":");
-            updateGlobalClickCount(parts[0], parts[1], clickCount);
-        }
+        extractThemeAndDistrict(key).ifPresent(parts ->
+            updateGlobalClickCount(parts[0], parts[1], clickCount)
+        );
     }
 
-    // 사용자 클릭 기록에서 가장 많이 클릭한 테마와 지역을 가져오는 메서드
     public String getMemberTopThemeDistrict(String memberId) {
-        Set<String> keys = getMemberClickKeys(memberId);
-        String maxKey = findMaxClickKey(keys);
-        return extractThemeAndDistrict(maxKey);
-    }
-
-    // Cold Start 대응: 테마와 지역구별 전역 클릭수 업데이트
-    public void updateGlobalClickCount(String theme, String district, Long clickIncrement) {
-        String key = redisKeyPrefix + "global:" + theme + ":" + district;
-        redisTemplate.opsForValue().increment(key, clickIncrement);
+        return findMaxClickKey(getMemberClickKeys(memberId))
+            .flatMap(this::extractThemeAndDistrict)
+            .map(parts -> parts[0] + ":" + parts[1])
+            .orElse(null);
     }
 
     public String getMostClickedGlobalClickedCafes() {
-        String keyPattern = redisKeyPrefix + "global:*";
-        Set<String> keys = redisTemplate.keys(keyPattern);
-        String maxKey = findMaxClickKey(keys);
-        return extractThemeAndDistrict(maxKey);
+        return findMaxClickKey(redisTemplate.keys(prefixed("global:*")))
+            .flatMap(this::extractThemeAndDistrict)
+            .map(parts -> parts[0] + ":" + parts[1])
+            .orElse(null);
+    }
+
+    public void updateGlobalClickCount(String theme, String district, Long clickIncrement) {
+        String key = prefixed("global:" + theme + ":" + district);
+        redisTemplate.opsForValue().increment(key, clickIncrement);
     }
 
     private Set<String> getMemberClickKeys(String memberId) {
-        String keyPattern = redisKeyPrefix + memberId + ":*";
-        return redisTemplate.keys(keyPattern);
+        return redisTemplate.keys(prefixed(memberId + ":*"));
     }
 
-    private String findMaxClickKey(Set<String> keys) {
-        String maxKey = null;
-        long maxCount = 0;
+    private java.util.Optional<String> findMaxClickKey(Set<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return java.util.Optional.empty();
+        }
 
-        log.info("keys = {}", keys);
-        if (keys != null) {
-            for (String key : keys) {
-                Object value = redisTemplate.opsForValue().get(key);
-                Long count = null;
+        return keys.stream()
+            .map(key -> new KeyClickCount(key, getClickCount(key)))
+            .filter(k -> k.clickCount != null)
+            .max(java.util.Comparator.comparingLong(k -> k.clickCount))
+            .map(k -> k.key);
+    }
 
-                if (value instanceof Number) {
-                    count = ((Number) value).longValue();
-                } else if (value instanceof String) {
-                    try {
-                        count = Long.parseLong((String) value);
-                    } catch (NumberFormatException e) {
-                        log.warn("키 {}의 값 {}을 숫자로 변환하는데 실패했습니다.", key, value);
-                    }
-                } else if (value != null) {
-                    log.warn("예상치 못한 타입입니다. 키 {}의 타입: {}", key, value.getClass());
-                }
-
-                if (count != null && count > maxCount) {
-                    maxCount = count;
-                    maxKey = key;
-                }
+    private Long getClickCount(String key) {
+        Object value = redisTemplate.opsForValue().get(key);
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        }
+        if (value instanceof String) {
+            try {
+                return Long.parseLong((String) value);
+            } catch (NumberFormatException e) {
+                log.warn("키 {}의 값 '{}'을 숫자로 변환하지 못했습니다.", key, value);
             }
-        }
-        return maxKey;
-    }
-
-    private String extractThemeAndDistrict(String redisKey) {
-        if (redisKey == null) {
-            return null;
-        }
-
-        String[] parts = redisKey.split(":");
-
-        if (parts.length == 4) {
-            return parts[2] + ":" + parts[3];
+        } else if (value != null) {
+            log.warn("예상치 못한 타입입니다. 키 {}의 타입: {}", key, value.getClass());
         }
         return null;
     }
 
+
+    private java.util.Optional<String[]> extractThemeAndDistrict(String redisKey) {
+        if (redisKey == null) {
+            return java.util.Optional.empty();
+        }
+
+        String[] parts = redisKey.split(":");
+        return (parts.length == 4)
+            ? java.util.Optional.of(new String[]{parts[2], parts[3]})
+            : java.util.Optional.empty();
+    }
+
+    private String prefixed(String key) {
+        return prefix + key;
+    }
+
+    private record KeyClickCount(String key, Long clickCount) {
+
+    }
 }

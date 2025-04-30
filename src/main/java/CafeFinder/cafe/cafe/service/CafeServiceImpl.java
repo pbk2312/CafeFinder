@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,7 +50,6 @@ public class CafeServiceImpl implements CafeService {
 
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "cafeLocalCache", key = "#cafeCode")
     @Override
     public CafeDto getCafe(String cafeCode) {
         Cafe cafe = findCafeByCafeCode(cafeCode);
