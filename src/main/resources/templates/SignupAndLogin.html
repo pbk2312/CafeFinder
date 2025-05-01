@@ -1,94 +1,101 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <title>Cafe Login & Signup</title>
-    <th:block th:replace="~{layouts/head-links :: headLinksFragment}"></th:block>
+  <title>Cafe Login & Signup</title>
+  <th:block th:replace="~{layouts/head-links :: headLinksFragment}"></th:block>
 </head>
 <link rel="stylesheet" href="/css/signupAndLogin.css">
 <body>
 <nav class="navbar navbar-expand-lg shadow-sm w-100">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/">☕ Cafe Finder</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/">홈</a></li>
-                <li class="nav-item"><a class="nav-link" href="/">저장한 카페 보기</a></li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/member/signupAndLogin" id="login-link">로그인</a>
-                </li>
-            </ul>
-        </div>
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">☕ Cafe Finder</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/">홈</a></li>
+        <li class="nav-item"><a class="nav-link" href="/">저장한 카페 보기</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="/member/signupAndLogin" id="login-link">로그인</a>
+        </li>
+      </ul>
     </div>
+  </div>
 </nav>
 <!-- 로그인 & 회원가입 컨테이너 -->
 <div class="container auth-container" id="authContainer">
-    <h2 id="formTitle">로그인</h2>
-    <!-- 로그인 폼 -->
-    <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="이메일" required/>
-        <input
-                type="password"
-                id="loginPassword"
-                placeholder="비밀번호"
-                required
-        />
-        <button type="submit">로그인</button>
-    </form>
+  <h2 id="formTitle">로그인</h2>
+  <!-- 로그인 폼 -->
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="이메일" required/>
+    <input
+        type="password"
+        id="loginPassword"
+        placeholder="비밀번호"
+        required
+    />
+    <button type="submit">로그인</button>
+  </form>
 
-    <!-- 회원가입 폼 (초기 숨김) -->
-    <form id="signupForm" class="hidden">
-        <div class="email-verify">
-            <input type="email" id="signupEmail" placeholder="이메일" required/>
-            <button type="button" id="sendCodeBtn">인증번호 전송</button>
-        </div>
-
-        <div id="verificationSection" class="hidden">
-            <input
-                    type="text"
-                    id="verificationCode"
-                    placeholder="인증번호 입력"
-                    required
-            />
-            <button type="button" id="verifyCodeBtn">인증번호 확인</button>
-        </div>
-
-        <div id="signupFields" class="hidden">
-            <input type="text" id="nickName" placeholder="닉네임" required/>
-            <input type="password" id="password" placeholder="비밀번호" required/>
-            <input
-                    type="password"
-                    id="checkPassword"
-                    placeholder="비밀번호 확인"
-                    required
-            />
-
-            <label for="profileImage">프로필 이미지 업로드 (선택)</label>
-            <input type="file" id="profileImage" accept="image/*"/>
-
-            <button type="submit" id="signupSubmitBtn" disabled>
-                회원가입
-            </button>
-        </div>
-    </form>
-
-    <!-- 소셜 로그인 버튼 -->
-    <div class="social-buttons">
-        <a href="/oauth2/authorization/google">
-            <img src="/img/구글.png" alt="Google 로그인"/>
-        </a>
-        <a href="/oauth2/authorization/kakao">
-            <img src="/img/카카오.png" alt="Kakao 로그인"/>
-        </a>
-        <a href="/oauth2/authorization/naver">
-            <img src="/img/네이버.png" alt="Naver 로그인"/>
-        </a>
+  <!-- 회원가입 폼 (초기 숨김) -->
+  <form id="signupForm" class="hidden">
+    <div class="email-verify">
+      <input type="email" id="signupEmail" placeholder="이메일" required/>
+      <button type="button" id="sendCodeBtn">인증번호 전송</button>
     </div>
-    <p class="switch" id="formSwitch">
-        계정이 없으신가요? <a id="toggleForm" href="#">회원가입</a>
-    </p>
+
+    <div id="verificationSection" class="hidden">
+      <input
+          type="text"
+          id="verificationCode"
+          placeholder="인증번호 입력"
+          required
+      />
+      <button type="button" id="verifyCodeBtn">인증번호 확인</button>
+    </div>
+
+    <div id="signupFields" class="hidden">
+      <input type="text" id="nickName" placeholder="닉네임" required/>
+      <input type="password" id="password" placeholder="비밀번호" required/>
+      <input
+          type="password"
+          id="checkPassword"
+          placeholder="비밀번호 확인"
+          required
+      />
+
+      <label for="profileImage">프로필 이미지 업로드 (선택)</label>
+      <input type="file" id="profileImage" accept="image/*"/>
+
+      <button type="submit" id="signupSubmitBtn" disabled>
+        회원가입
+      </button>
+    </div>
+  </form>
+
+  <!-- 소셜 로그인 버튼 -->
+  <div class="social-buttons">
+    <a href="/oauth2/authorization/google">
+      <img
+          src="https://cafefinder.s3.ap-northeast-2.amazonaws.com/img/%E1%84%80%E1%85%AE%E1%84%80%E1%85%B3%E1%86%AF.png"
+          alt="Google 로그인"/>
+    </a>
+    <a href="/oauth2/authorization/kakao">
+      <img
+          src="https://cafefinder.s3.ap-northeast-2.amazonaws.com/img/%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%84%87%E1%85%A5.png"
+          alt="Kakao 로그인"/>
+    </a>
+    <a href="/oauth2/authorization/naver">
+      <img
+          src="https://cafefinder.s3.ap-northeast-2.amazonaws.com/img/%E1%84%8F%E1%85%A1%E1%84%8F%E1%85%A1%E1%84%8B%E1%85%A9.png"
+          alt="Naver 로그인"/>
+    </a>
+  </div>
+  <p class="switch" id="formSwitch">
+    계정이 없으신가요? <a id="toggleForm" href="#">회원가입</a>
+  </p>
 </div>
 
 <!-- Bootstrap JS -->
