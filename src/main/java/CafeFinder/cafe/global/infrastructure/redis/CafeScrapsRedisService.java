@@ -12,33 +12,36 @@ import org.springframework.stereotype.Service;
 public class CafeScrapsRedisService {
 
     private static final String SCRAPS_KEY_PATTERN = "scraps:%d_%s";
+    private static final String SCRAPS_KEY_PATTERN_MEMBER = "scraps:%d_*";
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    // Cafe 토글
+    public boolean toggleCafeScrap(Long memberId, String cafeCode) {
+        String toggleCafeScarapKey = generateKey(memberId, cafeCode);
+        boolean isCurrentlyScrapped = isCafeScrapped(toggleCafeScarapKey);
+
+        if (isCurrentlyScrapped) {
+            redisTemplate.delete(toggleCafeScarapKey);
+        } else {
+            redisTemplate.opsForValue().set(toggleCafeScarapKey, String.valueOf(true));
+        }
+        return !isCurrentlyScrapped;
+    }
 
     private String generateKey(Long memberId, String cafeCode) {
         return String.format(SCRAPS_KEY_PATTERN, memberId, cafeCode);
     }
 
-    public boolean toggleCafeScrap(Long memberId, String cafeCode) {
-        String key = generateKey(memberId, cafeCode);
-        boolean isCurrentlyScrapped = isCafeScrapped(memberId, cafeCode);
-
-        if (isCurrentlyScrapped) {
-            redisTemplate.delete(key);
-        } else {
-            redisTemplate.opsForValue().set(key, String.valueOf(true));
-        }
-        return !isCurrentlyScrapped;
-    }
-
-    public boolean isCafeScrapped(Long memberId, String cafeCode) {
-        String key = generateKey(memberId, cafeCode);
+    public boolean isCafeScrapped(String key) {
         String value = redisTemplate.opsForValue().get(key);
         return Boolean.parseBoolean(value);
     }
 
-    public List<String> getCafeCodesForMember(Long memberId) {
-        String pattern = String.format("scraps:%d_*", memberId);
+    // 토글한 카페 목록 가져오기
+    public List<String> getCafeCodesToggled(Long memberId) {
+        String pattern = String.format(SCRAPS_KEY_PATTERN_MEMBER, memberId);
+
         Set<String> keys = redisTemplate.keys(pattern);
 
         if (keys.isEmpty()) {

@@ -21,7 +21,8 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         Long memberId = SecurityUtil.getMemberId();
 
-        String themeDistrict = recommendationRedisService.getMemberTopThemeDistrict(String.valueOf(memberId));
+        String themeDistrict = recommendationRedisService.getThemeDistrictFavorited(
+            String.valueOf(memberId));
 
         return getCafesByThemeDistrict(themeDistrict, true);
     }
@@ -33,7 +34,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         return getCafesByThemeDistrict(globalThemeDistrict, false);
     }
 
-    private List<CafeDto> getCafesByThemeDistrict(String themeDistrict, boolean isMemberRecommendation) {
+    private List<CafeDto> getCafesByThemeDistrict(String themeDistrict,
+        boolean isMemberRecommendation) {
         if (isEmpty(themeDistrict)) {
             return List.of();
         }

@@ -1,9 +1,9 @@
 package CafeFinder.cafe.global.infrastructure.redis;
 
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -12,40 +12,66 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RecommendationRedisService {
 
-    @Value("${redis.key.prefix.recommendation}")
-    private String prefix;
+    private static final String PREFIX = "recommendation:";
+    private static final String GLOBAL = "global:*";
 
     private final RedisTemplate<String, Object> redisTemplate;
-    
+
+    // 카페 클릭 기록하기
     public void recordClick(String key, Long clickCount) {
-        redisTemplate.opsForValue().increment(prefixed(key), clickCount);
+        incrementCountClick(prefixed(key), clickCount);
 
         extractThemeAndDistrict(key).ifPresent(parts ->
-            updateGlobalClickCount(parts[0], parts[1], clickCount)
+            recordGlobalCountClick(parts[0], parts[1], clickCount)
         );
     }
 
-    public String getMemberTopThemeDistrict(String memberId) {
+    private void incrementCountClick(String key, Long clickCount) {
+        redisTemplate.opsForValue().increment(key, clickCount);
+    }
+
+    private String prefixed(String key) {
+        return PREFIX + key;
+    }
+
+    private Optional<String[]> extractThemeAndDistrict(String redisKey) {
+        if (redisKey == null) {
+            return java.util.Optional.empty();
+        }
+
+        String[] parts = redisKey.split(":");
+        return (parts.length == 4)
+            ? Optional.of(new String[]{parts[2], parts[3]})
+            : Optional.empty();
+    }
+
+    private record KeyClickCount(String key, Long clickCount) {
+
+    }
+
+    // member가 가장 많이 클릭한 테마, 구역 가져오기
+    public String getThemeDistrictFavorited(String memberId) {
         return findMaxClickKey(getMemberClickKeys(memberId))
             .flatMap(this::extractThemeAndDistrict)
             .map(parts -> parts[0] + ":" + parts[1])
             .orElse(null);
     }
 
+    // 전체중에 가장 많이 클릭한 카페의 테마, 구역 가져오기
+    private Set<String> getMemberClickKeys(String memberId) {
+        return redisTemplate.keys(prefixed(memberId + ":*"));
+    }
+
     public String getMostClickedGlobalClickedCafes() {
-        return findMaxClickKey(redisTemplate.keys(prefixed("global:*")))
+        return findMaxClickKey(redisTemplate.keys(prefixed(GLOBAL)))
             .flatMap(this::extractThemeAndDistrict)
             .map(parts -> parts[0] + ":" + parts[1])
             .orElse(null);
     }
 
-    public void updateGlobalClickCount(String theme, String district, Long clickIncrement) {
+    public void recordGlobalCountClick(String theme, String district, Long clickIncrement) {
         String key = prefixed("global:" + theme + ":" + district);
-        redisTemplate.opsForValue().increment(key, clickIncrement);
-    }
-
-    private Set<String> getMemberClickKeys(String memberId) {
-        return redisTemplate.keys(prefixed(memberId + ":*"));
+        incrementCountClick(key, clickIncrement);
     }
 
     private java.util.Optional<String> findMaxClickKey(Set<String> keys) {
@@ -75,25 +101,5 @@ public class RecommendationRedisService {
             log.warn("예상치 못한 타입입니다. 키 {}의 타입: {}", key, value.getClass());
         }
         return null;
-    }
-
-
-    private java.util.Optional<String[]> extractThemeAndDistrict(String redisKey) {
-        if (redisKey == null) {
-            return java.util.Optional.empty();
-        }
-
-        String[] parts = redisKey.split(":");
-        return (parts.length == 4)
-            ? java.util.Optional.of(new String[]{parts[2], parts[3]})
-            : java.util.Optional.empty();
-    }
-
-    private String prefixed(String key) {
-        return prefix + key;
-    }
-
-    private record KeyClickCount(String key, Long clickCount) {
-
     }
 }

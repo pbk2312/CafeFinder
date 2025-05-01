@@ -45,21 +45,23 @@ public class CafeScrapServiceImpl implements CafeScrapService {
         Cafe cafe = cafeRepository.getReferenceById(dto.getCafeCode());
 
         CafeScrap scrap = CafeScrap.builder()
-                .member(member)
-                .cafe(cafe)
-                .build();
+            .member(member)
+            .cafe(cafe)
+            .build();
         cafeScrapRepository.save(scrap);
 
         TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        boolean ok = scrapsRedisService.toggleCafeScrap(member.getId(), dto.getCafeCode());
-                        if (!ok) {
-                            log.error("Redis 업데이트 실패: memberId={}, cafeCode={}", member.getId(), dto.getCafeCode());
-                        }
+            new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    boolean ok = scrapsRedisService.toggleCafeScrap(member.getId(),
+                        dto.getCafeCode());
+                    if (!ok) {
+                        log.error("Redis 업데이트 실패: memberId={}, cafeCode={}", member.getId(),
+                            dto.getCafeCode());
                     }
                 }
+            }
         );
         return true;
     }
@@ -68,23 +70,23 @@ public class CafeScrapServiceImpl implements CafeScrapService {
     @Override
     public List<CafeDto> getCafeScraps() {
         Long memberId = getMemberId();
-        List<String> cafeCodes = scrapsRedisService.getCafeCodesForMember(memberId);
+        List<String> cafeCodes = scrapsRedisService.getCafeCodesToggled(memberId);
         List<IndexedCafe> indexedCafes = cafeCodes.stream()
-                .map(cafeSearchRepository::findByCafeCode)
-                .flatMap(Optional::stream)
-                .toList();
+            .map(cafeSearchRepository::findByCafeCode)
+            .flatMap(Optional::stream)
+            .toList();
         return indexedCafes.stream()
-                .map(CafeDto::fromDocumentForList)
-                .toList();
+            .map(CafeDto::fromDocumentForList)
+            .toList();
     }
 
     @Override
     public List<ScrapCafeCodeDto> getCafeScrapCodes() {
         Long memberId = getMemberId();
-        List<String> cafeCodes = scrapsRedisService.getCafeCodesForMember(memberId);
+        List<String> cafeCodes = scrapsRedisService.getCafeCodesToggled(memberId);
         return cafeCodes.stream()
-                .map(ScrapCafeCodeDto::from)
-                .toList();
+            .map(ScrapCafeCodeDto::from)
+            .toList();
     }
 
     private Long getMemberId() {
