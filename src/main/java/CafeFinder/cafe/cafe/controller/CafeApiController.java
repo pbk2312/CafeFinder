@@ -49,69 +49,76 @@ public class CafeApiController {
     @GetMapping("/{cafeCode}")
     public ResponseEntity<ResponseDto<CafeDto>> getCafe(@PathVariable String cafeCode) {
         CafeDto cafeInfoDto = cafeService.getCafe(cafeCode);
-        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_INFO.getMessage(), cafeInfoDto, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_INFO.getMessage(), cafeInfoDto,
+            true);
     }
 
     @GetMapping("/reviews/{cafeCode}")
     public CompletableFuture<ResponseEntity<ResponseDto<CafeReviewsResponseDto>>> getCafeReviews(
-            @PathVariable String cafeCode,
-            @RequestParam(defaultValue = "0") int page) {
+        @PathVariable String cafeCode,
+        @RequestParam(defaultValue = "0") int page) {
 
         return cafeService.getCafeReviewsAsync(cafeCode, page)
-                .thenApply(responseDto ->
-                        ResponseUtil.buildResponse(HttpStatus.OK, CAFE_REVIEWS_OK.getMessage(), responseDto, true)
-                );
+            .thenApply(responseDto ->
+                ResponseUtil.buildResponse(HttpStatus.OK, CAFE_REVIEWS_OK.getMessage(), responseDto,
+                    true)
+            );
     }
 
     @GetMapping("/themes")
     public ResponseEntity<ResponseDto<List<CafeThemeDto>>> getCafeThemes() {
         List<CafeThemeDto> themeList = cafeThemeService.getCafeThemes();
-        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_THEME.getMessage(), themeList, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_THEME.getMessage(), themeList,
+            true);
     }
 
     @GetMapping("/{district}/{theme}")
     public ResponseEntity<ResponseDto<Page<CafeDto>>> getCafesByDistrictAndTheme(
-            @PathVariable String district,
-            @PathVariable String theme,
-            @PageableDefault(size = 9) Pageable pageable) {
+        @PathVariable String district,
+        @PathVariable String theme,
+        @PageableDefault(size = 9) Pageable pageable) {
 
         Page<CafeDto> cafes = cafeService.getCafesByDistrictAndTheme(district, theme, pageable);
-        return ResponseUtil.buildResponse(HttpStatus.OK, DISTRCT_THEME_GET_SUCCESS.getMessage(), cafes, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, DISTRCT_THEME_GET_SUCCESS.getMessage(),
+            cafes, true);
     }
 
 
     @GetMapping("/search")
     public ResponseEntity<ResponseDto<Page<CafeDto>>> searchCafes(
-            @RequestParam("keyword") String keyword,
-            @PageableDefault(size = 9) Pageable pageable) {
+        @RequestParam("keyword") String keyword,
+        @PageableDefault(size = 9) Pageable pageable) {
 
         Page<CafeDto> result = cafeService.searchCafesByNameOrAddress(keyword, pageable);
-        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_INFO_LIST_BY_NAME.getMessage(), result,
-                true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, GET_CAFE_INFO_LIST_BY_NAME.getMessage(),
+            result,
+            true);
     }
 
     @PostMapping("/click/{cafeCode}")
     public ResponseEntity<ResponseDto<String>> clickCafe(
-            @PathVariable String cafeCode) {
+        @PathVariable String cafeCode) {
 
         cafeClickProducer.sendCafeClickEvent(cafeCode);
-        return ResponseUtil.buildResponse(HttpStatus.ACCEPTED, CLICK_EVENT_SUCCESS.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.ACCEPTED, CLICK_EVENT_SUCCESS.getMessage(),
+            null, true);
     }
 
     @GetMapping("/mostClicked")
     public ResponseEntity<ResponseDto<List<CafeDto>>> getMostClicked() {
         List<CafeDto> cafeDtos = recommendationService.getGlobalRecommendationCafes();
-        return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.MOST_CLICKED_CAFES.getMessage(), cafeDtos,
-                true);
+        return ResponseUtil.buildResponse(HttpStatus.OK,
+            ResponseMessage.MOST_CLICKED_CAFES.getMessage(), cafeDtos,
+            true);
     }
 
     @PostMapping("/by-distance")
     public ResponseEntity<ResponseDto<List<CafeMapDto>>> getCafesSortedByDistance(
-            @RequestParam double latitude,
-            @RequestParam double longitude) {
+        @RequestParam double latitude,
+        @RequestParam double longitude) {
         List<CafeMapDto> cafeDtos = cafeService.findCafesByDistance(latitude, longitude);
-        return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.GET_CAFES_BY_DISTANCE.getMessage(), cafeDtos,
-                true);
+        return ResponseUtil.buildResponse(HttpStatus.OK,
+            ResponseMessage.GET_CAFES_BY_DISTANCE.getMessage(), cafeDtos,
+            true);
     }
-
 }

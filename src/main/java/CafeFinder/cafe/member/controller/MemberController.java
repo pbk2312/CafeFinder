@@ -15,9 +15,9 @@ public class MemberController {
 
     @GetMapping("/signupAndLogin")
     public String signUpandLogin(
-            @ModelAttribute MemberLoginDto memberLoginDto,
-            @ModelAttribute MemberSignUpDto memberSignUpDto,
-            HttpServletRequest request
+        @ModelAttribute MemberLoginDto memberLoginDto,
+        @ModelAttribute MemberSignUpDto memberSignUpDto,
+        HttpServletRequest request
     ) {
 
         String referer = request.getHeader("Referer");
@@ -36,5 +36,11 @@ public class MemberController {
     public String edit() {
         return "profileEdit";
     }
+
+    @GetMapping("/cafeScraps")
+    public String getCafeScraps() {
+        return "scrap_cafe";
+    }
+
 
 }

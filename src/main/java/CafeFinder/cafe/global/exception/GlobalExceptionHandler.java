@@ -2,6 +2,9 @@ package CafeFinder.cafe.global.exception;
 
 import CafeFinder.cafe.global.dto.ResponseDto;
 import CafeFinder.cafe.global.util.ResponseUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -9,17 +12,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ErrorException.class)
-    public ResponseEntity<ResponseDto<ErrorPayload>> handleErrorException(ErrorException ex) {
+    public Object handleErrorException(ErrorException ex, HttpServletRequest request,
+        HttpServletResponse response) throws IOException {
         ErrorCode errorCode = ex.getErrorCode();
 
         log.error("ErrorException - code: {} message: {} url: {}",
             errorCode.getCode(), errorCode.getMessage(), ex.getUrl(), ex);
+
+        String accept = request.getHeader("Accept");
+        boolean isApi = accept != null && accept.contains("application/json");
+
+        if (!isApi) {
+            String redirectUrl = switch (errorCode.getErrorStatus()) {
+                case UNAUTHORIZED -> "/error/401";
+                case FORBIDDEN -> "/error/403";
+                case NOT_FOUND -> "/error/404";
+                default -> "/error";
+            };
+            response.sendRedirect(redirectUrl);
+            return null;
+        }
 
         ErrorPayload payload = new ErrorPayload(
             errorCode.getCode(),
@@ -43,6 +62,13 @@ public class GlobalExceptionHandler {
             false
         );
     }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public void handleNotFound(NoHandlerFoundException ex, HttpServletResponse response)
+        throws IOException {
+        response.sendRedirect("/error/404");
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseDto<String>> handleValidationException(

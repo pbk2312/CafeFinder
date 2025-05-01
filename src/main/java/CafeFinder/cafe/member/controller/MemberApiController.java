@@ -58,29 +58,31 @@ public class MemberApiController {
 
     @PostMapping("/signUp")
     public ResponseEntity<ResponseDto<String>> signUp(
-            @Valid @ModelAttribute MemberSignUpDto memberSignUpDto
+        @Valid @ModelAttribute MemberSignUpDto memberSignUpDto
     ) {
         memberService.save(memberSignUpDto);
-        return ResponseUtil.buildResponse(HttpStatus.CREATED, SIGN_UP_SUCCESS.getMessage(), null, true);
+        return ResponseUtil.buildResponse(HttpStatus.CREATED, SIGN_UP_SUCCESS.getMessage(), null,
+            true);
     }
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDto<String>> login(
-            @Valid @RequestBody MemberLoginDto loginDto,
-            HttpServletResponse response, HttpServletRequest request) {
+        @Valid @RequestBody MemberLoginDto loginDto,
+        HttpServletResponse response, HttpServletRequest request) {
         TokenDto tokenDto = authenticationService.login(loginDto);
         CookieUtils.addCookie(response, "accessToken", tokenDto.getAccessToken(),
-                tokenDto.getAccessTokenExpiresIn());
+            tokenDto.getAccessTokenExpiresIn());
         CookieUtils.addCookie(response, "refreshToken", tokenDto.getRefreshToken(),
-                tokenDto.getRefreshTokenExpiresIn());
+            tokenDto.getRefreshTokenExpiresIn());
         String redirectUrl = getRedirectUrlFromSession(request);
-        return ResponseUtil.buildResponse(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), redirectUrl, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), redirectUrl,
+            true);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<ResponseDto<String>> logout(
-            @CookieValue(value = "refreshToken", required = false) String refreshToken,
-            HttpServletResponse response) {
+        @CookieValue(value = "refreshToken", required = false) String refreshToken,
+        HttpServletResponse response) {
 
         RefreshTokenDto refreshTokenDto = createRefreshTokenDto(refreshToken);
 
@@ -94,7 +96,7 @@ public class MemberApiController {
 
     @PatchMapping("/update")
     public ResponseEntity<ResponseDto<String>> update(
-            @Valid MemberUpdateDto userUpdateDto
+        @Valid MemberUpdateDto userUpdateDto
     ) {
         profileService.update(userUpdateDto);
         return ResponseUtil.buildResponse(HttpStatus.OK, UPDATE_PROFILE.getMessage(), null, true);
@@ -103,7 +105,8 @@ public class MemberApiController {
     @GetMapping("/profile")
     public ResponseEntity<ResponseDto<ProfileDto>> getProfile() {
         ProfileDto profileDto = profileService.getProfileByToken();
-        return ResponseUtil.buildResponse(HttpStatus.OK, PROFILE_INFO.getMessage(), profileDto, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, PROFILE_INFO.getMessage(), profileDto,
+            true);
     }
 
 
@@ -112,25 +115,35 @@ public class MemberApiController {
     ) {
         List<CafeDto> recommandCafes = recommendationService.getRecommendationCafes();
         return ResponseUtil.buildResponse(HttpStatus.OK, GET_RECOMMAND_CAFES.getMessage(),
-                recommandCafes, true);
+            recommandCafes, true);
     }
 
     @PostMapping("/{cafeCode}/scrap")
     public ResponseEntity<ResponseDto<Boolean>> toggleCafeScrap(
-            @PathVariable String cafeCode
+        @PathVariable String cafeCode
     ) {
         CafeScrapDto cafeScrapDto = CafeScrapDto.builder()
-                .cafeCode(cafeCode)
-                .build();
+            .cafeCode(cafeCode)
+            .build();
         boolean isToggled = cafeScrapService.cafeScraps(cafeScrapDto);
-        return ResponseUtil.buildResponse(HttpStatus.OK, POST_SCRAP_OK.getMessage(), isToggled, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK, POST_SCRAP_OK.getMessage(), isToggled,
+            true);
     }
 
     @GetMapping("/scrapCafes")
     public ResponseEntity<ResponseDto<List<ScrapCafeCodeDto>>> getScrapCafes() {
         List<ScrapCafeCodeDto> scrapCafeCodeDtos = cafeScrapService.getCafeScrapCodes();
-        return ResponseUtil.buildResponse(HttpStatus.OK, ResponseMessage.CAFESLIST_SCRAPS_OK.getMessage(),
-                scrapCafeCodeDtos, true);
+        return ResponseUtil.buildResponse(HttpStatus.OK,
+            ResponseMessage.CAFESLIST_SCRAPS_OK.getMessage(),
+            scrapCafeCodeDtos, true);
+    }
+
+    @GetMapping("/cafeScrapsList")
+    public ResponseEntity<ResponseDto<List<CafeDto>>> getCafesScraps() {
+        List<CafeDto> cafeScraps = cafeScrapService.getCafeScraps();
+        return ResponseUtil.buildResponse(HttpStatus.OK,
+            ResponseMessage.CAFESLIST_SCRAPSLIST_OK.getMessage(),
+            cafeScraps, true);
     }
 
     private String getRedirectUrlFromSession(HttpServletRequest request) {
@@ -144,8 +157,8 @@ public class MemberApiController {
 
     private RefreshTokenDto createRefreshTokenDto(String refreshToken) {
         return RefreshTokenDto.builder()
-                .refreshToken(refreshToken)
-                .build();
+            .refreshToken(refreshToken)
+            .build();
     }
 
 }

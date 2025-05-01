@@ -22,8 +22,8 @@ public class CafeController {
 
     @GetMapping("/{district}/{theme}")
     public String getCafeListByDistrictAndTheme(@PathVariable String district,
-                                                @PathVariable String theme,
-                                                Model model) {
+        @PathVariable String theme,
+        Model model) {
         model.addAttribute("district", district);
         model.addAttribute("theme", theme);
         return "cafeList";
@@ -35,5 +35,4 @@ public class CafeController {
         model.addAttribute("googleAppkey", googleKey);
         return "cafeDetail";
     }
-
 }

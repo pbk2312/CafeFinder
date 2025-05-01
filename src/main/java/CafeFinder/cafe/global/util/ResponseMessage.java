@@ -24,6 +24,7 @@ public enum ResponseMessage {
     GET_CAFES_BY_DISTANCE("거리순으로 카페 조회 완료"),
     POST_SCRAP_OK("카페 스크랩 완료"),
     CAFESLIST_SCRAPS_OK("스크랩된 카페 코드 불러오기 완료"),
+    CAFESLIST_SCRAPSLIST_OK("스크랩된 카페 리스트 불러오기 완료"),
     CAFE_REVIEWS_OK("카페 리뷰 조회 성공"),
     REISSUE_TOKEN_SUCCESS("토큰 재발급 성공");
 

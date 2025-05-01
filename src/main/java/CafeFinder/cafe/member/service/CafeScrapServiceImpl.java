@@ -36,32 +36,45 @@ public class CafeScrapServiceImpl implements CafeScrapService {
     @Override
     @Transactional
     public boolean cafeScraps(CafeScrapDto dto) {
-
         Long memberId = getMemberId();
+        String cafeCode = dto.getCafeCode();
 
         Member member = memberRepository.getReferenceById(memberId);
 
-        Cafe cafe = cafeRepository.getReferenceById(dto.getCafeCode());
+        if (scrapsRedisService.isCafeScrappedKey(memberId, cafeCode)) {
+            cafeScrapRepository.deleteByMemberIdAndCafeCode(memberId, cafeCode);
 
+            TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        boolean ok = scrapsRedisService.removeCafeScrap(memberId, cafeCode);
+                        if (!ok) {
+                            log.error("Redis 삭제 실패: memberId={}, cafeCode={}", memberId, cafeCode);
+                        }
+                    }
+                });
+
+            return false;
+        }
+
+        Cafe cafe = cafeRepository.getReferenceById(cafeCode);
         CafeScrap scrap = CafeScrap.builder()
             .member(member)
             .cafe(cafe)
             .build();
         cafeScrapRepository.save(scrap);
 
-        TransactionSynchronizationManager.registerSynchronization(
-            new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    boolean ok = scrapsRedisService.toggleCafeScrap(member.getId(),
-                        dto.getCafeCode());
-                    if (!ok) {
-                        log.error("Redis 업데이트 실패: memberId={}, cafeCode={}", member.getId(),
-                            dto.getCafeCode());
-                    }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                boolean ok = scrapsRedisService.toggleCafeScrap(memberId, cafeCode);
+                if (!ok) {
+                    log.error("Redis 추가 실패: memberId={}, cafeCode={}", memberId, cafeCode);
                 }
             }
-        );
+        });
+
         return true;
     }
 

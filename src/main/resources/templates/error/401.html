@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인증 필요 (401)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .error-container {
+      text-align: center;
+    }
+
+    .error-code {
+      font-size: 8rem;
+      font-weight: bold;
+      color: #17a2b8;
+    }
+
+    .error-message {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn-login {
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+<div class="error-container">
+  <div class="error-code">401</div>
+  <p class="error-message">로그인이 필요합니다. 계속하려면 인증해주세요.</p>
+  <a href="/login" class="btn btn-info btn-login">로그인 페이지로</a>
+</div>
+</body>

@@ -29,6 +29,11 @@ public class CafeScrapsRedisService {
         return !isCurrentlyScrapped;
     }
 
+    public boolean isCafeScrappedKey(Long memberId, String cafeCode) {
+        String cafeKey = generateKey(memberId, cafeCode);
+        return isCafeScrapped(cafeKey);
+    }
+
     private String generateKey(Long memberId, String cafeCode) {
         return String.format(SCRAPS_KEY_PATTERN, memberId, cafeCode);
     }
@@ -36,6 +41,11 @@ public class CafeScrapsRedisService {
     public boolean isCafeScrapped(String key) {
         String value = redisTemplate.opsForValue().get(key);
         return Boolean.parseBoolean(value);
+    }
+
+    public boolean removeCafeScrap(Long memberId, String cafeCode) {
+        String key = generateKey(memberId, cafeCode);
+        return redisTemplate.delete(key);
     }
 
     // 토글한 카페 목록 가져오기

@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CafeScrapRepository extends JpaRepository<CafeScrap, Long> {
 
     List<CafeScrap> findAllByMemberId(Long memberId);
+
+    void deleteByMemberIdAndCafeCode(Long memberId, String cafeCode);
 }
