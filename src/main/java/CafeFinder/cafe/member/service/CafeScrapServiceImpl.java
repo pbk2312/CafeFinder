@@ -27,7 +27,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Service
 public class CafeScrapServiceImpl implements CafeScrapService {
 
-    private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final CafeScrapsRedisService scrapsRedisService;
     private final CafeSearchRepository cafeSearchRepository;
@@ -71,6 +70,18 @@ public class CafeScrapServiceImpl implements CafeScrapService {
     public List<CafeDto> getCafeScraps() {
         Long memberId = getMemberId();
         List<String> cafeCodes = scrapsRedisService.getCafeCodesToggled(memberId);
+
+        if (cafeCodesIsEmpty(cafeCodes)) {
+            // Redis에 존재하지 않으면
+            List<CafeScrap> dbCafeScarps = cafeScrapRepository.findAllByMemberId(memberId);
+            List<String> dbCafeScrapCodes = dbCafeScarps.stream()
+                .map(scrap -> scrap.getCafe().getCode())
+                .toList();
+            for (String cafeCode : dbCafeScrapCodes) {
+                scrapsRedisService.toggleCafeScrap(memberId, cafeCode);
+            }
+        }
+
         List<IndexedCafe> indexedCafes = cafeCodes.stream()
             .map(cafeSearchRepository::findByCafeCode)
             .flatMap(Optional::stream)
@@ -80,10 +91,26 @@ public class CafeScrapServiceImpl implements CafeScrapService {
             .toList();
     }
 
+    private static boolean cafeCodesIsEmpty(List<String> cafeCodes) {
+        return cafeCodes == null || cafeCodes.isEmpty();
+    }
+
+
     @Override
     public List<ScrapCafeCodeDto> getCafeScrapCodes() {
         Long memberId = getMemberId();
         List<String> cafeCodes = scrapsRedisService.getCafeCodesToggled(memberId);
+
+        if (cafeCodesIsEmpty(cafeCodes)) {
+            List<CafeScrap> dbCafeScarps = cafeScrapRepository.findAllByMemberId(memberId);
+            cafeCodes = dbCafeScarps.stream()
+                .map(scrap -> scrap.getCafe().getCode())
+                .toList();
+            for (String cafeCode : cafeCodes) {
+                scrapsRedisService.toggleCafeScrap(memberId, cafeCode);
+            }
+        }
+
         return cafeCodes.stream()
             .map(ScrapCafeCodeDto::from)
             .toList();
@@ -92,5 +119,4 @@ public class CafeScrapServiceImpl implements CafeScrapService {
     private Long getMemberId() {
         return SecurityUtil.getMemberId();
     }
-
 }
