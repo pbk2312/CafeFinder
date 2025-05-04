@@ -1,43 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원 정보</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원 정보</title>
 </head>
 <link rel="stylesheet" href="/css/profile.css">
 <body>
 <div class="profile-container">
-    <a href="/" class="home-btn">🏠 홈으로</a>
-    <h2>회원 정보</h2>
-    <img id="profileImage" src="" alt="프로필 이미지">
-    <p><strong>닉네임:</strong> <span id="nickName"></span></p>
-    <p><strong>이메일:</strong> <span id="email"></span></p>
-    <p><strong>가입 유형:</strong> <span id="provider"></span></p>
-    <p><strong>회원 등급:</strong> <span id="memberRole"></span></p>
+  <a href="/" class="home-btn">🏠 홈으로</a>
+  <h2>회원 정보</h2>
+  <img id="profileImage" src="" alt="프로필 이미지">
+  <p><strong>닉네임:</strong> <span id="nickName"></span></p>
+  <p><strong>이메일:</strong> <span id="email"></span></p>
+  <p><strong>가입 유형:</strong> <span id="provider"></span></p>
+  <p><strong>회원 등급:</strong> <span id="memberRole"></span></p>
 
-    <a href="/member/edit" class="btn">회원정보 수정</a>
-    <a href="/member/delete" class="btn btn-delete">탈퇴하기</a>
 </div>
 
 <script>
-    fetch('/api/member/profile', {
-        method: 'GET',
-        credentials: 'include'
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('nickName').textContent = data.data.nickName;
-                document.getElementById('email').textContent = data.data.email;
-                document.getElementById('provider').textContent = data.data.provider;
-                document.getElementById('memberRole').textContent = data.data.memberRole;
-                document.getElementById('profileImage').src = data.data.profileImagePath || 'default-profile.png';
-            } else {
-                alert('회원 정보를 불러올 수 없습니다.');
-            }
-        })
-        .catch(error => console.error('Error:', error));
+  fetch('/api/member/profile', {
+    method: 'GET',
+    credentials: 'include'
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('nickName').textContent = data.data.nickName;
+      document.getElementById('email').textContent = data.data.email;
+      document.getElementById('provider').textContent = data.data.provider;
+      document.getElementById('memberRole').textContent = data.data.memberRole;
+      document.getElementById('profileImage').src = data.data.profileImagePath
+          || 'default-profile.png';
+    } else {
+      alert('회원 정보를 불러올 수 없습니다.');
+    }
+  })
+  .catch(error => console.error('Error:', error));
 </script>
 </body>
 </html>
