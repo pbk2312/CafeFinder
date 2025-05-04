@@ -7,7 +7,7 @@ build/
 
 src/main/resources/application.yml
 /logstash/cafe_to_es.conf
-els.yml
+docker-compose.yml
 
 ### STS ###
 .apt_generated
