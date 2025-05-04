@@ -76,11 +76,18 @@ jobs:
               sudo docker rm cafefinder
             fi
 
-            # [4] 애플리케이션 컨테이너 실행
+            # [4] Logstash 실행 (애플리케이션 컨테이너 실행 전에)
+            sudo docker pull docker.elastic.co/logstash/logstash:7.10.0  # Logstash 이미지 최신으로 가져오기
+            sudo docker run -d --name logstash \
+              -v /home/ec2-user/logstash.conf:/usr/share/logstash/pipeline/logstash.conf \
+              -v /home/ec2-user/logs:/var/log/logstash \
+              docker.elastic.co/logstash/logstash:7.10.0
+
+            # [5] 애플리케이션 컨테이너 실행
             sudo docker run -d -p 80:8080 \
               --name cafefinder \
               --env SPRING_PROFILES_ACTIVE=prod \
               ${{ secrets.DOCKERHUB_USERNAME }}/cafefinder:latest
 
-            # [5] 사용하지 않는 Docker 리소스 정리
+            # [6] 사용하지 않는 Docker 리소스 정리
             sudo docker system prune -f
