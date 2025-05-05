@@ -56,22 +56,34 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            cd /home/ec2-user/infra
+            # EC2에 프로젝트가 없다면 GitHub에서 클론
+            cd /home/ec2-user
+            git clone https://github.com/pbk2312/CafeFinder.git cafe-finder
+            cd /home/ec2-user/cafe-finder
+
+            # Docker Compose로 컨테이너 실행
             docker-compose -f docker-compose.yml up -d
+
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cafefinder:latest
+
+            # 기존 컨테이너가 있으면 중지하고 삭제
             if [ $(sudo docker ps -a -q -f name=cafefinder) ]; then
               sudo docker stop cafefinder
               sudo docker rm cafefinder
             fi
+
             # 애플리케이션 컨테이너 실행
             sudo docker run -d -p 80:8080 \
               --name cafefinder \
               --env SPRING_PROFILES_ACTIVE=prod \
               ${{ secrets.DOCKERHUB_USERNAME }}/cafefinder:latest
+
             # Logstash 실행 (애플리케이션 실행 후)
             sudo docker pull docker.elastic.co/logstash/logstash:7.10.0
             sudo docker run -d --name logstash \
               -v /home/ec2-user/logstash.conf:/usr/share/logstash/pipeline/logstash.conf \
               -v /home/ec2-user/logs:/var/log/logstash \
               docker.elastic.co/logstash/logstash:7.10.0
+
+            # 불필요한 Docker 리소스 정리
             sudo docker system prune -f
