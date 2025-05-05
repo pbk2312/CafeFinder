@@ -59,20 +59,20 @@ jobs:
           script: |
             set -eux
 
+            # Docker 데몬 시작
             sudo systemctl start docker
 
+            cd /home/ec2-user/cafe-finder
 
-            cd /home/ec2-user
-
-            # 프로젝트가 없으면 클론
-            if [ ! -d cafe-finder ]; then
-              git clone https://github.com/pbk2312/CafeFinder.git cafe-finder
+            # 최초(또는 전체 재시작) 시 전체 스택 기동
+            if [ "$(sudo docker ps -q)" = "" ]; then
+              sudo /usr/local/bin/docker-compose pull
+              sudo /usr/local/bin/docker-compose up -d
+            else
+              # 이후 배포 시에는 infra 건드리지 않고 app만 재기동
+              sudo /usr/local/bin/docker-compose pull app
+              sudo /usr/local/bin/docker-compose up -d app
             fi
-            cd cafe-finder
-
-            # 최신 이미지 pull & 앱 컨테이너만 재기동
-            sudo /usr/local/bin/docker-compose pull app
-            sudo /usr/local/bin/docker-compose up -d app
 
             # Logstash 별도 실행 (호스트 logstash.conf, logs 사용)
             sudo docker pull docker.elastic.co/logstash/logstash:7.10.0
