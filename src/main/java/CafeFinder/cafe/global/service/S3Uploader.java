@@ -3,8 +3,10 @@ package CafeFinder.cafe.global.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.File;
+import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,34 +22,44 @@ public class S3Uploader {
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;
 
-    // S3로 파일 업로드하기
-    public String upload(String filePath) throws RuntimeException {
+    // 기존 File 기반 업로드
+    public String upload(String filePath) {
         File targetFile = new File(filePath);
-        String uploadImageUrl = putS3(targetFile, targetFile.getName()); // s3로업로드
+        String uploadImageUrl = putS3(targetFile, targetFile.getName());
         removeOriginalFile(targetFile);
         return uploadImageUrl;
     }
 
-    // S3로 업로드
-    private String putS3(File uploadFile, String fileName) throws RuntimeException {
-        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName,
-            uploadFile)
+    // InputStream 기반 업로드 (임시 파일 없이)
+    public String upload(InputStream inputStream, String fileName, String contentType) {
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(contentType); // ex: "image/png"
+        try {
+            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata)
+                .withCannedAcl(CannedAccessControlList.PublicRead));
+            return amazonS3Client.getUrl(bucket, fileName).toString();
+        } catch (Exception e) {
+            log.error("S3 업로드 실패", e);
+            throw new RuntimeException("S3 업로드 실패", e);
+        }
+    }
+
+    private String putS3(File uploadFile, String fileName) {
+        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, uploadFile)
             .withCannedAcl(CannedAccessControlList.PublicRead));
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
-    //S3 업로드 후 원본 파일 삭제
     private void removeOriginalFile(File targetFile) {
         if (targetFile.exists() && targetFile.delete()) {
             log.info("File delete success");
-            return;
+        } else {
+            log.info("fail to remove");
         }
-        log.info("fail to remove");
     }
 
     public void removeS3File(String fileName) {
-        final DeleteObjectRequest deleteObjectRequest = new
-            DeleteObjectRequest(bucket, fileName);
+        final DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, fileName);
         amazonS3Client.deleteObject(deleteObjectRequest);
     }
 }

@@ -25,21 +25,7 @@ public class GlobalExceptionHandler {
 
         log.error("ErrorException - code: {} message: {} url: {}",
             errorCode.getCode(), errorCode.getMessage(), ex.getUrl(), ex);
-
-        String accept = request.getHeader("Accept");
-        boolean isApi = accept != null && accept.contains("application/json");
-
-        if (!isApi) {
-            String redirectUrl = switch (errorCode.getErrorStatus()) {
-                case UNAUTHORIZED -> "/error/401";
-                case FORBIDDEN -> "/error/403";
-                case NOT_FOUND -> "/error/404";
-                default -> "/error";
-            };
-            response.sendRedirect(redirectUrl);
-            return null;
-        }
-
+        
         ErrorPayload payload = new ErrorPayload(
             errorCode.getCode(),
             errorCode.getMessage(),
@@ -69,7 +55,6 @@ public class GlobalExceptionHandler {
         response.sendRedirect("/error/404");
     }
 
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseDto<String>> handleValidationException(
         MethodArgumentNotValidException ex) {
@@ -83,17 +68,6 @@ public class GlobalExceptionHandler {
             HttpStatus.BAD_REQUEST,
             errors,
             errors,
-            false
-        );
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseDto<String>> handleGeneralException(Exception ex) {
-        log.error("Unhandled exception: {}", ex.getMessage(), ex);
-        return ResponseUtil.buildResponse(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            ErrorCode.SERVER_ERROR.getMessage(),
-            ErrorCode.SERVER_ERROR.getMessage(),
             false
         );
     }

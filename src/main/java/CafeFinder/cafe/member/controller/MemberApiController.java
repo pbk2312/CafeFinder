@@ -6,7 +6,6 @@ import static CafeFinder.cafe.global.util.ResponseMessage.LOGOUT_SUCCESS;
 import static CafeFinder.cafe.global.util.ResponseMessage.POST_SCRAP_OK;
 import static CafeFinder.cafe.global.util.ResponseMessage.PROFILE_INFO;
 import static CafeFinder.cafe.global.util.ResponseMessage.SIGN_UP_SUCCESS;
-import static CafeFinder.cafe.global.util.ResponseMessage.UPDATE_PROFILE;
 
 import CafeFinder.cafe.cafe.dto.CafeDto;
 import CafeFinder.cafe.cafe.dto.CafeScrapDto;
@@ -17,7 +16,6 @@ import CafeFinder.cafe.global.util.ResponseMessage;
 import CafeFinder.cafe.global.util.ResponseUtil;
 import CafeFinder.cafe.member.dto.MemberLoginDto;
 import CafeFinder.cafe.member.dto.MemberSignUpDto;
-import CafeFinder.cafe.member.dto.MemberUpdateDto;
 import CafeFinder.cafe.member.dto.ProfileDto;
 import CafeFinder.cafe.member.dto.RefreshTokenDto;
 import CafeFinder.cafe.member.dto.TokenDto;
@@ -37,7 +35,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -92,14 +89,6 @@ public class MemberApiController {
         authenticationService.logout(refreshTokenDto);
 
         return ResponseUtil.buildResponse(HttpStatus.OK, LOGOUT_SUCCESS.getMessage(), null, true);
-    }
-
-    @PatchMapping("/update")
-    public ResponseEntity<ResponseDto<String>> update(
-        @Valid MemberUpdateDto userUpdateDto
-    ) {
-        profileService.update(userUpdateDto);
-        return ResponseUtil.buildResponse(HttpStatus.OK, UPDATE_PROFILE.getMessage(), null, true);
     }
 
     @GetMapping("/profile")
