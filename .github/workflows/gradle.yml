@@ -50,7 +50,7 @@ jobs:
       - name: Push Docker Image to Docker Hub
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cafefinder:latest
 
-      - name: Deploy to EC2 via Docker Compose
+      - name: Deploy to EC2 via Docker Compose plugin
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -59,21 +59,21 @@ jobs:
           script: |
             set -eux
 
-            # 홈 디렉토리로 이동
             cd /home/ec2-user
 
             # 프로젝트가 없으면 클론
             if [ ! -d cafe-finder ]; then
               git clone https://github.com/pbk2312/CafeFinder.git cafe-finder
             fi
-
-            # 앱만 재기동
             cd cafe-finder
-            sudo docker-compose pull app
-            sudo docker-compose up -d app
 
-            # Logstash 컨테이너는 호스트 /home/ec2-user 경로의 logstash.conf, logs 를 사용
-            # 기존에 띄워진 logstash 컨테이너가 있으면 재생성
+            # 최신 이미지 pull (Compose plugin)
+            sudo docker compose pull app
+
+            # 앱 컨테이너만 재기동
+            sudo docker compose up -d app
+
+            # Logstash 컨테이너 관리 (별도 실행)
             sudo docker pull docker.elastic.co/logstash/logstash:7.10.0
             if sudo docker ps -a -q -f name=logstash | grep -q .; then
               sudo docker rm -f logstash
