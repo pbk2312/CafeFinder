@@ -82,6 +82,21 @@ services:
     networks:
       - es-bridge
 
+  app:
+    container_name: cafefinder
+    image: pbk2312/cafefinder:latest
+    ports:
+      - '8080:8080'
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - redis
+      - kafka
+      - zookeeper
+      - es
+    networks:
+      - es-bridge
+
 networks:
   es-bridge:
     driver: bridge
