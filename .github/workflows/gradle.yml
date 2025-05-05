@@ -64,6 +64,10 @@ jobs:
 
             cd /home/ec2-user/cafe-finder
 
+            # 타임아웃 환경 변수 설정 (5분)
+            export COMPOSE_HTTP_TIMEOUT=300
+            export DOCKER_CLIENT_TIMEOUT=300
+
             # 최초(또는 전체 재시작) 시 전체 스택 기동
             if [ "$(sudo docker ps -q)" = "" ]; then
               sudo /usr/local/bin/docker-compose pull
