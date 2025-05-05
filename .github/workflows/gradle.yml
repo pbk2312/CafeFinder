@@ -50,7 +50,7 @@ jobs:
       - name: Push Docker Image to Docker Hub
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cafefinder:latest
 
-      - name: Deploy to EC2 via Docker Compose plugin
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -67,13 +67,11 @@ jobs:
             fi
             cd cafe-finder
 
-            # 최신 이미지 pull (Compose plugin)
-            sudo docker compose pull app
+            # 최신 이미지 pull & 앱 컨테이너만 재기동
+            sudo /usr/bin/docker-compose pull app
+            sudo /usr/bin/docker-compose up -d app
 
-            # 앱 컨테이너만 재기동
-            sudo docker compose up -d app
-
-            # Logstash 컨테이너 관리 (별도 실행)
+            # Logstash 유지 (호스트 logstash.conf, logs 사용)
             sudo docker pull docker.elastic.co/logstash/logstash:7.10.0
             if sudo docker ps -a -q -f name=logstash | grep -q .; then
               sudo docker rm -f logstash
