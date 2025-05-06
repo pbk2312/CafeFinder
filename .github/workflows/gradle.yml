@@ -1,4 +1,4 @@
-name: CI/CD using GitHub Actions & Docker
+name: CI/CD using GitHub Actions & Docker Compose
 
 on:
   push:
@@ -13,7 +13,8 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -49,38 +50,41 @@ jobs:
       - name: Push Docker Image to Docker Hub
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cafefinder:latest
 
-      - name: Deploy to EC2
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            # EC2에 프로젝트가 없다면 GitHub에서 클론
-            cd /home/ec2-user
-            git clone https://github.com/pbk2312/CafeFinder.git cafe-finder
+            set -eux
+
+            # Docker 데몬 시작
+            sudo systemctl start docker
+
             cd /home/ec2-user/cafe-finder
 
-            # Docker Compose로 컨테이너 실행
-            docker-compose -f docker-compose.yml up -d
+            # 타임아웃 환경 변수 설정 (5분)
+            export COMPOSE_HTTP_TIMEOUT=300
+            export DOCKER_CLIENT_TIMEOUT=300
 
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cafefinder:latest
-
-            # 기존 컨테이너가 있으면 중지하고 삭제
-            if [ $(sudo docker ps -a -q -f name=cafefinder) ]; then
-              sudo docker stop cafefinder
-              sudo docker rm cafefinder
+            # 최초(또는 전체 재시작) 시 전체 스택 기동
+            if [ "$(sudo docker ps -q)" = "" ]; then
+              sudo /usr/local/bin/docker-compose pull
+              sudo /usr/local/bin/docker-compose up -d
+            else
+              # 이후 배포 시에는 infra 건드리지 않고 app만 재기동
+              sudo /usr/local/bin/docker-compose pull app
+              sudo /usr/local/bin/docker-compose up -d app
             fi
 
-            # 애플리케이션 컨테이너 실행
-            sudo docker run -d -p 80:8080 \
-              --name cafefinder \
-              --env SPRING_PROFILES_ACTIVE=prod \
-              ${{ secrets.DOCKERHUB_USERNAME }}/cafefinder:latest
-
-            # Logstash 실행 (애플리케이션 실행 후)
+            # Logstash 별도 실행 (호스트 logstash.conf, logs 사용)
             sudo docker pull docker.elastic.co/logstash/logstash:7.10.0
-            sudo docker run -d --name logstash \
+            if sudo docker ps -a -q -f name=logstash | grep -q .; then
+              sudo docker rm -f logstash
+            fi
+            sudo docker run -d \
+              --name logstash \
               -v /home/ec2-user/logstash.conf:/usr/share/logstash/pipeline/logstash.conf \
               -v /home/ec2-user/logs:/var/log/logstash \
               docker.elastic.co/logstash/logstash:7.10.0
