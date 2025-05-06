@@ -49,8 +49,8 @@ public class CafeDataInitializer {
         // 리뷰 데이터 CSV import
         if (cafeReviewRepository.count() == 0) { // 리뷰 데이터가 없을 때만 실행
             if (Files.exists(Paths.get(cafeReviewsPath))) {
-                cafeReviewImporter.saveReviewsFromCSV();
-                log.info("리뷰 데이터 CSV import 완료");
+                int count = cafeReviewImporter.saveReviewsFromCSV();
+                log.info("저장된 리뷰 count = {}", count);
             } else {
                 log.error("리뷰 CSV 파일이 존재하지 않습니다: {}", cafeReviewsPath);
             }
