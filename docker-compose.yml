@@ -62,26 +62,6 @@ services:
     networks:
       - es-bridge
 
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - 9090:9090
-    networks:
-      - es-bridge
-
-  grafana:
-    container_name: grafana
-    image: grafana/grafana:latest
-    ports:
-      - 3000:3000
-    depends_on:
-      - prometheus
-    networks:
-      - es-bridge
-
   app:
     container_name: cafefinder
     image: pbk2312/cafefinder:latest
