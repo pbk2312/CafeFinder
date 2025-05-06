@@ -1,4 +1,5 @@
 version: '3.7'
+
 services:
   es:
     container_name: es
@@ -68,7 +69,11 @@ services:
     ports:
       - '8080:8080'
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      # 활성화할 프로파일: elasticsearch
+      SPRING_PROFILES_ACTIVE: elasticsearch
+    volumes:
+      # 호스트의 CSV 디렉토리를 컨테이너 /data로 마운트
+      - /home/ec2-user/data:/data
     depends_on:
       - redis
       - kafka
