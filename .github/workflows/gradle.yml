@@ -56,11 +56,20 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
           script: |
             set -eux
 
             # Docker 데몬 시작
             sudo systemctl start docker
+
+            # 코드가 없으면 클론, 있으면 pull
+            if [ ! -d /home/ec2-user/cafe-finder ]; then
+              git clone https://github.com/pbk2312/CafeFinder.git /home/ec2-user/cafe-finder
+            else
+              cd /home/ec2-user/cafe-finder
+              git pull origin master
+            fi
 
             cd /home/ec2-user/cafe-finder
 
