@@ -1,13 +1,44 @@
+# docker-compose.yml (version 3.8)
+version: '3.8'
+
+services:
+  app:
+    image: your-dockerhub-id/cafefinder:latest
+    container_name: cafefinder-app
+    restart: always
+    ports:
+      - "8080:8080"
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: cafefinder-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      # 1) 정적 리소스 (CSS/JS/img)
+      - ./src/main/resources/static:/usr/share/nginx/html/static:ro
+      # 2) 복사된 HTML
+      - ./nginx/html:/usr/share/nginx/html:ro
+      # 3) Nginx 설정
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+```
+
+```yaml
+# .github/workflows/ci-cd.yml
 name: CI/CD using GitHub Actions & Docker Compose
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   ci-cd:
+    name: Build, Publish & Deploy
     runs-on: ubuntu-latest
     permissions:
       contents: read
