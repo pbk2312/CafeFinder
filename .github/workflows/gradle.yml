@@ -76,8 +76,8 @@ jobs:
             # HTML 및 static 복사
             bash scripts/copy-static.sh
 
-            # html 디렉토리와 파일 권한 설정
-            sudo chmod -R 755 html
+            # nginx/html 디렉토리와 그 내부 파일 권한 설정
+            sudo chmod -R 755 nginx/html
 
             # 타임아웃 환경 변수 설정 (5분)
             export COMPOSE_HTTP_TIMEOUT=300
