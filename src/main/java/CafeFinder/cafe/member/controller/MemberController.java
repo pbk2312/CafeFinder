@@ -13,34 +13,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class MemberController {
 
-    @GetMapping("/signupAndLogin")
-    public String signUpandLogin(
-        @ModelAttribute MemberLoginDto memberLoginDto,
-        @ModelAttribute MemberSignUpDto memberSignUpDto,
-        HttpServletRequest request
-    ) {
+  @GetMapping("/signupAndLogin")
+  public String signUpandLogin(
+      @ModelAttribute MemberLoginDto memberLoginDto,
+      @ModelAttribute MemberSignUpDto memberSignUpDto,
+      HttpServletRequest request
+  ) {
 
-        String referer = request.getHeader("Referer");
-        if (referer != null) {
-            request.getSession().setAttribute("redirectUrl", referer);
-        }
-        return "SignupAndLogin";
+    String referer = request.getHeader("Referer");
+    if (referer != null) {
+      request.getSession().setAttribute("redirectUrl", referer);
     }
+    return "SignupAndLogin";
+  }
 
-    @GetMapping("/profile")
-    public String profile() {
-        return "profile";
-    }
+  @GetMapping("/profile")
+  public String profile() {
+    return "profile";
+  }
 
-    @GetMapping("/edit")
-    public String edit() {
-        return "profileEdit";
-    }
+  @GetMapping("/edit")
+  public String edit() {
+    return "profileEdit";
+  }
 
-    @GetMapping("/cafeScraps")
-    public String getCafeScraps() {
-        return "scrap_cafe";
-    }
+  @GetMapping("/cafeScraps")
+  public String getCafeScraps() {
+    return "scrapCafe";
+  }
 
 
 }
