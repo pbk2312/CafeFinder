@@ -50,7 +50,7 @@ services:
       - KAFKA_BROKER_ID=1
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://43.203.99.182:9092
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     networks:
@@ -66,12 +66,16 @@ services:
 
   app:
     container_name: cafefinder-app
-    image: pbk2312/cafefinder:latest  # CI/CD 배포 후에는 실제 도커허브 이미지 이름으로 바꿔야 함
+    image: pbk2312/cafefinder:latest
     restart: always
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: elasticsearch
+      # Kafka 클라이언트가 읽어갈 부트스트랩 서버 정보
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      # Kafka Streams application.id
+      SPRING_KAFKA_STREAMS_APPLICATION_ID: cafe-click-aggregator
     volumes:
       - /home/ec2-user/data:/data
     depends_on:
