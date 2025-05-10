@@ -68,13 +68,16 @@ jobs:
               git clone https://github.com/pbk2312/CafeFinder.git /home/ec2-user/cafe-finder
             else
               cd /home/ec2-user/cafe-finder
-              git pull origin master
+              git pull --ff-only origin master
             fi
 
             cd /home/ec2-user/cafe-finder
 
             # HTML 및 static 복사
             bash scripts/copy-static.sh
+
+            # html 디렉토리와 파일 권한 설정
+            sudo chmod -R 755 html
 
             # 타임아웃 환경 변수 설정 (5분)
             export COMPOSE_HTTP_TIMEOUT=300
